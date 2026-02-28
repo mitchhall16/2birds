@@ -9,9 +9,8 @@
  * Run with: npx tsx test-proof.ts
  */
 
+import { initMimc, mimcHash, mimcHashSingle, randomScalar } from './packages/core/src/index.js';
 import * as snarkjs from 'snarkjs';
-import { buildMimcSponge } from 'circomlibjs';
-import { randomBytes } from 'crypto';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -20,36 +19,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BUILD = path.join(__dirname, 'circuits', 'build');
 
 const DEPTH = 20;
-const BN254_SCALAR_ORDER = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 function header(s: string) { console.log(`\n${'═'.repeat(60)}\n  ${s}\n${'═'.repeat(60)}\n`); }
 function ok(s: string) { console.log(`  ✅ ${s}`); }
 function info(s: string) { console.log(`  ℹ️  ${s}`); }
 
-function randomScalar(): bigint {
-  const bytes = randomBytes(32);
-  let n = 0n;
-  for (const b of bytes) n = (n << 8n) + BigInt(b);
-  return n % BN254_SCALAR_ORDER;
-}
-
 async function main() {
   header('Real ZK Proof — Withdrawal Circuit');
 
-  // Step 0: Build MiMC sponge (matches circomlib's MiMCSponge circuit exactly)
+  // Step 0: Initialize MiMC (loads circomlibjs WASM, 220 rounds, exact circomlib match)
   info('Initializing MiMC sponge (circomlib-compatible, 220 rounds)...');
-  const mimcSponge = await buildMimcSponge();
-  const F = mimcSponge.F;
-
-  // Hash helper: MiMCSponge(2 inputs, 220 rounds, 1 output), k=0
-  function mimcHash(left: bigint, right: bigint): bigint {
-    return F.toObject(mimcSponge.multiHash([left, right], 0, 1));
-  }
-
-  // Nullifier hash: MiMCSponge(1 input, 220 rounds, 1 output), k=0
-  function mimcHashSingle(x: bigint): bigint {
-    return F.toObject(mimcSponge.multiHash([x], 0, 1));
-  }
+  await initMimc();
 
   // Step 1: Create a deposit
   info('Creating deposit (secret + nullifier)...');

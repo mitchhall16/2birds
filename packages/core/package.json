@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "algosdk": "^3.0.0",
-    "@noble/curves": "^1.4.0"
+    "@noble/curves": "^1.4.0",
+    "circomlibjs": "^0.1.7"
   },
   "peerDependencies": {
     "algosdk": "^3.0.0"

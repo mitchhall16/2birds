@@ -15,6 +15,7 @@ import {
   type Scalar,
   mimcHash,
   mimcHashSingle,
+  initMimc,
   addressToScalar,
   scalarToBytes,
   createAlgodClient,
@@ -51,6 +52,7 @@ export async function generateWithdrawProof(
   wasmPath: string,
   zkeyPath: string,
 ): Promise<WithdrawProof> {
+  await initMimc();
   const snarks = await loadSnarkjs();
 
   // Compute the values needed for the circuit

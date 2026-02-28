@@ -14,6 +14,7 @@ import {
   randomScalar,
   mimcHash,
   mimcHashSingle,
+  initMimc,
   scalarToBytes,
   createAlgodClient,
   serializeNote,
@@ -23,7 +24,8 @@ import {
  * Create a new deposit commitment.
  * Returns the note (MUST be saved securely — losing it means losing funds).
  */
-export function createDeposit(denomination: bigint, assetId: number = 0): DepositNote {
+export async function createDeposit(denomination: bigint, assetId: number = 0): Promise<DepositNote> {
+  await initMimc();
   const secret = randomScalar();
   const nullifier = randomScalar();
   const commitment = mimcHash(secret, nullifier);

@@ -11,7 +11,7 @@
  * Hash function: MiMC sponge (matches on-chain MiMC BN254_MP_110)
  */
 
-import { mimcHash, type Scalar, type MerklePath } from '@algo-privacy/core';
+import { mimcHash, initMimc, type Scalar, type MerklePath } from '@algo-privacy/core';
 
 /** Pre-computed zero hashes for each level of the Merkle tree */
 function computeZeroHashes(depth: number): Scalar[] {
@@ -31,10 +31,17 @@ export class IncrementalMerkleTree {
   private leaves: Scalar[] = [];
   private layers: Scalar[][] = [];
 
-  constructor(depth: number = 20) {
+  private constructor(depth: number, zeroHashes: Scalar[]) {
     this.depth = depth;
-    this.zeroHashes = computeZeroHashes(depth);
+    this.zeroHashes = zeroHashes;
     this.layers = Array.from({ length: depth + 1 }, () => []);
+  }
+
+  /** Create a new Merkle tree. Must use this factory (MiMC requires async init). */
+  static async create(depth: number = 20): Promise<IncrementalMerkleTree> {
+    await initMimc();
+    const zeroHashes = computeZeroHashes(depth);
+    return new IncrementalMerkleTree(depth, zeroHashes);
   }
 
   /** Get the current Merkle root */
@@ -138,9 +145,9 @@ export class IncrementalMerkleTree {
   }
 
   /** Deserialize tree state */
-  static deserialize(json: string): IncrementalMerkleTree {
+  static async deserialize(json: string): Promise<IncrementalMerkleTree> {
     const obj = JSON.parse(json);
-    const tree = new IncrementalMerkleTree(obj.depth);
+    const tree = await IncrementalMerkleTree.create(obj.depth);
     for (const leaf of obj.leaves) {
       tree.insert(BigInt(leaf));
     }

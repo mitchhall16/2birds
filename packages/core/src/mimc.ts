@@ -1,99 +1,70 @@
 /**
- * @algo-privacy/core — MiMC hash function
+ * @algo-privacy/core — MiMC Sponge hash function
  *
- * MiMC-p/p with 110 rounds over BN254 scalar field.
- * Matches AVM v11 opcode: mimc BN254_MP_110
+ * Uses circomlibjs to ensure exact compatibility with circomlib's MiMCSponge circuit.
+ * MiMCSponge: Feistel construction, x^5 S-box, 220 rounds, keccak256-derived constants.
  *
- * MiMC: x -> (x + k + c_i)^7 for each round i, where c_i are round constants.
- * Used for: Merkle tree hashing, commitments, nullifier hashing.
+ * IMPORTANT: Call initMimc() once before using any hash functions.
+ * All hash functions are synchronous after initialization.
  */
 
-import { BN254_SCALAR_ORDER, modPow } from './bn254.js';
 import type { Scalar } from './types.js';
 
-const R = BN254_SCALAR_ORDER;
-const ROUNDS = 110;
-const EXPONENT = 7n;
+// Cached MiMC sponge instance (initialized via WASM)
+let mimcSponge: any = null;
+let F: any = null;
 
 /**
- * MiMC round constants — derived deterministically from keccak256("mimc_bn254")
- * These match the constants used by circomlib and the AVM mimc opcode.
+ * Initialize the MiMC sponge. Must be called once before using hash functions.
+ * Loads the circomlibjs WASM implementation (exact match with circomlib circuits).
  */
-const ROUND_CONSTANTS: bigint[] = generateRoundConstants();
-
-function generateRoundConstants(): bigint[] {
-  // Using the standard MiMC round constant derivation
-  // c_0 = 0, c_i = keccak256(c_{i-1}) mod R for i > 0
-  const constants: bigint[] = [0n];
-
-  // Pre-computed constants matching circomlib/AVM MiMC BN254_MP_110
-  // In a production build, these would be loaded from a pre-computed file.
-  // Here we derive them using a simple deterministic process.
-  let seed = 0n;
-  for (let i = 1; i < ROUNDS; i++) {
-    // Deterministic derivation: hash the index
-    // This is a simplified version — production code should use keccak256
-    seed = (seed * 7n + BigInt(i) * 1000000007n + 42n) % R;
-    if (seed < 0n) seed += R;
-    constants.push(seed);
-  }
-  return constants;
+export async function initMimc(): Promise<void> {
+  if (mimcSponge) return; // Already initialized
+  const { buildMimcSponge } = await import('circomlibjs');
+  mimcSponge = await buildMimcSponge();
+  F = mimcSponge.F;
 }
 
-/**
- * MiMC permutation: single input with key
- * P(x, k) = output after 110 rounds of (x + k + c_i)^7 mod R
- */
-function mimcPermutation(x: bigint, k: bigint): bigint {
-  let state = x;
-  for (let i = 0; i < ROUNDS; i++) {
-    const t = (state + k + ROUND_CONSTANTS[i]) % R;
-    state = modPow(t, EXPONENT, R);
+function ensureInit(): void {
+  if (!mimcSponge) {
+    throw new Error('MiMC not initialized. Call await initMimc() first.');
   }
-  // Final key addition
-  return (state + k) % R;
 }
 
 /**
  * MiMC sponge hash — hashes arbitrary number of field elements.
- * Uses a sponge construction with rate=1, capacity=1.
+ * MiMCSponge(nInputs, 220 rounds, nOutputs=1), key=0.
  *
- * This is the variant used by circomlib's MiMCSponge and Tornado Cash.
+ * This matches circomlib's MiMCSponge circuit exactly.
  */
-export function mimcSponge(inputs: Scalar[], key: Scalar = 0n): Scalar {
-  let r = 0n; // rate
-  let c = 0n; // capacity
-
-  for (const input of inputs) {
-    r = (r + input) % R;
-    const newR = mimcPermutation(r, key);
-    c = (c + r + newR) % R;
-    r = newR;
-  }
-
-  return r;
+export function mimcSpongeHash(inputs: Scalar[], key: Scalar = 0n, nOutputs: number = 1): Scalar {
+  ensureInit();
+  return F.toObject(mimcSponge.multiHash(inputs.map(BigInt), Number(key), nOutputs));
 }
 
 /**
  * MiMC hash of two field elements — primary use case for Merkle trees.
- * hash(left, right) = MiMC_sponge([left, right])
+ * hash(left, right) = MiMCSponge([left, right], k=0, nOutputs=1)
  */
 export function mimcHash(left: Scalar, right: Scalar): Scalar {
-  return mimcSponge([left, right]);
+  ensureInit();
+  return F.toObject(mimcSponge.multiHash([left, right], 0, 1));
 }
 
 /**
  * MiMC hash of a single field element — used for nullifier hashing.
- * hash(x) = MiMC_sponge([x])
+ * hash(x) = MiMCSponge([x], k=0, nOutputs=1)
  */
 export function mimcHashSingle(x: Scalar): Scalar {
-  return mimcSponge([x]);
+  ensureInit();
+  return F.toObject(mimcSponge.multiHash([x], 0, 1));
 }
 
 /**
  * Multi-input MiMC hash — used for commitments with multiple components.
- * hash(a, b, c, ...) = MiMC_sponge([a, b, c, ...])
+ * hash(a, b, c, ...) = MiMCSponge([a, b, c, ...], k=0, nOutputs=1)
  */
 export function mimcHashMulti(...inputs: Scalar[]): Scalar {
-  return mimcSponge(inputs);
+  ensureInit();
+  return F.toObject(mimcSponge.multiHash(inputs, 0, 1));
 }

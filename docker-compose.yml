@@ -1,0 +1,9 @@
+services:
+  circuits:
+    build:
+      context: .
+      dockerfile: circuits/Dockerfile
+    volumes:
+      - ./circuits:/circuits
+      - ./node_modules:/app/node_modules
+    command: ["all"]
