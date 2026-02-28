@@ -1,0 +1,19 @@
+{
+  "name": "@algo-privacy/core",
+  "version": "0.1.0",
+  "description": "Core cryptographic primitives for Algorand privacy SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "algosdk": "^3.0.0",
+    "@noble/curves": "^1.4.0"
+  },
+  "peerDependencies": {
+    "algosdk": "^3.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@algo-privacy/circuits",
+  "version": "0.1.0",
+  "description": "Compiled Circom circuits, proving keys, and WASM witness generators for Algorand privacy SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build:circuits": "bash ../../circuits/build.sh all",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "postbuild:circuits": "node scripts/copy-artifacts.js"
+  },
+  "dependencies": {
+    "@algo-privacy/core": "*"
+  },
+  "files": [
+    "dist",
+    "artifacts"
+  ]
+}

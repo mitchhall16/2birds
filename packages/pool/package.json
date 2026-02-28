@@ -1,0 +1,17 @@
+{
+  "name": "@algo-privacy/pool",
+  "version": "0.1.0",
+  "description": "Privacy pool (mixer) for Algorand — break on-chain links between sender and receiver",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@algo-privacy/core": "*",
+    "algosdk": "^3.0.0",
+    "snarkjs": "^0.7.0"
+  }
+}

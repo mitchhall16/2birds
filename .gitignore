@@ -1,0 +1,26 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Circuit build artifacts (large binary files)
+circuits/build/
+packages/circuits/artifacts/*.wasm
+packages/circuits/artifacts/*.zkey
+packages/circuits/artifacts/*.r1cs
+packages/circuits/artifacts/*.sym
+
+# Powers of Tau file (36 MB download)
+*.ptau
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Wallet state (contains private keys!)
+.algo-privacy/
+
+# OS files
+.DS_Store
+Thumbs.db

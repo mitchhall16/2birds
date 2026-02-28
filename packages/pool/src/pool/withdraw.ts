@@ -1,0 +1,246 @@
+/**
+ * @algo-privacy/pool — Withdraw from privacy pool
+ *
+ * Generates a ZK proof (Groth16 via snarkjs) proving Merkle membership
+ * without revealing which deposit, then submits withdrawal.
+ */
+
+import algosdk from 'algosdk';
+import {
+  type DepositNote,
+  type PoolConfig,
+  type NetworkConfig,
+  type AlgorandAddress,
+  type WithdrawProof,
+  type Scalar,
+  mimcHash,
+  mimcHashSingle,
+  addressToScalar,
+  scalarToBytes,
+  createAlgodClient,
+} from '@algo-privacy/core';
+import { IncrementalMerkleTree } from './merkle.js';
+
+// snarkjs is loaded dynamically for browser compatibility
+let snarkjs: any;
+
+async function loadSnarkjs() {
+  if (!snarkjs) {
+    snarkjs = await import('snarkjs');
+  }
+  return snarkjs;
+}
+
+/**
+ * Generate a withdrawal ZK proof.
+ *
+ * @param note - The deposit note (contains secret, nullifier, leaf index)
+ * @param tree - The current state of the Merkle tree
+ * @param recipient - Address to receive the withdrawal
+ * @param relayer - Relayer address (zero address if direct)
+ * @param fee - Relayer fee
+ * @param wasmPath - Path to the compiled circuit WASM
+ * @param zkeyPath - Path to the proving key (.zkey)
+ */
+export async function generateWithdrawProof(
+  note: DepositNote,
+  tree: IncrementalMerkleTree,
+  recipient: AlgorandAddress,
+  relayer: AlgorandAddress,
+  fee: bigint,
+  wasmPath: string,
+  zkeyPath: string,
+): Promise<WithdrawProof> {
+  const snarks = await loadSnarkjs();
+
+  // Compute the values needed for the circuit
+  const commitment = mimcHash(note.secret, note.nullifier);
+  const nullifierHash = mimcHashSingle(note.nullifier);
+  const root = tree.root;
+  const path = tree.getPath(note.leafIndex);
+
+  // Verify path locally before generating proof
+  if (!tree.verifyPath(commitment, path, root)) {
+    throw new Error('Invalid Merkle path — tree state may be out of sync');
+  }
+
+  // Prepare circuit inputs
+  const input = {
+    // Public inputs
+    root: root.toString(),
+    nullifierHash: nullifierHash.toString(),
+    recipient: addressToScalar(recipient).toString(),
+    relayer: addressToScalar(relayer).toString(),
+    fee: fee.toString(),
+
+    // Private inputs
+    secret: note.secret.toString(),
+    nullifier: note.nullifier.toString(),
+    pathElements: path.pathElements.map(e => e.toString()),
+    pathIndices: path.pathIndices,
+  };
+
+  // Generate Groth16 proof using snarkjs WASM prover
+  const { proof, publicSignals } = await snarks.groth16.fullProve(
+    input,
+    wasmPath,
+    zkeyPath,
+  );
+
+  return {
+    proof: {
+      pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])],
+      pi_b: [
+        [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
+        [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
+      ],
+      pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])],
+    },
+    publicInputs: {
+      root,
+      nullifierHash,
+      recipient,
+      relayer,
+      fee,
+    },
+  };
+}
+
+/**
+ * Verify a withdrawal proof locally (for testing/debugging).
+ */
+export async function verifyWithdrawProof(
+  withdrawProof: WithdrawProof,
+  vkeyPath: string,
+): Promise<boolean> {
+  const snarks = await loadSnarkjs();
+  const vkey = JSON.parse(
+    typeof window !== 'undefined'
+      ? await (await fetch(vkeyPath)).text()
+      : (await import('fs')).readFileSync(vkeyPath, 'utf-8'),
+  );
+
+  const proof = {
+    pi_a: [withdrawProof.proof.pi_a[0].toString(), withdrawProof.proof.pi_a[1].toString(), '1'],
+    pi_b: [
+      [withdrawProof.proof.pi_b[0][0].toString(), withdrawProof.proof.pi_b[0][1].toString()],
+      [withdrawProof.proof.pi_b[1][0].toString(), withdrawProof.proof.pi_b[1][1].toString()],
+      ['1', '0'],
+    ],
+    pi_c: [withdrawProof.proof.pi_c[0].toString(), withdrawProof.proof.pi_c[1].toString(), '1'],
+    protocol: 'groth16',
+    curve: 'bn128',
+  };
+
+  const publicSignals = [
+    withdrawProof.publicInputs.root.toString(),
+    withdrawProof.publicInputs.nullifierHash.toString(),
+    addressToScalar(withdrawProof.publicInputs.recipient).toString(),
+    addressToScalar(withdrawProof.publicInputs.relayer).toString(),
+    withdrawProof.publicInputs.fee.toString(),
+  ];
+
+  return snarks.groth16.verify(vkey, publicSignals, proof);
+}
+
+/**
+ * Submit a withdrawal to the privacy pool contract.
+ *
+ * Creates an atomic group:
+ * 1. LogicSig transaction — ZK proof verifier
+ * 2. App call — withdraw(nullifierHash, recipient, relayer, fee, root)
+ */
+export async function submitWithdrawal(
+  withdrawProof: WithdrawProof,
+  pool: PoolConfig,
+  network: NetworkConfig,
+  sender?: algosdk.Account, // If direct withdrawal (no relayer)
+): Promise<string> {
+  const algod = createAlgodClient(network);
+  const params = await algod.getTransactionParams().do();
+
+  // Encode proof for the LogicSig verifier
+  const proofBytes = encodeProofForVerifier(withdrawProof);
+
+  // Transaction 1: LogicSig (ZK verifier)
+  // The LogicSig program was generated by AlgoPlonk and contains the verification logic
+  const verifierLsig = new algosdk.LogicSigAccount(pool.verifierLsig, [proofBytes]);
+
+  const verifierTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    sender: verifierLsig.address(),
+    receiver: verifierLsig.address(),
+    amount: 0,
+    suggestedParams: { ...params, fee: 8 * algosdk.ALGORAND_MIN_TX_FEE, flatFee: true },
+  });
+
+  // Transaction 2: App call to withdraw
+  const { publicInputs } = withdrawProof;
+  const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
+    sender: sender?.addr || publicInputs.recipient,
+    appIndex: Number(pool.appId),
+    onComplete: algosdk.OnApplicationComplete.NoOpOC,
+    appArgs: [
+      new TextEncoder().encode('withdraw'),
+      scalarToBytes(publicInputs.nullifierHash),
+      algosdk.decodeAddress(publicInputs.recipient).publicKey,
+      algosdk.decodeAddress(publicInputs.relayer).publicKey,
+      bigintToBytes8(publicInputs.fee),
+      scalarToBytes(publicInputs.root),
+    ],
+    boxes: [
+      {
+        appIndex: Number(pool.appId),
+        name: new Uint8Array([
+          ...new TextEncoder().encode('null:'),
+          ...scalarToBytes(publicInputs.nullifierHash),
+        ]),
+      },
+    ],
+    suggestedParams: params,
+  });
+
+  // Group transactions
+  const grouped = algosdk.assignGroupID([verifierTxn, appCallTxn]);
+
+  const signedVerifier = algosdk.signLogicSigTransactionObject(grouped[0], verifierLsig);
+  const signedApp = sender
+    ? grouped[1].signTxn(sender.sk)
+    : grouped[1].signTxn(new Uint8Array(64)); // Relayer would sign
+
+  const { txId } = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
+  await algosdk.waitForConfirmation(algod, txId, 4);
+  return txId;
+}
+
+/** Encode a Groth16 proof as bytes for the LogicSig verifier arg */
+function encodeProofForVerifier(proof: WithdrawProof): Uint8Array {
+  const parts: Uint8Array[] = [
+    scalarToBytes(proof.proof.pi_a[0]),
+    scalarToBytes(proof.proof.pi_a[1]),
+    scalarToBytes(proof.proof.pi_b[0][0]),
+    scalarToBytes(proof.proof.pi_b[0][1]),
+    scalarToBytes(proof.proof.pi_b[1][0]),
+    scalarToBytes(proof.proof.pi_b[1][1]),
+    scalarToBytes(proof.proof.pi_c[0]),
+    scalarToBytes(proof.proof.pi_c[1]),
+  ];
+  const total = parts.reduce((s, p) => s + p.length, 0);
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    result.set(part, offset);
+    offset += part.length;
+  }
+  return result;
+}
+
+/** Convert bigint to 8-byte big-endian Uint8Array */
+function bigintToBytes8(n: bigint): Uint8Array {
+  const buf = new Uint8Array(8);
+  let val = n;
+  for (let i = 7; i >= 0; i--) {
+    buf[i] = Number(val & 0xffn);
+    val >>= 8n;
+  }
+  return buf;
+}

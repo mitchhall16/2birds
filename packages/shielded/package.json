@@ -1,0 +1,20 @@
+{
+  "name": "@algo-privacy/shielded",
+  "version": "0.1.0",
+  "description": "Full shielded transfers for Algorand — private sender, receiver, and amount",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@algo-privacy/core": "*",
+    "@algo-privacy/pool": "*",
+    "@algo-privacy/stealth": "*",
+    "@algo-privacy/confidential": "*",
+    "algosdk": "^3.0.0",
+    "snarkjs": "^0.7.0"
+  }
+}

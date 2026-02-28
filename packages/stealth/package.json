@@ -1,0 +1,16 @@
+{
+  "name": "@algo-privacy/stealth",
+  "version": "0.1.0",
+  "description": "Stealth address protocol for Algorand",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@algo-privacy/core": "*",
+    "algosdk": "^3.0.0"
+  }
+}
