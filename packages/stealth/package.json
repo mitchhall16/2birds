@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@algo-privacy/core": "*",
-    "algosdk": "^3.0.0"
+    "algosdk": "^3.0.0",
+    "tweetnacl": "^1.0.3"
   }
 }

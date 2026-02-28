@@ -11,9 +11,13 @@ import {
   type Scalar,
   type AlgorandAddress,
   type NetworkConfig,
+  derivePubKey,
+  ecMul,
+  ecAdd,
+  BN254_G,
   sleep,
 } from '@algo-privacy/core';
-import { checkStealthAddress } from './keys.js';
+import { checkStealthAddress, stealthPubKeyToAddress } from './keys.js';
 import { StealthRegistry, type RegistryConfig } from './registry.js';
 
 /** Event emitted when a stealth payment is found */
@@ -101,15 +105,7 @@ export class StealthScanner {
 
   /** Check if an announcement is addressed to us */
   private async processAnnouncement(announcement: StealthAnnouncement): Promise<void> {
-    const result = await checkStealthAddress(
-      announcement.ephemeralPubKey,
-      // We need to derive the stealth pub key from the address
-      // In production, the announcement would include the stealth pub key
-      { x: 0n, y: 0n }, // placeholder
-      this.keys.viewingKey,
-      this.keys.spendingKey,
-      announcement.viewTag,
-    );
+    const result = await this.checkAnnouncementOwnership(announcement);
 
     if (result.isOwner && result.stealthPrivKey !== undefined) {
       const payment: StealthPaymentFound = {
@@ -129,6 +125,42 @@ export class StealthScanner {
   }
 
   /**
+   * Derive the expected stealth public key from the announcement's ephemeral key
+   * and our viewing/spending keys, then compare the resulting Algorand address
+   * with the announcement's stealth address.
+   */
+  private async checkAnnouncementOwnership(announcement: StealthAnnouncement): Promise<{
+    isOwner: boolean;
+    stealthPrivKey?: Scalar;
+  }> {
+    // Compute shared secret and expected stealth pub key
+    const result = await checkStealthAddress(
+      announcement.ephemeralPubKey,
+      // Derive expected stealth public key: P = spending_pub + hash(viewing_priv * R) * G
+      // We pass a dummy here — checkStealthAddress computes expectedPub internally
+      // and compares it to this value. Instead, we compute our own expected address.
+      { x: 0n, y: 0n }, // ignored — we verify via address comparison below
+      this.keys.viewingKey,
+      this.keys.spendingKey,
+      announcement.viewTag,
+    );
+
+    // If view tag matched, verify via Algorand address comparison
+    if (result.stealthPrivKey !== undefined) {
+      const spendingPub = derivePubKey(this.keys.spendingKey);
+      // Re-derive the shared secret to get the expected stealth pub key
+      const expectedPubKey = derivePubKey(result.stealthPrivKey);
+      const expectedAddress = await stealthPubKeyToAddress(expectedPubKey);
+
+      if (expectedAddress === announcement.stealthAddress) {
+        return { isOwner: true, stealthPrivKey: result.stealthPrivKey };
+      }
+    }
+
+    return { isOwner: false };
+  }
+
+  /**
    * One-shot scan: scan all announcements and return found payments.
    * Useful for wallet recovery or initial sync.
    */
@@ -138,13 +170,7 @@ export class StealthScanner {
     const found: StealthPaymentFound[] = [];
 
     for (const announcement of announcements) {
-      const result = await checkStealthAddress(
-        announcement.ephemeralPubKey,
-        { x: 0n, y: 0n }, // placeholder
-        this.keys.viewingKey,
-        this.keys.spendingKey,
-        announcement.viewTag,
-      );
+      const result = await this.checkAnnouncementOwnership(announcement);
 
       if (result.isOwner && result.stealthPrivKey !== undefined) {
         found.push({

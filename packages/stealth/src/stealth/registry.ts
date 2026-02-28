@@ -21,7 +21,7 @@ import {
   bytes32ToBigint,
   createAlgodClient,
 } from '@algo-privacy/core';
-import { generateStealthAddress } from './keys.js';
+import { generateStealthAddress, stealthPubKeyToAddress } from './keys.js';
 
 /** Registry contract application ID (set after deployment) */
 export interface RegistryConfig {
@@ -208,10 +208,8 @@ export class StealthRegistry {
     // Generate stealth address
     const { stealthPubKey, ephemeralPubKey, viewTag } = await generateStealthAddress(recipientMeta);
 
-    // For now, derive a temporary Algorand address from the stealth pub key
-    // In production, this would use a proper BN254->Ed25519 bridge or rekey mechanism
-    const stealthAddrBytes = encodePoint(stealthPubKey).slice(0, 32);
-    const stealthAddress = algosdk.encodeAddress(stealthAddrBytes);
+    // BN254→Ed25519 bridge: derive deterministic Algorand address from stealth public key
+    const stealthAddress = await stealthPubKeyToAddress(stealthPubKey);
 
     const params = await this.algod.getTransactionParams().do();
 

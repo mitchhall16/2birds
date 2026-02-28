@@ -14,6 +14,8 @@
  * 8. Recipient derives stealth private key: p = spending_priv + s
  */
 
+import nacl from 'tweetnacl';
+import algosdk from 'algosdk';
 import {
   type BN254Point,
   type Scalar,
@@ -160,42 +162,55 @@ async function hashSharedSecret(dhPoint: BN254Point): Promise<Scalar> {
   return scalarMod(bytes32ToBigint(new Uint8Array(hash)));
 }
 
+/** Domain separator for BN254→Ed25519 bridge derivation */
+const ED25519_BRIDGE_DOMAIN = 'algo-stealth-ed25519';
+
 /**
- * Derive an Algorand-compatible address from a BN254 stealth public key.
- * Since Algorand uses Ed25519, we need a bridging mechanism:
- * The stealth private key is used to derive an Ed25519 keypair deterministically.
+ * Derive an Ed25519 seed from a BN254 stealth public key.
+ * Both sender and recipient can compute the same stealthPubKey via ECDH,
+ * so both arrive at the same Algorand address. Third parties cannot
+ * compute the stealthPubKey because they lack the ECDH shared secret.
  */
-export function stealthKeyToAlgorandAccount(stealthPrivKey: Scalar): {
+async function deriveEd25519Seed(stealthPubKey: BN254Point): Promise<Uint8Array> {
+  const pubBytes = encodePoint(stealthPubKey);
+  const domain = new TextEncoder().encode(ED25519_BRIDGE_DOMAIN);
+  const input = new Uint8Array(domain.length + pubBytes.length);
+  input.set(domain, 0);
+  input.set(pubBytes, domain.length);
+  const hash = await crypto.subtle.digest('SHA-256', input);
+  return new Uint8Array(hash);
+}
+
+/**
+ * Sender-side: Derive the Algorand address for a stealth public key.
+ * The sender knows the stealthPubKey (computed during generateStealthAddress)
+ * but not the private key. This returns just the address to send funds to.
+ */
+export async function stealthPubKeyToAddress(stealthPubKey: BN254Point): Promise<string> {
+  const seed = await deriveEd25519Seed(stealthPubKey);
+  const keyPair = nacl.sign.keyPair.fromSeed(seed);
+  return algosdk.encodeAddress(keyPair.publicKey);
+}
+
+/**
+ * Recipient-side: Derive an Algorand account (address + secret key) from a BN254 stealth private key.
+ * The recipient knows the stealthPrivKey (derived during checkStealthAddress)
+ * and can compute the corresponding stealthPubKey to get the same Ed25519 keypair.
+ *
+ * The returned address matches what stealthPubKeyToAddress would return for
+ * the corresponding stealth public key, so both parties agree on the address.
+ */
+export async function stealthKeyToAlgorandAccount(stealthPrivKey: Scalar): Promise<{
   address: string;
   sk: Uint8Array;
-} {
-  // Use the stealth private key as seed for an Algorand account
-  // Hash to 32 bytes to use as Ed25519 seed
-  const seed = bigintToBytes32(stealthPrivKey);
-  // algosdk expects a 32-byte seed
-  const account = {
-    addr: '', // Will be set below
-    sk: new Uint8Array(64), // Ed25519 secret key is 64 bytes (seed + public key)
+}> {
+  // Derive stealthPubKey = stealthPrivKey * G on BN254
+  const stealthPubKey = derivePubKey(stealthPrivKey);
+  // Same derivation as stealthPubKeyToAddress — produces matching address
+  const seed = await deriveEd25519Seed(stealthPubKey);
+  const keyPair = nacl.sign.keyPair.fromSeed(seed);
+  return {
+    address: algosdk.encodeAddress(keyPair.publicKey),
+    sk: keyPair.secretKey,
   };
-
-  // For now, use algosdk's account generation from seed
-  // In production, this would use the seed directly for deterministic derivation
-  const mnemonic = seedToMnemonic(seed);
-  const recovered = mnemonicToAccount(mnemonic);
-  return { address: recovered.addr, sk: recovered.sk };
-}
-
-/** Helper: convert 32-byte seed to a mnemonic (simplified — production would use proper BIP39) */
-function seedToMnemonic(seed: Uint8Array): string {
-  // Use algosdk's built-in mnemonic from secret key
-  // We create a deterministic account from the seed
-  const tempAccount = { sk: new Uint8Array(64), addr: '' };
-  tempAccount.sk.set(seed, 0);
-  // In production, derive the Ed25519 keypair properly
-  return '';
-}
-
-function mnemonicToAccount(_mnemonic: string): { addr: string; sk: Uint8Array } {
-  // Placeholder — in production, derive deterministic Ed25519 keypair from BN254 stealth key
-  return { addr: '', sk: new Uint8Array(64) };
 }
