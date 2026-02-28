@@ -1,0 +1,1388 @@
+[
+  {
+    "teal": 1,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 2,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 3,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 15,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 16,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 17,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 18,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 19,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 20,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 21,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 25,
+    "source": "contracts/confidential-asset.algo.ts:3",
+    "errorMessage": "The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?"
+  },
+  {
+    "teal": 30,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 31,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 34,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 35,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 36,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 40,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 44,
+    "source": "contracts/confidential-asset.algo.ts:12"
+  },
+  {
+    "teal": 45,
+    "source": "contracts/confidential-asset.algo.ts:12"
+  },
+  {
+    "teal": 46,
+    "source": "contracts/confidential-asset.algo.ts:12"
+  },
+  {
+    "teal": 50,
+    "source": "contracts/confidential-asset.algo.ts:13"
+  },
+  {
+    "teal": 51,
+    "source": "contracts/confidential-asset.algo.ts:13"
+  },
+  {
+    "teal": 52,
+    "source": "contracts/confidential-asset.algo.ts:13"
+  },
+  {
+    "teal": 56,
+    "source": "contracts/confidential-asset.algo.ts:14"
+  },
+  {
+    "teal": 57,
+    "source": "contracts/confidential-asset.algo.ts:14"
+  },
+  {
+    "teal": 58,
+    "source": "contracts/confidential-asset.algo.ts:14"
+  },
+  {
+    "teal": 59,
+    "source": "contracts/confidential-asset.algo.ts:11"
+  },
+  {
+    "teal": 64,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 65,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 68,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 69,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 72,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 73,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 74,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 81,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 84,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 85,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 89,
+    "source": "contracts/confidential-asset.algo.ts:22"
+  },
+  {
+    "teal": 90,
+    "source": "contracts/confidential-asset.algo.ts:22"
+  },
+  {
+    "teal": 91,
+    "source": "contracts/confidential-asset.algo.ts:22"
+  },
+  {
+    "teal": 92,
+    "source": "contracts/confidential-asset.algo.ts:22"
+  },
+  {
+    "teal": 93,
+    "source": "contracts/confidential-asset.algo.ts:22"
+  },
+  {
+    "teal": 97,
+    "source": "contracts/confidential-asset.algo.ts:24"
+  },
+  {
+    "teal": 98,
+    "source": "contracts/confidential-asset.algo.ts:24"
+  },
+  {
+    "teal": 99,
+    "source": "contracts/confidential-asset.algo.ts:24"
+  },
+  {
+    "teal": 100,
+    "source": "contracts/confidential-asset.algo.ts:24"
+  },
+  {
+    "teal": 105,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 106,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 107,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 108,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 109,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 118,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 119,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 120,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 121,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 124,
+    "source": "contracts/confidential-asset.algo.ts:26",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}"
+  },
+  {
+    "teal": 127,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 128,
+    "source": "contracts/confidential-asset.algo.ts:27"
+  },
+  {
+    "teal": 129,
+    "source": "contracts/confidential-asset.algo.ts:27"
+  },
+  {
+    "teal": 130,
+    "source": "contracts/confidential-asset.algo.ts:27"
+  },
+  {
+    "teal": 133,
+    "source": "contracts/confidential-asset.algo.ts:27",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}"
+  },
+  {
+    "teal": 136,
+    "source": "contracts/confidential-asset.algo.ts:26"
+  },
+  {
+    "teal": 137,
+    "source": "contracts/confidential-asset.algo.ts:28"
+  },
+  {
+    "teal": 138,
+    "source": "contracts/confidential-asset.algo.ts:28"
+  },
+  {
+    "teal": 139,
+    "source": "contracts/confidential-asset.algo.ts:28"
+  },
+  {
+    "teal": 142,
+    "source": "contracts/confidential-asset.algo.ts:28",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"amount\",\"expected\":\"amount\"}"
+  },
+  {
+    "teal": 143,
+    "source": "contracts/confidential-asset.algo.ts:25"
+  },
+  {
+    "teal": 153,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 154,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 155,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 156,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 159,
+    "source": "contracts/confidential-asset.algo.ts:31",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}"
+  },
+  {
+    "teal": 162,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 163,
+    "source": "contracts/confidential-asset.algo.ts:32"
+  },
+  {
+    "teal": 164,
+    "source": "contracts/confidential-asset.algo.ts:32"
+  },
+  {
+    "teal": 165,
+    "source": "contracts/confidential-asset.algo.ts:32"
+  },
+  {
+    "teal": 168,
+    "source": "contracts/confidential-asset.algo.ts:32",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}"
+  },
+  {
+    "teal": 171,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 172,
+    "source": "contracts/confidential-asset.algo.ts:33"
+  },
+  {
+    "teal": 173,
+    "source": "contracts/confidential-asset.algo.ts:33"
+  },
+  {
+    "teal": 174,
+    "source": "contracts/confidential-asset.algo.ts:33"
+  },
+  {
+    "teal": 177,
+    "source": "contracts/confidential-asset.algo.ts:33",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetAmount\",\"expected\":\"amount\"}"
+  },
+  {
+    "teal": 180,
+    "source": "contracts/confidential-asset.algo.ts:31"
+  },
+  {
+    "teal": 181,
+    "source": "contracts/confidential-asset.algo.ts:34"
+  },
+  {
+    "teal": 182,
+    "source": "contracts/confidential-asset.algo.ts:34"
+  },
+  {
+    "teal": 183,
+    "source": "contracts/confidential-asset.algo.ts:34"
+  },
+  {
+    "teal": 184,
+    "source": "contracts/confidential-asset.algo.ts:34"
+  },
+  {
+    "teal": 187,
+    "source": "contracts/confidential-asset.algo.ts:34",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}"
+  },
+  {
+    "teal": 193,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 194,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 195,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 196,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 197,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 198,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 199,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 204,
+    "source": "contracts/confidential-asset.algo.ts:40"
+  },
+  {
+    "teal": 205,
+    "source": "contracts/confidential-asset.algo.ts:40"
+  },
+  {
+    "teal": 206,
+    "source": "contracts/confidential-asset.algo.ts:40"
+  },
+  {
+    "teal": 207,
+    "source": "contracts/confidential-asset.algo.ts:40"
+  },
+  {
+    "teal": 210,
+    "source": "contracts/confidential-asset.algo.ts:40",
+    "errorMessage": "box value does not exist: this.balances(this.txn.sender).value"
+  },
+  {
+    "teal": 211,
+    "source": "contracts/confidential-asset.algo.ts:40"
+  },
+  {
+    "teal": 215,
+    "source": "contracts/confidential-asset.algo.ts:41"
+  },
+  {
+    "teal": 216,
+    "source": "contracts/confidential-asset.algo.ts:41"
+  },
+  {
+    "teal": 217,
+    "source": "contracts/confidential-asset.algo.ts:41"
+  },
+  {
+    "teal": 218,
+    "source": "contracts/confidential-asset.algo.ts:41"
+  },
+  {
+    "teal": 222,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 223,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 224,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 225,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 226,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 227,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 228,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 229,
+    "source": "contracts/confidential-asset.algo.ts:42"
+  },
+  {
+    "teal": 230,
+    "source": "contracts/confidential-asset.algo.ts:38"
+  },
+  {
+    "teal": 235,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 236,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 237,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 238,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 239,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 240,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 241,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 242,
+    "source": "contracts/confidential-asset.algo.ts:44"
+  },
+  {
+    "teal": 247,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 248,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 249,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 250,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 251,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 252,
+    "source": "contracts/confidential-asset.algo.ts:47"
+  },
+  {
+    "teal": 256,
+    "source": "contracts/confidential-asset.algo.ts:48"
+  },
+  {
+    "teal": 257,
+    "source": "contracts/confidential-asset.algo.ts:48"
+  },
+  {
+    "teal": 258,
+    "source": "contracts/confidential-asset.algo.ts:48"
+  },
+  {
+    "teal": 259,
+    "source": "contracts/confidential-asset.algo.ts:48"
+  },
+  {
+    "teal": 260,
+    "source": "contracts/confidential-asset.algo.ts:21"
+  },
+  {
+    "teal": 265,
+    "source": "contracts/confidential-asset.algo.ts:59"
+  },
+  {
+    "teal": 266,
+    "source": "contracts/confidential-asset.algo.ts:59"
+  },
+  {
+    "teal": 269,
+    "source": "contracts/confidential-asset.algo.ts:58"
+  },
+  {
+    "teal": 270,
+    "source": "contracts/confidential-asset.algo.ts:58"
+  },
+  {
+    "teal": 273,
+    "source": "contracts/confidential-asset.algo.ts:57"
+  },
+  {
+    "teal": 274,
+    "source": "contracts/confidential-asset.algo.ts:57"
+  },
+  {
+    "teal": 277,
+    "source": "contracts/confidential-asset.algo.ts:56"
+  },
+  {
+    "teal": 278,
+    "source": "contracts/confidential-asset.algo.ts:56"
+  },
+  {
+    "teal": 279,
+    "source": "contracts/confidential-asset.algo.ts:56"
+  },
+  {
+    "teal": 280,
+    "source": "contracts/confidential-asset.algo.ts:56"
+  },
+  {
+    "teal": 281,
+    "source": "contracts/confidential-asset.algo.ts:56"
+  },
+  {
+    "teal": 284,
+    "source": "contracts/confidential-asset.algo.ts:56",
+    "errorMessage": "argument 3 (recipient) for confidentialTransfer must be a address"
+  },
+  {
+    "teal": 287,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 288,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 289,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 296,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 299,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 300,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 304,
+    "source": "contracts/confidential-asset.algo.ts:61"
+  },
+  {
+    "teal": 305,
+    "source": "contracts/confidential-asset.algo.ts:61"
+  },
+  {
+    "teal": 306,
+    "source": "contracts/confidential-asset.algo.ts:61"
+  },
+  {
+    "teal": 307,
+    "source": "contracts/confidential-asset.algo.ts:61"
+  },
+  {
+    "teal": 308,
+    "source": "contracts/confidential-asset.algo.ts:61"
+  },
+  {
+    "teal": 312,
+    "source": "contracts/confidential-asset.algo.ts:62"
+  },
+  {
+    "teal": 313,
+    "source": "contracts/confidential-asset.algo.ts:62"
+  },
+  {
+    "teal": 314,
+    "source": "contracts/confidential-asset.algo.ts:62"
+  },
+  {
+    "teal": 315,
+    "source": "contracts/confidential-asset.algo.ts:62"
+  },
+  {
+    "teal": 316,
+    "source": "contracts/confidential-asset.algo.ts:62"
+  },
+  {
+    "teal": 320,
+    "source": "contracts/confidential-asset.algo.ts:63"
+  },
+  {
+    "teal": 321,
+    "source": "contracts/confidential-asset.algo.ts:63"
+  },
+  {
+    "teal": 322,
+    "source": "contracts/confidential-asset.algo.ts:63"
+  },
+  {
+    "teal": 323,
+    "source": "contracts/confidential-asset.algo.ts:63"
+  },
+  {
+    "teal": 324,
+    "source": "contracts/confidential-asset.algo.ts:63"
+  },
+  {
+    "teal": 328,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 329,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 330,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 331,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 332,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 333,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 334,
+    "source": "contracts/confidential-asset.algo.ts:66"
+  },
+  {
+    "teal": 338,
+    "source": "contracts/confidential-asset.algo.ts:70"
+  },
+  {
+    "teal": 339,
+    "source": "contracts/confidential-asset.algo.ts:70"
+  },
+  {
+    "teal": 340,
+    "source": "contracts/confidential-asset.algo.ts:70"
+  },
+  {
+    "teal": 341,
+    "source": "contracts/confidential-asset.algo.ts:70"
+  },
+  {
+    "teal": 344,
+    "source": "contracts/confidential-asset.algo.ts:70",
+    "errorMessage": "box value does not exist: this.balances(this.txn.sender).value"
+  },
+  {
+    "teal": 345,
+    "source": "contracts/confidential-asset.algo.ts:70"
+  },
+  {
+    "teal": 349,
+    "source": "contracts/confidential-asset.algo.ts:71"
+  },
+  {
+    "teal": 350,
+    "source": "contracts/confidential-asset.algo.ts:71"
+  },
+  {
+    "teal": 351,
+    "source": "contracts/confidential-asset.algo.ts:71"
+  },
+  {
+    "teal": 352,
+    "source": "contracts/confidential-asset.algo.ts:71"
+  },
+  {
+    "teal": 356,
+    "source": "contracts/confidential-asset.algo.ts:72"
+  },
+  {
+    "teal": 357,
+    "source": "contracts/confidential-asset.algo.ts:72"
+  },
+  {
+    "teal": 358,
+    "source": "contracts/confidential-asset.algo.ts:72"
+  },
+  {
+    "teal": 359,
+    "source": "contracts/confidential-asset.algo.ts:72"
+  },
+  {
+    "teal": 364,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 365,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 366,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 367,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 368,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 369,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 370,
+    "source": "contracts/confidential-asset.algo.ts:75"
+  },
+  {
+    "teal": 375,
+    "source": "contracts/confidential-asset.algo.ts:76"
+  },
+  {
+    "teal": 376,
+    "source": "contracts/confidential-asset.algo.ts:76"
+  },
+  {
+    "teal": 377,
+    "source": "contracts/confidential-asset.algo.ts:76"
+  },
+  {
+    "teal": 378,
+    "source": "contracts/confidential-asset.algo.ts:76"
+  },
+  {
+    "teal": 381,
+    "source": "contracts/confidential-asset.algo.ts:76",
+    "errorMessage": "box value does not exist: this.balances(recipient).value"
+  },
+  {
+    "teal": 382,
+    "source": "contracts/confidential-asset.algo.ts:76"
+  },
+  {
+    "teal": 386,
+    "source": "contracts/confidential-asset.algo.ts:77"
+  },
+  {
+    "teal": 387,
+    "source": "contracts/confidential-asset.algo.ts:77"
+  },
+  {
+    "teal": 388,
+    "source": "contracts/confidential-asset.algo.ts:77"
+  },
+  {
+    "teal": 389,
+    "source": "contracts/confidential-asset.algo.ts:77"
+  },
+  {
+    "teal": 393,
+    "source": "contracts/confidential-asset.algo.ts:78"
+  },
+  {
+    "teal": 394,
+    "source": "contracts/confidential-asset.algo.ts:78"
+  },
+  {
+    "teal": 395,
+    "source": "contracts/confidential-asset.algo.ts:78"
+  },
+  {
+    "teal": 396,
+    "source": "contracts/confidential-asset.algo.ts:78"
+  },
+  {
+    "teal": 401,
+    "source": "contracts/confidential-asset.algo.ts:82"
+  },
+  {
+    "teal": 402,
+    "source": "contracts/confidential-asset.algo.ts:82"
+  },
+  {
+    "teal": 403,
+    "source": "contracts/confidential-asset.algo.ts:82"
+  },
+  {
+    "teal": 404,
+    "source": "contracts/confidential-asset.algo.ts:82"
+  },
+  {
+    "teal": 408,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 409,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 410,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 411,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 412,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 413,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 414,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 415,
+    "source": "contracts/confidential-asset.algo.ts:84"
+  },
+  {
+    "teal": 419,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 420,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 421,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 422,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 423,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 424,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 425,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 426,
+    "source": "contracts/confidential-asset.algo.ts:85"
+  },
+  {
+    "teal": 430,
+    "source": "contracts/confidential-asset.algo.ts:87"
+  },
+  {
+    "teal": 431,
+    "source": "contracts/confidential-asset.algo.ts:87"
+  },
+  {
+    "teal": 432,
+    "source": "contracts/confidential-asset.algo.ts:55"
+  },
+  {
+    "teal": 437,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 438,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 441,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 442,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 445,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 446,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 447,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 453,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 457,
+    "source": "contracts/confidential-asset.algo.ts:94"
+  },
+  {
+    "teal": 458,
+    "source": "contracts/confidential-asset.algo.ts:94"
+  },
+  {
+    "teal": 459,
+    "source": "contracts/confidential-asset.algo.ts:94"
+  },
+  {
+    "teal": 460,
+    "source": "contracts/confidential-asset.algo.ts:94"
+  },
+  {
+    "teal": 461,
+    "source": "contracts/confidential-asset.algo.ts:94"
+  },
+  {
+    "teal": 465,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 466,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 467,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 468,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 469,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 470,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 471,
+    "source": "contracts/confidential-asset.algo.ts:95"
+  },
+  {
+    "teal": 476,
+    "source": "contracts/confidential-asset.algo.ts:98"
+  },
+  {
+    "teal": 477,
+    "source": "contracts/confidential-asset.algo.ts:98"
+  },
+  {
+    "teal": 478,
+    "source": "contracts/confidential-asset.algo.ts:98"
+  },
+  {
+    "teal": 479,
+    "source": "contracts/confidential-asset.algo.ts:98"
+  },
+  {
+    "teal": 484,
+    "source": "contracts/confidential-asset.algo.ts:99"
+  },
+  {
+    "teal": 485,
+    "source": "contracts/confidential-asset.algo.ts:99"
+  },
+  {
+    "teal": 486,
+    "source": "contracts/confidential-asset.algo.ts:99"
+  },
+  {
+    "teal": 487,
+    "source": "contracts/confidential-asset.algo.ts:99"
+  },
+  {
+    "teal": 488,
+    "source": "contracts/confidential-asset.algo.ts:98"
+  },
+  {
+    "teal": 493,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 494,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 495,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 496,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 497,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 498,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 499,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 500,
+    "source": "contracts/confidential-asset.algo.ts:101"
+  },
+  {
+    "teal": 506,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 507,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 508,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 509,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 510,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 515,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 516,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 517,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 521,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 522,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 526,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 527,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 531,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 532,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 535,
+    "source": "contracts/confidential-asset.algo.ts:105"
+  },
+  {
+    "teal": 536,
+    "source": "contracts/confidential-asset.algo.ts:104"
+  },
+  {
+    "teal": 546,
+    "source": "contracts/confidential-asset.algo.ts:107"
+  },
+  {
+    "teal": 547,
+    "source": "contracts/confidential-asset.algo.ts:107"
+  },
+  {
+    "teal": 548,
+    "source": "contracts/confidential-asset.algo.ts:107"
+  },
+  {
+    "teal": 552,
+    "source": "contracts/confidential-asset.algo.ts:108"
+  },
+  {
+    "teal": 553,
+    "source": "contracts/confidential-asset.algo.ts:108"
+  },
+  {
+    "teal": 557,
+    "source": "contracts/confidential-asset.algo.ts:109"
+  },
+  {
+    "teal": 558,
+    "source": "contracts/confidential-asset.algo.ts:109"
+  },
+  {
+    "teal": 562,
+    "source": "contracts/confidential-asset.algo.ts:110"
+  },
+  {
+    "teal": 563,
+    "source": "contracts/confidential-asset.algo.ts:110"
+  },
+  {
+    "teal": 564,
+    "source": "contracts/confidential-asset.algo.ts:110"
+  },
+  {
+    "teal": 568,
+    "source": "contracts/confidential-asset.algo.ts:111"
+  },
+  {
+    "teal": 569,
+    "source": "contracts/confidential-asset.algo.ts:111"
+  },
+  {
+    "teal": 572,
+    "source": "contracts/confidential-asset.algo.ts:107"
+  },
+  {
+    "teal": 577,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 578,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 579,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 580,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 581,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 582,
+    "source": "contracts/confidential-asset.algo.ts:115"
+  },
+  {
+    "teal": 586,
+    "source": "contracts/confidential-asset.algo.ts:116"
+  },
+  {
+    "teal": 587,
+    "source": "contracts/confidential-asset.algo.ts:116"
+  },
+  {
+    "teal": 588,
+    "source": "contracts/confidential-asset.algo.ts:116"
+  },
+  {
+    "teal": 589,
+    "source": "contracts/confidential-asset.algo.ts:116"
+  },
+  {
+    "teal": 590,
+    "source": "contracts/confidential-asset.algo.ts:116"
+  },
+  {
+    "teal": 591,
+    "source": "contracts/confidential-asset.algo.ts:93"
+  },
+  {
+    "teal": 596,
+    "source": "contracts/confidential-asset.algo.ts:119"
+  },
+  {
+    "teal": 597,
+    "source": "contracts/confidential-asset.algo.ts:119"
+  },
+  {
+    "teal": 598,
+    "source": "contracts/confidential-asset.algo.ts:119"
+  },
+  {
+    "teal": 602,
+    "source": "contracts/confidential-asset.algo.ts:119"
+  },
+  {
+    "teal": 606,
+    "source": "contracts/confidential-asset.algo.ts:120"
+  },
+  {
+    "teal": 607,
+    "source": "contracts/confidential-asset.algo.ts:120"
+  },
+  {
+    "teal": 608,
+    "source": "contracts/confidential-asset.algo.ts:120"
+  },
+  {
+    "teal": 609,
+    "source": "contracts/confidential-asset.algo.ts:120"
+  },
+  {
+    "teal": 610,
+    "source": "contracts/confidential-asset.algo.ts:120"
+  },
+  {
+    "teal": 619,
+    "source": "contracts/confidential-asset.algo.ts:121"
+  },
+  {
+    "teal": 620,
+    "source": "contracts/confidential-asset.algo.ts:121"
+  },
+  {
+    "teal": 621,
+    "source": "contracts/confidential-asset.algo.ts:121"
+  },
+  {
+    "teal": 625,
+    "source": "contracts/confidential-asset.algo.ts:122"
+  },
+  {
+    "teal": 626,
+    "source": "contracts/confidential-asset.algo.ts:122"
+  },
+  {
+    "teal": 630,
+    "source": "contracts/confidential-asset.algo.ts:123"
+  },
+  {
+    "teal": 631,
+    "source": "contracts/confidential-asset.algo.ts:123"
+  },
+  {
+    "teal": 635,
+    "source": "contracts/confidential-asset.algo.ts:124"
+  },
+  {
+    "teal": 636,
+    "source": "contracts/confidential-asset.algo.ts:124"
+  },
+  {
+    "teal": 637,
+    "source": "contracts/confidential-asset.algo.ts:124"
+  },
+  {
+    "teal": 641,
+    "source": "contracts/confidential-asset.algo.ts:125"
+  },
+  {
+    "teal": 642,
+    "source": "contracts/confidential-asset.algo.ts:125"
+  },
+  {
+    "teal": 645,
+    "source": "contracts/confidential-asset.algo.ts:121"
+  },
+  {
+    "teal": 646,
+    "source": "contracts/confidential-asset.algo.ts:119"
+  },
+  {
+    "teal": 649,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 650,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 651,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 654,
+    "source": "contracts/confidential-asset.algo.ts:3",
+    "errorMessage": "this contract does not implement the given ABI method for create NoOp"
+  },
+  {
+    "teal": 657,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 658,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 659,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 660,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 661,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 662,
+    "source": "contracts/confidential-asset.algo.ts:3"
+  },
+  {
+    "teal": 665,
+    "source": "contracts/confidential-asset.algo.ts:3",
+    "errorMessage": "this contract does not implement the given ABI method for call NoOp"
+  }
+]

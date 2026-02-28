@@ -1,0 +1,73 @@
+{
+  "name": "PrivacyPool",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "desc": "Initialize the privacy pool.",
+      "args": [
+        {
+          "name": "denomination",
+          "type": "uint64"
+        },
+        {
+          "name": "assetId",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "deposit",
+      "desc": "Deposit funds into the privacy pool.\nCommitment = MiMC(secret, nullifier) computed off-chain.\nMust be accompanied by a payment of exactly .",
+      "args": [
+        {
+          "name": "commitment",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "withdraw",
+      "desc": "Withdraw funds from the privacy pool.\nRequires a valid ZK proof verified by LogicSig in the same atomic group.",
+      "args": [
+        {
+          "name": "nullifierHash",
+          "type": "byte[]"
+        },
+        {
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "name": "relayer",
+          "type": "address"
+        },
+        {
+          "name": "fee",
+          "type": "uint64"
+        },
+        {
+          "name": "root",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "optInToAsset",
+      "desc": "Opt into an ASA (required before the pool can receive ASA deposits).",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

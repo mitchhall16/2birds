@@ -1,0 +1,84 @@
+{
+  "name": "ConfidentialAsset",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [
+        {
+          "name": "assetId",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "shield",
+      "desc": "Shield — deposit public funds, create a Pedersen commitment.\nCommitment = amount * G + blinding * H (64-byte BN254 G1 point)",
+      "args": [
+        {
+          "name": "commitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "amount",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "confidentialTransfer",
+      "desc": "Confidential transfer — transfer between shielded balances with hidden amount.\nRange proofs verified by LogicSig in atomic group.",
+      "args": [
+        {
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "name": "senderNewCommitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "recipientNewCommitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "transferCommitment",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "unshield",
+      "desc": "Unshield — withdraw from shielded balance to public.",
+      "args": [
+        {
+          "name": "amount",
+          "type": "uint64"
+        },
+        {
+          "name": "newCommitment",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "optInToAsset",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

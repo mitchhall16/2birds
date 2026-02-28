@@ -1,0 +1,56 @@
+{
+  "name": "StealthRegistry",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "register",
+      "desc": "Register a stealth meta-address (spending pub 64B + viewing pub 64B = 128B).",
+      "args": [
+        {
+          "name": "label",
+          "type": "byte[]"
+        },
+        {
+          "name": "metaAddress",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "announce",
+      "desc": "Publish a stealth payment announcement.\nData: ephemeral_pub (64B) + stealth_addr (32B) + view_tag (1B) + metadata",
+      "args": [
+        {
+          "name": "announcementData",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "deregister",
+      "desc": "Remove a meta-address registration. Reclaims box MBR.",
+      "args": [
+        {
+          "name": "label",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

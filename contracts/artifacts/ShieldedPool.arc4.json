@@ -1,0 +1,100 @@
+{
+  "name": "ShieldedPool",
+  "desc": "",
+  "methods": [
+    {
+      "name": "createApplication",
+      "args": [
+        {
+          "name": "assetId",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "shield",
+      "desc": "Shield — deposit funds, create a shielded UTXO note.",
+      "args": [
+        {
+          "name": "commitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "amount",
+          "type": "uint64"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "transfer",
+      "desc": "Transfer — consume input notes, create output notes (2-in/2-out).\nZK proof in LogicSig verifies membership, nullifiers, conservation, range proofs.",
+      "args": [
+        {
+          "name": "nullifierHash1",
+          "type": "byte[]"
+        },
+        {
+          "name": "nullifierHash2",
+          "type": "byte[]"
+        },
+        {
+          "name": "outputCommitment1",
+          "type": "byte[]"
+        },
+        {
+          "name": "outputCommitment2",
+          "type": "byte[]"
+        },
+        {
+          "name": "proof_root",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "unshield",
+      "desc": "Unshield — withdraw funds by consuming a shielded note.",
+      "args": [
+        {
+          "name": "nullifierHash",
+          "type": "byte[]"
+        },
+        {
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint64"
+        },
+        {
+          "name": "changeCommitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "proof_root",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "optInToAsset",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    }
+  ]
+}

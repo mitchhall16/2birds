@@ -1,0 +1,2068 @@
+[
+  {
+    "teal": 1,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 2,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 3,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 15,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 16,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 17,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 18,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 19,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 20,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 21,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 25,
+    "source": "contracts/shielded-pool.algo.ts:6",
+    "errorMessage": "The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?"
+  },
+  {
+    "teal": 30,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 31,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 34,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 35,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 36,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 40,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 44,
+    "source": "contracts/shielded-pool.algo.ts:19"
+  },
+  {
+    "teal": 45,
+    "source": "contracts/shielded-pool.algo.ts:19"
+  },
+  {
+    "teal": 46,
+    "source": "contracts/shielded-pool.algo.ts:19"
+  },
+  {
+    "teal": 50,
+    "source": "contracts/shielded-pool.algo.ts:20"
+  },
+  {
+    "teal": 51,
+    "source": "contracts/shielded-pool.algo.ts:20"
+  },
+  {
+    "teal": 52,
+    "source": "contracts/shielded-pool.algo.ts:20"
+  },
+  {
+    "teal": 56,
+    "source": "contracts/shielded-pool.algo.ts:21"
+  },
+  {
+    "teal": 57,
+    "source": "contracts/shielded-pool.algo.ts:21"
+  },
+  {
+    "teal": 58,
+    "source": "contracts/shielded-pool.algo.ts:21"
+  },
+  {
+    "teal": 62,
+    "source": "contracts/shielded-pool.algo.ts:22"
+  },
+  {
+    "teal": 63,
+    "source": "contracts/shielded-pool.algo.ts:22"
+  },
+  {
+    "teal": 64,
+    "source": "contracts/shielded-pool.algo.ts:22"
+  },
+  {
+    "teal": 65,
+    "source": "contracts/shielded-pool.algo.ts:18"
+  },
+  {
+    "teal": 70,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 71,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 74,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 75,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 78,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 79,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 80,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 86,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 89,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 90,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 94,
+    "source": "contracts/shielded-pool.algo.ts:29"
+  },
+  {
+    "teal": 95,
+    "source": "contracts/shielded-pool.algo.ts:29"
+  },
+  {
+    "teal": 96,
+    "source": "contracts/shielded-pool.algo.ts:29"
+  },
+  {
+    "teal": 97,
+    "source": "contracts/shielded-pool.algo.ts:29"
+  },
+  {
+    "teal": 98,
+    "source": "contracts/shielded-pool.algo.ts:29"
+  },
+  {
+    "teal": 102,
+    "source": "contracts/shielded-pool.algo.ts:31"
+  },
+  {
+    "teal": 103,
+    "source": "contracts/shielded-pool.algo.ts:31"
+  },
+  {
+    "teal": 104,
+    "source": "contracts/shielded-pool.algo.ts:31"
+  },
+  {
+    "teal": 105,
+    "source": "contracts/shielded-pool.algo.ts:31"
+  },
+  {
+    "teal": 110,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 111,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 112,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 113,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 114,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 123,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 124,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 125,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 126,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 129,
+    "source": "contracts/shielded-pool.algo.ts:33",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}"
+  },
+  {
+    "teal": 132,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 133,
+    "source": "contracts/shielded-pool.algo.ts:34"
+  },
+  {
+    "teal": 134,
+    "source": "contracts/shielded-pool.algo.ts:34"
+  },
+  {
+    "teal": 135,
+    "source": "contracts/shielded-pool.algo.ts:34"
+  },
+  {
+    "teal": 138,
+    "source": "contracts/shielded-pool.algo.ts:34",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}"
+  },
+  {
+    "teal": 141,
+    "source": "contracts/shielded-pool.algo.ts:33"
+  },
+  {
+    "teal": 142,
+    "source": "contracts/shielded-pool.algo.ts:35"
+  },
+  {
+    "teal": 143,
+    "source": "contracts/shielded-pool.algo.ts:35"
+  },
+  {
+    "teal": 144,
+    "source": "contracts/shielded-pool.algo.ts:35"
+  },
+  {
+    "teal": 147,
+    "source": "contracts/shielded-pool.algo.ts:35",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"amount\",\"expected\":\"amount\"}"
+  },
+  {
+    "teal": 148,
+    "source": "contracts/shielded-pool.algo.ts:32"
+  },
+  {
+    "teal": 158,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 159,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 160,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 161,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 164,
+    "source": "contracts/shielded-pool.algo.ts:38",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}"
+  },
+  {
+    "teal": 167,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 168,
+    "source": "contracts/shielded-pool.algo.ts:39"
+  },
+  {
+    "teal": 169,
+    "source": "contracts/shielded-pool.algo.ts:39"
+  },
+  {
+    "teal": 170,
+    "source": "contracts/shielded-pool.algo.ts:39"
+  },
+  {
+    "teal": 173,
+    "source": "contracts/shielded-pool.algo.ts:39",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}"
+  },
+  {
+    "teal": 176,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 177,
+    "source": "contracts/shielded-pool.algo.ts:40"
+  },
+  {
+    "teal": 178,
+    "source": "contracts/shielded-pool.algo.ts:40"
+  },
+  {
+    "teal": 179,
+    "source": "contracts/shielded-pool.algo.ts:40"
+  },
+  {
+    "teal": 182,
+    "source": "contracts/shielded-pool.algo.ts:40",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetAmount\",\"expected\":\"amount\"}"
+  },
+  {
+    "teal": 185,
+    "source": "contracts/shielded-pool.algo.ts:38"
+  },
+  {
+    "teal": 186,
+    "source": "contracts/shielded-pool.algo.ts:41"
+  },
+  {
+    "teal": 187,
+    "source": "contracts/shielded-pool.algo.ts:41"
+  },
+  {
+    "teal": 188,
+    "source": "contracts/shielded-pool.algo.ts:41"
+  },
+  {
+    "teal": 189,
+    "source": "contracts/shielded-pool.algo.ts:41"
+  },
+  {
+    "teal": 192,
+    "source": "contracts/shielded-pool.algo.ts:41",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}"
+  },
+  {
+    "teal": 197,
+    "source": "contracts/shielded-pool.algo.ts:45"
+  },
+  {
+    "teal": 198,
+    "source": "contracts/shielded-pool.algo.ts:45"
+  },
+  {
+    "teal": 199,
+    "source": "contracts/shielded-pool.algo.ts:45"
+  },
+  {
+    "teal": 203,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 204,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 205,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 206,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 207,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 208,
+    "source": "contracts/shielded-pool.algo.ts:46"
+  },
+  {
+    "teal": 212,
+    "source": "contracts/shielded-pool.algo.ts:47"
+  },
+  {
+    "teal": 213,
+    "source": "contracts/shielded-pool.algo.ts:47"
+  },
+  {
+    "teal": 214,
+    "source": "contracts/shielded-pool.algo.ts:47"
+  },
+  {
+    "teal": 218,
+    "source": "contracts/shielded-pool.algo.ts:48"
+  },
+  {
+    "teal": 219,
+    "source": "contracts/shielded-pool.algo.ts:48"
+  },
+  {
+    "teal": 220,
+    "source": "contracts/shielded-pool.algo.ts:48"
+  },
+  {
+    "teal": 221,
+    "source": "contracts/shielded-pool.algo.ts:48"
+  },
+  {
+    "teal": 222,
+    "source": "contracts/shielded-pool.algo.ts:48"
+  },
+  {
+    "teal": 226,
+    "source": "contracts/shielded-pool.algo.ts:50"
+  },
+  {
+    "teal": 227,
+    "source": "contracts/shielded-pool.algo.ts:50"
+  },
+  {
+    "teal": 228,
+    "source": "contracts/shielded-pool.algo.ts:50"
+  },
+  {
+    "teal": 232,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 233,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 234,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 235,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 236,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 237,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 238,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 239,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 240,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 241,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 242,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 243,
+    "source": "contracts/shielded-pool.algo.ts:51"
+  },
+  {
+    "teal": 247,
+    "source": "contracts/shielded-pool.algo.ts:52"
+  },
+  {
+    "teal": 248,
+    "source": "contracts/shielded-pool.algo.ts:52"
+  },
+  {
+    "teal": 249,
+    "source": "contracts/shielded-pool.algo.ts:52"
+  },
+  {
+    "teal": 250,
+    "source": "contracts/shielded-pool.algo.ts:52"
+  },
+  {
+    "teal": 251,
+    "source": "contracts/shielded-pool.algo.ts:52"
+  },
+  {
+    "teal": 255,
+    "source": "contracts/shielded-pool.algo.ts:54"
+  },
+  {
+    "teal": 256,
+    "source": "contracts/shielded-pool.algo.ts:54"
+  },
+  {
+    "teal": 257,
+    "source": "contracts/shielded-pool.algo.ts:54"
+  },
+  {
+    "teal": 258,
+    "source": "contracts/shielded-pool.algo.ts:54"
+  },
+  {
+    "teal": 259,
+    "source": "contracts/shielded-pool.algo.ts:28"
+  },
+  {
+    "teal": 264,
+    "source": "contracts/shielded-pool.algo.ts:66"
+  },
+  {
+    "teal": 265,
+    "source": "contracts/shielded-pool.algo.ts:66"
+  },
+  {
+    "teal": 268,
+    "source": "contracts/shielded-pool.algo.ts:65"
+  },
+  {
+    "teal": 269,
+    "source": "contracts/shielded-pool.algo.ts:65"
+  },
+  {
+    "teal": 272,
+    "source": "contracts/shielded-pool.algo.ts:64"
+  },
+  {
+    "teal": 273,
+    "source": "contracts/shielded-pool.algo.ts:64"
+  },
+  {
+    "teal": 276,
+    "source": "contracts/shielded-pool.algo.ts:63"
+  },
+  {
+    "teal": 277,
+    "source": "contracts/shielded-pool.algo.ts:63"
+  },
+  {
+    "teal": 280,
+    "source": "contracts/shielded-pool.algo.ts:62"
+  },
+  {
+    "teal": 281,
+    "source": "contracts/shielded-pool.algo.ts:62"
+  },
+  {
+    "teal": 284,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 285,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 286,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 293,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 296,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 297,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 301,
+    "source": "contracts/shielded-pool.algo.ts:68"
+  },
+  {
+    "teal": 302,
+    "source": "contracts/shielded-pool.algo.ts:68"
+  },
+  {
+    "teal": 303,
+    "source": "contracts/shielded-pool.algo.ts:68"
+  },
+  {
+    "teal": 307,
+    "source": "contracts/shielded-pool.algo.ts:69"
+  },
+  {
+    "teal": 308,
+    "source": "contracts/shielded-pool.algo.ts:69"
+  },
+  {
+    "teal": 309,
+    "source": "contracts/shielded-pool.algo.ts:69"
+  },
+  {
+    "teal": 310,
+    "source": "contracts/shielded-pool.algo.ts:69"
+  },
+  {
+    "teal": 314,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 315,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 316,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 317,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 318,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 319,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 320,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 321,
+    "source": "contracts/shielded-pool.algo.ts:72"
+  },
+  {
+    "teal": 325,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 326,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 327,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 328,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 329,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 330,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 331,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 332,
+    "source": "contracts/shielded-pool.algo.ts:73"
+  },
+  {
+    "teal": 337,
+    "source": "contracts/shielded-pool.algo.ts:75"
+  },
+  {
+    "teal": 338,
+    "source": "contracts/shielded-pool.algo.ts:75"
+  },
+  {
+    "teal": 339,
+    "source": "contracts/shielded-pool.algo.ts:75"
+  },
+  {
+    "teal": 340,
+    "source": "contracts/shielded-pool.algo.ts:75"
+  },
+  {
+    "teal": 341,
+    "source": "contracts/shielded-pool.algo.ts:75"
+  },
+  {
+    "teal": 346,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 347,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 348,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 349,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 350,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 351,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 352,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 353,
+    "source": "contracts/shielded-pool.algo.ts:76"
+  },
+  {
+    "teal": 357,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 358,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 359,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 360,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 361,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 362,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 363,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 364,
+    "source": "contracts/shielded-pool.algo.ts:77"
+  },
+  {
+    "teal": 369,
+    "source": "contracts/shielded-pool.algo.ts:81"
+  },
+  {
+    "teal": 370,
+    "source": "contracts/shielded-pool.algo.ts:81"
+  },
+  {
+    "teal": 371,
+    "source": "contracts/shielded-pool.algo.ts:81"
+  },
+  {
+    "teal": 375,
+    "source": "contracts/shielded-pool.algo.ts:82"
+  },
+  {
+    "teal": 376,
+    "source": "contracts/shielded-pool.algo.ts:82"
+  },
+  {
+    "teal": 377,
+    "source": "contracts/shielded-pool.algo.ts:82"
+  },
+  {
+    "teal": 381,
+    "source": "contracts/shielded-pool.algo.ts:83"
+  },
+  {
+    "teal": 382,
+    "source": "contracts/shielded-pool.algo.ts:83"
+  },
+  {
+    "teal": 383,
+    "source": "contracts/shielded-pool.algo.ts:83"
+  },
+  {
+    "teal": 384,
+    "source": "contracts/shielded-pool.algo.ts:83"
+  },
+  {
+    "teal": 389,
+    "source": "contracts/shielded-pool.algo.ts:85"
+  },
+  {
+    "teal": 390,
+    "source": "contracts/shielded-pool.algo.ts:85"
+  },
+  {
+    "teal": 391,
+    "source": "contracts/shielded-pool.algo.ts:85"
+  },
+  {
+    "teal": 392,
+    "source": "contracts/shielded-pool.algo.ts:85"
+  },
+  {
+    "teal": 393,
+    "source": "contracts/shielded-pool.algo.ts:85"
+  },
+  {
+    "teal": 398,
+    "source": "contracts/shielded-pool.algo.ts:86"
+  },
+  {
+    "teal": 399,
+    "source": "contracts/shielded-pool.algo.ts:86"
+  },
+  {
+    "teal": 400,
+    "source": "contracts/shielded-pool.algo.ts:86"
+  },
+  {
+    "teal": 404,
+    "source": "contracts/shielded-pool.algo.ts:87"
+  },
+  {
+    "teal": 405,
+    "source": "contracts/shielded-pool.algo.ts:87"
+  },
+  {
+    "teal": 406,
+    "source": "contracts/shielded-pool.algo.ts:87"
+  },
+  {
+    "teal": 407,
+    "source": "contracts/shielded-pool.algo.ts:87"
+  },
+  {
+    "teal": 412,
+    "source": "contracts/shielded-pool.algo.ts:90"
+  },
+  {
+    "teal": 413,
+    "source": "contracts/shielded-pool.algo.ts:90"
+  },
+  {
+    "teal": 414,
+    "source": "contracts/shielded-pool.algo.ts:90"
+  },
+  {
+    "teal": 418,
+    "source": "contracts/shielded-pool.algo.ts:92"
+  },
+  {
+    "teal": 419,
+    "source": "contracts/shielded-pool.algo.ts:92"
+  },
+  {
+    "teal": 420,
+    "source": "contracts/shielded-pool.algo.ts:92"
+  },
+  {
+    "teal": 424,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 425,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 426,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 427,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 428,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 429,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 430,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 431,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 432,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 433,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 434,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 435,
+    "source": "contracts/shielded-pool.algo.ts:93"
+  },
+  {
+    "teal": 439,
+    "source": "contracts/shielded-pool.algo.ts:94"
+  },
+  {
+    "teal": 440,
+    "source": "contracts/shielded-pool.algo.ts:94"
+  },
+  {
+    "teal": 441,
+    "source": "contracts/shielded-pool.algo.ts:94"
+  },
+  {
+    "teal": 442,
+    "source": "contracts/shielded-pool.algo.ts:94"
+  },
+  {
+    "teal": 443,
+    "source": "contracts/shielded-pool.algo.ts:94"
+  },
+  {
+    "teal": 447,
+    "source": "contracts/shielded-pool.algo.ts:96"
+  },
+  {
+    "teal": 448,
+    "source": "contracts/shielded-pool.algo.ts:96"
+  },
+  {
+    "teal": 449,
+    "source": "contracts/shielded-pool.algo.ts:61"
+  },
+  {
+    "teal": 454,
+    "source": "contracts/shielded-pool.algo.ts:107"
+  },
+  {
+    "teal": 455,
+    "source": "contracts/shielded-pool.algo.ts:107"
+  },
+  {
+    "teal": 458,
+    "source": "contracts/shielded-pool.algo.ts:106"
+  },
+  {
+    "teal": 459,
+    "source": "contracts/shielded-pool.algo.ts:106"
+  },
+  {
+    "teal": 462,
+    "source": "contracts/shielded-pool.algo.ts:105"
+  },
+  {
+    "teal": 463,
+    "source": "contracts/shielded-pool.algo.ts:105"
+  },
+  {
+    "teal": 466,
+    "source": "contracts/shielded-pool.algo.ts:104"
+  },
+  {
+    "teal": 467,
+    "source": "contracts/shielded-pool.algo.ts:104"
+  },
+  {
+    "teal": 468,
+    "source": "contracts/shielded-pool.algo.ts:104"
+  },
+  {
+    "teal": 469,
+    "source": "contracts/shielded-pool.algo.ts:104"
+  },
+  {
+    "teal": 470,
+    "source": "contracts/shielded-pool.algo.ts:104"
+  },
+  {
+    "teal": 473,
+    "source": "contracts/shielded-pool.algo.ts:104",
+    "errorMessage": "argument 3 (recipient) for unshield must be a address"
+  },
+  {
+    "teal": 476,
+    "source": "contracts/shielded-pool.algo.ts:103"
+  },
+  {
+    "teal": 477,
+    "source": "contracts/shielded-pool.algo.ts:103"
+  },
+  {
+    "teal": 480,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 481,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 482,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 488,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 491,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 492,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 496,
+    "source": "contracts/shielded-pool.algo.ts:109"
+  },
+  {
+    "teal": 497,
+    "source": "contracts/shielded-pool.algo.ts:109"
+  },
+  {
+    "teal": 498,
+    "source": "contracts/shielded-pool.algo.ts:109"
+  },
+  {
+    "teal": 499,
+    "source": "contracts/shielded-pool.algo.ts:109"
+  },
+  {
+    "teal": 500,
+    "source": "contracts/shielded-pool.algo.ts:109"
+  },
+  {
+    "teal": 504,
+    "source": "contracts/shielded-pool.algo.ts:110"
+  },
+  {
+    "teal": 505,
+    "source": "contracts/shielded-pool.algo.ts:110"
+  },
+  {
+    "teal": 506,
+    "source": "contracts/shielded-pool.algo.ts:110"
+  },
+  {
+    "teal": 510,
+    "source": "contracts/shielded-pool.algo.ts:111"
+  },
+  {
+    "teal": 511,
+    "source": "contracts/shielded-pool.algo.ts:111"
+  },
+  {
+    "teal": 512,
+    "source": "contracts/shielded-pool.algo.ts:111"
+  },
+  {
+    "teal": 513,
+    "source": "contracts/shielded-pool.algo.ts:111"
+  },
+  {
+    "teal": 517,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 518,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 519,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 520,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 521,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 522,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 523,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 524,
+    "source": "contracts/shielded-pool.algo.ts:113"
+  },
+  {
+    "teal": 528,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 529,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 530,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 531,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 532,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 533,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 534,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 535,
+    "source": "contracts/shielded-pool.algo.ts:114"
+  },
+  {
+    "teal": 540,
+    "source": "contracts/shielded-pool.algo.ts:117"
+  },
+  {
+    "teal": 541,
+    "source": "contracts/shielded-pool.algo.ts:117"
+  },
+  {
+    "teal": 542,
+    "source": "contracts/shielded-pool.algo.ts:117"
+  },
+  {
+    "teal": 543,
+    "source": "contracts/shielded-pool.algo.ts:117"
+  },
+  {
+    "teal": 544,
+    "source": "contracts/shielded-pool.algo.ts:117"
+  },
+  {
+    "teal": 549,
+    "source": "contracts/shielded-pool.algo.ts:118"
+  },
+  {
+    "teal": 550,
+    "source": "contracts/shielded-pool.algo.ts:118"
+  },
+  {
+    "teal": 551,
+    "source": "contracts/shielded-pool.algo.ts:118"
+  },
+  {
+    "teal": 555,
+    "source": "contracts/shielded-pool.algo.ts:119"
+  },
+  {
+    "teal": 556,
+    "source": "contracts/shielded-pool.algo.ts:119"
+  },
+  {
+    "teal": 557,
+    "source": "contracts/shielded-pool.algo.ts:119"
+  },
+  {
+    "teal": 561,
+    "source": "contracts/shielded-pool.algo.ts:120"
+  },
+  {
+    "teal": 562,
+    "source": "contracts/shielded-pool.algo.ts:120"
+  },
+  {
+    "teal": 563,
+    "source": "contracts/shielded-pool.algo.ts:120"
+  },
+  {
+    "teal": 564,
+    "source": "contracts/shielded-pool.algo.ts:120"
+  },
+  {
+    "teal": 565,
+    "source": "contracts/shielded-pool.algo.ts:120"
+  },
+  {
+    "teal": 569,
+    "source": "contracts/shielded-pool.algo.ts:122"
+  },
+  {
+    "teal": 570,
+    "source": "contracts/shielded-pool.algo.ts:122"
+  },
+  {
+    "teal": 571,
+    "source": "contracts/shielded-pool.algo.ts:122"
+  },
+  {
+    "teal": 575,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 576,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 577,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 578,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 579,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 580,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 581,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 582,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 583,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 584,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 585,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 586,
+    "source": "contracts/shielded-pool.algo.ts:123"
+  },
+  {
+    "teal": 590,
+    "source": "contracts/shielded-pool.algo.ts:124"
+  },
+  {
+    "teal": 591,
+    "source": "contracts/shielded-pool.algo.ts:124"
+  },
+  {
+    "teal": 592,
+    "source": "contracts/shielded-pool.algo.ts:124"
+  },
+  {
+    "teal": 593,
+    "source": "contracts/shielded-pool.algo.ts:124"
+  },
+  {
+    "teal": 594,
+    "source": "contracts/shielded-pool.algo.ts:124"
+  },
+  {
+    "teal": 600,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 601,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 602,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 603,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 604,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 609,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 610,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 611,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 615,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 616,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 620,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 621,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 625,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 626,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 629,
+    "source": "contracts/shielded-pool.algo.ts:128"
+  },
+  {
+    "teal": 630,
+    "source": "contracts/shielded-pool.algo.ts:127"
+  },
+  {
+    "teal": 640,
+    "source": "contracts/shielded-pool.algo.ts:130"
+  },
+  {
+    "teal": 641,
+    "source": "contracts/shielded-pool.algo.ts:130"
+  },
+  {
+    "teal": 642,
+    "source": "contracts/shielded-pool.algo.ts:130"
+  },
+  {
+    "teal": 646,
+    "source": "contracts/shielded-pool.algo.ts:131"
+  },
+  {
+    "teal": 647,
+    "source": "contracts/shielded-pool.algo.ts:131"
+  },
+  {
+    "teal": 651,
+    "source": "contracts/shielded-pool.algo.ts:132"
+  },
+  {
+    "teal": 652,
+    "source": "contracts/shielded-pool.algo.ts:132"
+  },
+  {
+    "teal": 656,
+    "source": "contracts/shielded-pool.algo.ts:133"
+  },
+  {
+    "teal": 657,
+    "source": "contracts/shielded-pool.algo.ts:133"
+  },
+  {
+    "teal": 658,
+    "source": "contracts/shielded-pool.algo.ts:133"
+  },
+  {
+    "teal": 662,
+    "source": "contracts/shielded-pool.algo.ts:134"
+  },
+  {
+    "teal": 663,
+    "source": "contracts/shielded-pool.algo.ts:134"
+  },
+  {
+    "teal": 666,
+    "source": "contracts/shielded-pool.algo.ts:130"
+  },
+  {
+    "teal": 671,
+    "source": "contracts/shielded-pool.algo.ts:138"
+  },
+  {
+    "teal": 672,
+    "source": "contracts/shielded-pool.algo.ts:138"
+  },
+  {
+    "teal": 673,
+    "source": "contracts/shielded-pool.algo.ts:138"
+  },
+  {
+    "teal": 674,
+    "source": "contracts/shielded-pool.algo.ts:138"
+  },
+  {
+    "teal": 675,
+    "source": "contracts/shielded-pool.algo.ts:102"
+  },
+  {
+    "teal": 679,
+    "source": "contracts/shielded-pool.algo.ts:141"
+  },
+  {
+    "teal": 682,
+    "source": "contracts/shielded-pool.algo.ts:141"
+  },
+  {
+    "teal": 687,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 688,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 689,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 690,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 691,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 696,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 697,
+    "source": "contracts/shielded-pool.algo.ts:142"
+  },
+  {
+    "teal": 702,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 703,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 708,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 709,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 710,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 711,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 716,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 717,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 718,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 719,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 720,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 721,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 722,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 723,
+    "source": "contracts/shielded-pool.algo.ts:144"
+  },
+  {
+    "teal": 729,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 730,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 731,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 732,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 733,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 736,
+    "source": "contracts/shielded-pool.algo.ts:145",
+    "errorMessage": "box value does not exist: this.rootHistory(i as uint64).value"
+  },
+  {
+    "teal": 737,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 738,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 739,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 744,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 745,
+    "source": "contracts/shielded-pool.algo.ts:145"
+  },
+  {
+    "teal": 754,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 755,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 756,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 757,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 758,
+    "source": "contracts/shielded-pool.algo.ts:143"
+  },
+  {
+    "teal": 763,
+    "source": "contracts/shielded-pool.algo.ts:148"
+  },
+  {
+    "teal": 767,
+    "source": "contracts/shielded-pool.algo.ts:141"
+  },
+  {
+    "teal": 768,
+    "source": "contracts/shielded-pool.algo.ts:141"
+  },
+  {
+    "teal": 772,
+    "source": "contracts/shielded-pool.algo.ts:151"
+  },
+  {
+    "teal": 775,
+    "source": "contracts/shielded-pool.algo.ts:151"
+  },
+  {
+    "teal": 776,
+    "source": "contracts/shielded-pool.algo.ts:151"
+  },
+  {
+    "teal": 780,
+    "source": "contracts/shielded-pool.algo.ts:152"
+  },
+  {
+    "teal": 781,
+    "source": "contracts/shielded-pool.algo.ts:152"
+  },
+  {
+    "teal": 785,
+    "source": "contracts/shielded-pool.algo.ts:153"
+  },
+  {
+    "teal": 786,
+    "source": "contracts/shielded-pool.algo.ts:153"
+  },
+  {
+    "teal": 790,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 791,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 796,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 797,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 798,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 799,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 803,
+    "source": "contracts/shielded-pool.algo.ts:156"
+  },
+  {
+    "teal": 804,
+    "source": "contracts/shielded-pool.algo.ts:156"
+  },
+  {
+    "teal": 809,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 810,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 811,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 812,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 813,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 814,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 819,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 820,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 821,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 822,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 823,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 824,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 825,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 826,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 827,
+    "source": "contracts/shielded-pool.algo.ts:158"
+  },
+  {
+    "teal": 833,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 834,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 835,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 836,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 837,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 838,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 839,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 840,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 841,
+    "source": "contracts/shielded-pool.algo.ts:160"
+  },
+  {
+    "teal": 842,
+    "source": "contracts/shielded-pool.algo.ts:160"
+  },
+  {
+    "teal": 843,
+    "source": "contracts/shielded-pool.algo.ts:160"
+  },
+  {
+    "teal": 844,
+    "source": "contracts/shielded-pool.algo.ts:160"
+  },
+  {
+    "teal": 845,
+    "source": "contracts/shielded-pool.algo.ts:160"
+  },
+  {
+    "teal": 848,
+    "source": "contracts/shielded-pool.algo.ts:160",
+    "errorMessage": "box value does not exist: this.zeroHashes(lvl).value"
+  },
+  {
+    "teal": 849,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 852,
+    "source": "contracts/shielded-pool.algo.ts:161"
+  },
+  {
+    "teal": 855,
+    "source": "contracts/shielded-pool.algo.ts:159"
+  },
+  {
+    "teal": 859,
+    "source": "contracts/shielded-pool.algo.ts:162"
+  },
+  {
+    "teal": 860,
+    "source": "contracts/shielded-pool.algo.ts:162"
+  },
+  {
+    "teal": 861,
+    "source": "contracts/shielded-pool.algo.ts:162"
+  },
+  {
+    "teal": 862,
+    "source": "contracts/shielded-pool.algo.ts:162"
+  },
+  {
+    "teal": 863,
+    "source": "contracts/shielded-pool.algo.ts:162"
+  },
+  {
+    "teal": 864,
+    "source": "contracts/shielded-pool.algo.ts:157"
+  },
+  {
+    "teal": 869,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 870,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 871,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 872,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 873,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 876,
+    "source": "contracts/shielded-pool.algo.ts:164",
+    "errorMessage": "box value does not exist: this.treeFrontier(lvl).value"
+  },
+  {
+    "teal": 877,
+    "source": "contracts/shielded-pool.algo.ts:164"
+  },
+  {
+    "teal": 881,
+    "source": "contracts/shielded-pool.algo.ts:165"
+  },
+  {
+    "teal": 882,
+    "source": "contracts/shielded-pool.algo.ts:165"
+  },
+  {
+    "teal": 883,
+    "source": "contracts/shielded-pool.algo.ts:165"
+  },
+  {
+    "teal": 884,
+    "source": "contracts/shielded-pool.algo.ts:165"
+  },
+  {
+    "teal": 885,
+    "source": "contracts/shielded-pool.algo.ts:165"
+  },
+  {
+    "teal": 890,
+    "source": "contracts/shielded-pool.algo.ts:167"
+  },
+  {
+    "teal": 891,
+    "source": "contracts/shielded-pool.algo.ts:167"
+  },
+  {
+    "teal": 892,
+    "source": "contracts/shielded-pool.algo.ts:167"
+  },
+  {
+    "teal": 893,
+    "source": "contracts/shielded-pool.algo.ts:167"
+  },
+  {
+    "teal": 898,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 899,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 900,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 901,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 902,
+    "source": "contracts/shielded-pool.algo.ts:155"
+  },
+  {
+    "teal": 907,
+    "source": "contracts/shielded-pool.algo.ts:170"
+  },
+  {
+    "teal": 908,
+    "source": "contracts/shielded-pool.algo.ts:170"
+  },
+  {
+    "teal": 909,
+    "source": "contracts/shielded-pool.algo.ts:170"
+  },
+  {
+    "teal": 910,
+    "source": "contracts/shielded-pool.algo.ts:151"
+  },
+  {
+    "teal": 915,
+    "source": "contracts/shielded-pool.algo.ts:173"
+  },
+  {
+    "teal": 916,
+    "source": "contracts/shielded-pool.algo.ts:173"
+  },
+  {
+    "teal": 917,
+    "source": "contracts/shielded-pool.algo.ts:173"
+  },
+  {
+    "teal": 921,
+    "source": "contracts/shielded-pool.algo.ts:173"
+  },
+  {
+    "teal": 925,
+    "source": "contracts/shielded-pool.algo.ts:174"
+  },
+  {
+    "teal": 926,
+    "source": "contracts/shielded-pool.algo.ts:174"
+  },
+  {
+    "teal": 927,
+    "source": "contracts/shielded-pool.algo.ts:174"
+  },
+  {
+    "teal": 928,
+    "source": "contracts/shielded-pool.algo.ts:174"
+  },
+  {
+    "teal": 929,
+    "source": "contracts/shielded-pool.algo.ts:174"
+  },
+  {
+    "teal": 938,
+    "source": "contracts/shielded-pool.algo.ts:175"
+  },
+  {
+    "teal": 939,
+    "source": "contracts/shielded-pool.algo.ts:175"
+  },
+  {
+    "teal": 940,
+    "source": "contracts/shielded-pool.algo.ts:175"
+  },
+  {
+    "teal": 944,
+    "source": "contracts/shielded-pool.algo.ts:176"
+  },
+  {
+    "teal": 945,
+    "source": "contracts/shielded-pool.algo.ts:176"
+  },
+  {
+    "teal": 949,
+    "source": "contracts/shielded-pool.algo.ts:177"
+  },
+  {
+    "teal": 950,
+    "source": "contracts/shielded-pool.algo.ts:177"
+  },
+  {
+    "teal": 954,
+    "source": "contracts/shielded-pool.algo.ts:178"
+  },
+  {
+    "teal": 955,
+    "source": "contracts/shielded-pool.algo.ts:178"
+  },
+  {
+    "teal": 956,
+    "source": "contracts/shielded-pool.algo.ts:178"
+  },
+  {
+    "teal": 960,
+    "source": "contracts/shielded-pool.algo.ts:179"
+  },
+  {
+    "teal": 961,
+    "source": "contracts/shielded-pool.algo.ts:179"
+  },
+  {
+    "teal": 964,
+    "source": "contracts/shielded-pool.algo.ts:175"
+  },
+  {
+    "teal": 965,
+    "source": "contracts/shielded-pool.algo.ts:173"
+  },
+  {
+    "teal": 968,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 969,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 970,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 973,
+    "source": "contracts/shielded-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for create NoOp"
+  },
+  {
+    "teal": 976,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 977,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 978,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 979,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 980,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 981,
+    "source": "contracts/shielded-pool.algo.ts:6"
+  },
+  {
+    "teal": 984,
+    "source": "contracts/shielded-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for call NoOp"
+  }
+]
