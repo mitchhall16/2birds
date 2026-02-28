@@ -86,7 +86,7 @@ export async function shield(
     boxes: [
       {
         appIndex: Number(config.appId),
-        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(sender.addr).publicKey]),
+        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(String(sender.addr)).publicKey]),
       },
     ],
     suggestedParams: params,
@@ -96,7 +96,8 @@ export async function shield(
   const signedPay = grouped[0].signTxn(sender.sk);
   const signedApp = grouped[1].signTxn(sender.sk);
 
-  const { txId } = await algod.sendRawTransaction([signedPay, signedApp]).do();
+  const resp1 = await algod.sendRawTransaction([signedPay, signedApp]).do();
+  const txId = (resp1 as any).txid ?? (resp1 as any).txId;
   await algosdk.waitForConfirmation(algod, txId, 4);
 
   return pc;
@@ -176,7 +177,7 @@ export async function confidentialTransfer(
     boxes: [
       {
         appIndex: Number(config.appId),
-        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(sender.addr).publicKey]),
+        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(String(sender.addr)).publicKey]),
       },
       {
         appIndex: Number(config.appId),
@@ -187,7 +188,8 @@ export async function confidentialTransfer(
   });
 
   const signedApp = appCallTxn.signTxn(sender.sk);
-  const { txId } = await algod.sendRawTransaction(signedApp).do();
+  const resp2 = await algod.sendRawTransaction(signedApp).do();
+  const txId = (resp2 as any).txid ?? (resp2 as any).txId;
   await algosdk.waitForConfirmation(algod, txId, 4);
 
   return {
@@ -233,14 +235,15 @@ export async function unshield(
     boxes: [
       {
         appIndex: Number(config.appId),
-        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(sender.addr).publicKey]),
+        name: new Uint8Array([...new TextEncoder().encode('bal:'), ...algosdk.decodeAddress(String(sender.addr)).publicKey]),
       },
     ],
     suggestedParams: params,
   });
 
   const signedApp = appCallTxn.signTxn(sender.sk);
-  const { txId } = await algod.sendRawTransaction(signedApp).do();
+  const resp2 = await algod.sendRawTransaction(signedApp).do();
+  const txId = (resp2 as any).txid ?? (resp2 as any).txId;
   await algosdk.waitForConfirmation(algod, txId, 4);
 
   return newPC;

@@ -74,7 +74,8 @@ export class StealthRegistry {
     });
 
     const signed = txn.signTxn(sender.sk);
-    const { txId } = await this.algod.sendRawTransaction(signed).do();
+    const resp = await this.algod.sendRawTransaction(signed).do();
+    const txId = resp.txid;
     await algosdk.waitForConfirmation(this.algod, txId, 4);
     return txId;
   }
@@ -145,7 +146,8 @@ export class StealthRegistry {
     });
 
     const signed = txn.signTxn(sender.sk);
-    const { txId } = await this.algod.sendRawTransaction(signed).do();
+    const resp = await this.algod.sendRawTransaction(signed).do();
+    const txId = resp.txid;
     await algosdk.waitForConfirmation(this.algod, txId, 4);
     return txId;
   }
@@ -204,7 +206,7 @@ export class StealthRegistry {
     assetId: number = 0,
   ): Promise<{ txId: string; stealthAddress: AlgorandAddress }> {
     // Generate stealth address
-    const { stealthPubKey, ephemeralPub, viewTag } = await generateStealthAddress(recipientMeta);
+    const { stealthPubKey, ephemeralPubKey, viewTag } = await generateStealthAddress(recipientMeta);
 
     // For now, derive a temporary Algorand address from the stealth pub key
     // In production, this would use a proper BN254->Ed25519 bridge or rekey mechanism
@@ -239,7 +241,7 @@ export class StealthRegistry {
       onComplete: algosdk.OnApplicationComplete.NoOpOC,
       appArgs: [
         new TextEncoder().encode('announce'),
-        encodePoint(ephemeralPub),
+        encodePoint(ephemeralPubKey),
       ],
       suggestedParams: params,
     });
@@ -249,7 +251,8 @@ export class StealthRegistry {
     const signedPay = grouped[0].signTxn(sender.sk);
     const signedAnnounce = grouped[1].signTxn(sender.sk);
 
-    const { txId } = await this.algod.sendRawTransaction([signedPay, signedAnnounce]).do();
+    const resp = await this.algod.sendRawTransaction([signedPay, signedAnnounce]).do();
+    const txId = resp.txid;
     await algosdk.waitForConfirmation(this.algod, txId, 4);
 
     return { txId, stealthAddress };

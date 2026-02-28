@@ -103,7 +103,8 @@ export async function submitDeposit(
   const signedPay = grouped[0].signTxn(sender.sk);
   const signedApp = grouped[1].signTxn(sender.sk);
 
-  const { txId } = await algod.sendRawTransaction([signedPay, signedApp]).do();
+  const resp = await algod.sendRawTransaction([signedPay, signedApp]).do();
+  const txId = (resp as any).txid ?? (resp as any).txId;
   const result = await algosdk.waitForConfirmation(algod, txId, 4);
 
   // Extract leaf index from logs

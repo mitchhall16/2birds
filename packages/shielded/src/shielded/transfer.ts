@@ -105,7 +105,7 @@ export async function shieldedTransfer(
     inputBlindings: paddedInputs.map(n => n.blinding.toString()),
     inputNullifiers: paddedInputs.map(n => n.nullifier.toString()),
     inputOwnerPubKeys: paddedInputs.map(n => n.ownerPubKey.x.toString()),
-    inputPathElements: paths.map(p => p.pathElements.map(e => e.toString())),
+    inputPathElements: paths.map(p => p.pathElements.map((e: bigint) => e.toString())),
     inputPathIndices: paths.map(p => p.pathIndices),
     spendingKey: spendingKey.toString(),
 
@@ -161,7 +161,7 @@ export async function submitShieldedTransfer(
     sender: verifierLsig.address(),
     receiver: verifierLsig.address(),
     amount: 0,
-    suggestedParams: { ...params, fee: 10 * algosdk.ALGORAND_MIN_TX_FEE, flatFee: true },
+    suggestedParams: { ...params, fee: 10 * 1000, flatFee: true },
   });
 
   // App call — transfer
@@ -197,7 +197,8 @@ export async function submitShieldedTransfer(
   const signedVerifier = algosdk.signLogicSigTransactionObject(grouped[0], verifierLsig);
   const signedApp = grouped[1].signTxn(sender.sk);
 
-  const { txId } = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
+  const resp = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
+  const txId = (resp as any).txid ?? (resp as any).txId;
   await algosdk.waitForConfirmation(algod, txId, 4);
   return txId;
 }

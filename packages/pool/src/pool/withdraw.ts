@@ -117,7 +117,7 @@ export async function verifyWithdrawProof(
 ): Promise<boolean> {
   const snarks = await loadSnarkjs();
   const vkey = JSON.parse(
-    typeof window !== 'undefined'
+    typeof (globalThis as any).window !== 'undefined'
       ? await (await fetch(vkeyPath)).text()
       : (await import('fs')).readFileSync(vkeyPath, 'utf-8'),
   );
@@ -172,7 +172,7 @@ export async function submitWithdrawal(
     sender: verifierLsig.address(),
     receiver: verifierLsig.address(),
     amount: 0,
-    suggestedParams: { ...params, fee: 8 * algosdk.ALGORAND_MIN_TX_FEE, flatFee: true },
+    suggestedParams: { ...params, fee: 8 * 1000, flatFee: true },
   });
 
   // Transaction 2: App call to withdraw
@@ -209,7 +209,8 @@ export async function submitWithdrawal(
     ? grouped[1].signTxn(sender.sk)
     : grouped[1].signTxn(new Uint8Array(64)); // Relayer would sign
 
-  const { txId } = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
+  const resp = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
+  const txId = (resp as any).txid ?? (resp as any).txId;
   await algosdk.waitForConfirmation(algod, txId, 4);
   return txId;
 }

@@ -43,11 +43,16 @@ export class ShieldedWallet {
   private tree: IncrementalMerkleTree;
   private lastSyncedRound: bigint = 0n;
 
-  constructor(spendingKey?: Scalar, viewingKey?: Scalar) {
-    this.spendingKey = spendingKey ?? randomScalar();
-    this.viewingKey = viewingKey ?? randomScalar();
+  private constructor(spendingKey: Scalar, viewingKey: Scalar, tree: IncrementalMerkleTree) {
+    this.spendingKey = spendingKey;
+    this.viewingKey = viewingKey;
     this.spendingPubKey = derivePubKey(this.spendingKey);
-    this.tree = new IncrementalMerkleTree(20);
+    this.tree = tree;
+  }
+
+  static async create(spendingKey?: Scalar, viewingKey?: Scalar): Promise<ShieldedWallet> {
+    const tree = await IncrementalMerkleTree.create(20);
+    return new ShieldedWallet(spendingKey ?? randomScalar(), viewingKey ?? randomScalar(), tree);
   }
 
   /** Get the wallet's public key (for receiving) */
@@ -220,10 +225,10 @@ export class ShieldedWallet {
   /**
    * Import wallet state from encrypted persistence.
    */
-  static importState(state: WalletState): ShieldedWallet {
-    const wallet = new ShieldedWallet(state.spendingKey, state.viewingKey);
+  static async importState(state: WalletState): Promise<ShieldedWallet> {
+    const tree = await IncrementalMerkleTree.deserialize(state.treeState);
+    const wallet = new ShieldedWallet(state.spendingKey, state.viewingKey, tree);
     wallet.notes = state.notes;
-    wallet.tree = IncrementalMerkleTree.deserialize(state.treeState);
     wallet.lastSyncedRound = state.lastSyncedRound;
     return wallet;
   }
@@ -245,11 +250,11 @@ export class ShieldedWallet {
   /**
    * Deserialize wallet from storage.
    */
-  static deserialize(json: string): ShieldedWallet {
+  static async deserialize(json: string): Promise<ShieldedWallet> {
     const obj = JSON.parse(json);
-    const wallet = new ShieldedWallet(BigInt(obj.spendingKey), BigInt(obj.viewingKey));
+    const tree = await IncrementalMerkleTree.deserialize(obj.treeState);
+    const wallet = new ShieldedWallet(BigInt(obj.spendingKey), BigInt(obj.viewingKey), tree);
     wallet.notes = obj.notes.map((n: string) => deserializeShieldedNote(n));
-    wallet.tree = IncrementalMerkleTree.deserialize(obj.treeState);
     wallet.lastSyncedRound = BigInt(obj.lastSyncedRound);
     return wallet;
   }

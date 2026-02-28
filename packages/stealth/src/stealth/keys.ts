@@ -106,7 +106,7 @@ export async function generateStealthAddress(recipientMeta: StealthMetaAddress):
   // View tag: first byte of the shared secret (for fast scanning optimization)
   const viewTag = Number(sharedSecret & 0xffn);
 
-  return { stealthPubKey, ephemeralPub, viewTag };
+  return { stealthPubKey, ephemeralPubKey: ephemeralPub, viewTag };
 }
 
 /**

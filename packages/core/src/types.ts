@@ -87,7 +87,7 @@ export interface PedersenCommitment {
 
 /** Range proof (proves value in [0, 2^64)) */
 export interface RangeProof {
-  proof: Groth16Proof | PlonkProof;
+  proof: Groth16Proof;
   commitment: BN254Point;
 }
 
@@ -107,7 +107,7 @@ export interface ShieldedNote {
 export interface ShieldedTransfer {
   inputNotes: ShieldedNote[];
   outputNotes: ShieldedNote[];
-  proof: Groth16Proof | PlonkProof;
+  proof: Groth16Proof;
   publicInputs: {
     oldRoot: Scalar;
     newRoot: Scalar;
