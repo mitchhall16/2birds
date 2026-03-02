@@ -62,12 +62,13 @@ build_circuit() {
         "${PTAU_FILE}" \
         "${BUILD_DIR}/${name}_0000.zkey"
 
-    # 3. Contribute to Phase 2 ceremony (in production, this would be multi-party)
+    # 3. Contribute to Phase 2 ceremony
+    # Uses /dev/urandom entropy. For production, use ceremony.sh with multi-party contributions.
     echo "[3/5] Contributing to Phase 2 ceremony..."
-    echo "algo-privacy-dev-contribution" | snarkjs zkey contribute \
+    head -c 64 /dev/urandom | base64 | snarkjs zkey contribute \
         "${BUILD_DIR}/${name}_0000.zkey" \
         "${BUILD_DIR}/${name}_final.zkey" \
-        --name="algo-privacy-dev"
+        --name="algo-privacy-dev-$(date +%s)"
 
     # 4. Export verification key
     echo "[4/5] Exporting verification key..."
@@ -93,8 +94,16 @@ case "${1:-all}" in
     withdraw)
         build_circuit "withdraw" "${CIRCUIT_DIR}/withdraw.circom"
         ;;
+    deposit)
+        PTAU_FILE="${PTAU_FILE_17}"
+        build_circuit "deposit" "${CIRCUIT_DIR}/deposit.circom"
+        ;;
     range-proof)
         build_circuit "range_proof" "${CIRCUIT_DIR}/range-proof.circom"
+        ;;
+    privateSend)
+        PTAU_FILE="${PTAU_FILE_17}"
+        build_circuit "privateSend" "${CIRCUIT_DIR}/privateSend.circom"
         ;;
     shielded)
         PTAU_FILE="${PTAU_FILE_17}"
@@ -102,11 +111,17 @@ case "${1:-all}" in
         ;;
     all)
         build_circuit "withdraw" "${CIRCUIT_DIR}/withdraw.circom"
+        PTAU_FILE="${PTAU_FILE_17}"
+        build_circuit "deposit" "${CIRCUIT_DIR}/deposit.circom"
+        PTAU_FILE="${PTAU_FILE_17}"
+        build_circuit "privateSend" "${CIRCUIT_DIR}/privateSend.circom"
+        PTAU_FILE="${PTAU_FILE_15}"
         build_circuit "range_proof" "${CIRCUIT_DIR}/range-proof.circom"
+        PTAU_FILE="${PTAU_FILE_17}"
         build_circuit "shielded_transfer" "${CIRCUIT_DIR}/shielded-transfer.circom"
         ;;
     *)
-        echo "Usage: $0 {withdraw|range-proof|shielded|all}"
+        echo "Usage: $0 {withdraw|deposit|privateSend|range-proof|shielded|all}"
         exit 1
         ;;
 esac

@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useTransaction, type TxStage } from '../hooks/useTransaction'
 import { CostBreakdown } from './CostBreakdown'
-import { txnUrl } from '../lib/config'
-import { loadNotes, removeNote, deriveMasterKey, recoverNotes, initMimc, type DepositNote } from '../lib/privacy'
+import { txnUrl, DENOMINATION_TIERS, type DenominationTier } from '../lib/config'
+import { loadNotes, removeNote, deriveMasterKey, deriveMasterKeyFromPassword, recoverNotes, initMimc, PasswordRequiredError, hasPasswordKey, type DepositNote } from '../lib/privacy'
+import { PasswordModal } from './PasswordModal'
 import { ALGOD_CONFIG } from '../lib/config'
 import algosdk from 'algosdk'
 
@@ -20,28 +21,35 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
   const { activeAddress, signData, algodClient } = useWallet()
   const tx = useTransaction()
   const [tab, setTab] = useState<Tab>('deposit')
-  const [amount, setAmount] = useState('1')
+  const [selectedTier, setSelectedTier] = useState<DenominationTier>(DENOMINATION_TIERS[2]) // default 1.0 ALGO
   const [destination, setDestination] = useState('')
-  const [notes, setNotes] = useState<DepositNote[]>(loadNotes)
+  const [notes, setNotes] = useState<DepositNote[]>([])
   const [sendingIdx, setSendingIdx] = useState<number | null>(null)
-  const [splittingIdx, setSplittingIdx] = useState<number | null>(null)
-  const [splitPct, setSplitPct] = useState(50)
-  const [selectedForCombine, setSelectedForCombine] = useState<Set<number>>(new Set())
   const [manageDestination, setManageDestination] = useState('')
   const [recovering, setRecovering] = useState(false)
   const [recoveryResult, setRecoveryResult] = useState<{ recovered: number; total: number; spent: number } | null>(null)
+  const [rebuildingTrees, setRebuildingTrees] = useState(false)
+  const [confirmDeleteIdx, setConfirmDeleteIdx] = useState<number | null>(null)
+  const [rebuildProgress, setRebuildProgress] = useState('')
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null)
+  const [passwordError, setPasswordError] = useState('')
+  const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false)
   const prevStage = useRef<TxStage>('idle')
 
-  const numAmount = parseFloat(amount) || 0
-  const validAmount = numAmount > 0 && numAmount <= 1
+  // Load notes async on mount
+  useEffect(() => { loadNotes().then(setNotes).catch(console.error) }, [])
+
+  const tierAmount = Number(selectedTier.microAlgos) / 1_000_000
   const isValidDest = destination.length > 0 && algosdk.isValidAddress(destination)
   const isValidManageDest = manageDestination.length > 0 && algosdk.isValidAddress(manageDestination)
 
-  const canDeposit = !!activeAddress && validAmount && (tx.stage === 'idle' || tx.stage === 'deposit_complete' || tx.stage === 'withdraw_complete')
-  const canSend = !!activeAddress && validAmount && isValidDest && (tx.stage === 'idle' || tx.stage === 'deposit_complete' || tx.stage === 'withdraw_complete')
+  const isIdle = tx.stage === 'idle' || tx.stage === 'deposit_complete' || tx.stage === 'withdraw_complete'
+  const canDeposit = !!activeAddress && isIdle
+  const canSend = !!activeAddress && isValidDest && isIdle && privacyAcknowledged
 
-  function refreshNotes() {
-    setNotes(loadNotes())
+  async function refreshNotes() {
+    setNotes(await loadNotes())
   }
 
   useEffect(() => {
@@ -55,58 +63,67 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
     }
   }, [tx.stage, onDeposit, onWithdraw, onComplete])
 
+  /** Wrap an async action: if it throws PasswordRequiredError, show modal and retry on password entry */
+  async function withPasswordFallback(action: () => Promise<void>) {
+    try {
+      await action()
+    } catch (err) {
+      if (err instanceof PasswordRequiredError) {
+        setPendingAction(() => action)
+        setShowPasswordModal(true)
+        setPasswordError('')
+      } else {
+        throw err
+      }
+    }
+  }
+
+  async function handlePasswordSubmit(password: string) {
+    try {
+      await deriveMasterKeyFromPassword(password)
+      setShowPasswordModal(false)
+      setPasswordError('')
+      // Retry the pending action now that master key is cached
+      if (pendingAction) {
+        const action = pendingAction
+        setPendingAction(null)
+        await action()
+      }
+    } catch (err: any) {
+      setPasswordError(err?.message || 'Failed to derive key')
+    }
+  }
+
+  function handlePasswordCancel() {
+    setShowPasswordModal(false)
+    setPendingAction(null)
+    setPasswordError('')
+  }
+
   async function handleDeposit() {
     if (!canDeposit) return
-    await tx.deposit(numAmount)
+    await withPasswordFallback(() => tx.deposit(selectedTier.microAlgos))
   }
 
   async function handleSend() {
     if (!canSend) return
-    await tx.privateSend(numAmount, destination)
+    await withPasswordFallback(() => tx.privateSend(selectedTier.microAlgos, destination))
   }
 
-  async function handleManageSend(idx: number) {
+  async function handleManageSend(noteCommitment: bigint) {
     if (!isValidManageDest || !activeAddress) return
     setSendingIdx(null)
-    await tx.withdraw(idx, manageDestination)
-    setManageDestination('')
-    refreshNotes()
-  }
-
-  async function handleSplit(idx: number, noteAlgo: number) {
-    const leftAlgo = Math.round(noteAlgo * splitPct / 100 * 1_000_000) / 1_000_000
-    if (leftAlgo <= 0 || leftAlgo >= noteAlgo) return
-    setSplittingIdx(null)
-    setSplitPct(50)
-    setSelectedForCombine(new Set())
-    await tx.splitNote(idx, leftAlgo)
-    refreshNotes()
-  }
-
-  async function handleCombine() {
-    const indices = Array.from(selectedForCombine).sort((a, b) => a - b)
-    if (indices.length < 2) return
-    setSelectedForCombine(new Set())
-    setSplittingIdx(null)
-    setSendingIdx(null)
-    await tx.combineNotes(indices)
-    refreshNotes()
-  }
-
-  function toggleCombineSelect(idx: number) {
-    setSelectedForCombine(prev => {
-      const next = new Set(prev)
-      if (next.has(idx)) next.delete(idx)
-      else next.add(idx)
-      return next
+    await withPasswordFallback(async () => {
+      await tx.withdraw(noteCommitment, manageDestination)
+      setManageDestination('')
+      refreshNotes()
     })
   }
 
-  function handleDelete(idx: number) {
-    if (confirm('Delete this deposit note? You will lose access to these funds.')) {
-      removeNote(idx)
-      refreshNotes()
-    }
+  async function handleDelete(idx: number) {
+    await removeNote(idx)
+    setConfirmDeleteIdx(null)
+    await refreshNotes()
   }
 
   function handleReset() {
@@ -119,16 +136,18 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
     setRecovering(true)
     setRecoveryResult(null)
     try {
-      await initMimc()
-      const masterKey = await deriveMasterKey(signData)
-      const client = algodClient ?? new algosdk.Algodv2(
-        ALGOD_CONFIG.token,
-        ALGOD_CONFIG.baseServer,
-        ALGOD_CONFIG.port,
-      )
-      const result = await recoverNotes(masterKey, client)
-      setRecoveryResult({ recovered: result.recovered.length, total: result.total, spent: result.spent })
-      refreshNotes()
+      await withPasswordFallback(async () => {
+        await initMimc()
+        const masterKey = await deriveMasterKey(signData)
+        const client = algodClient ?? new algosdk.Algodv2(
+          ALGOD_CONFIG.token,
+          ALGOD_CONFIG.baseServer,
+          ALGOD_CONFIG.port,
+        )
+        const result = await recoverNotes(masterKey, client)
+        setRecoveryResult({ recovered: result.recovered.length, total: result.total, spent: result.spent })
+        refreshNotes()
+      })
     } catch (err) {
       console.error('Recovery failed:', err)
       setRecoveryResult({ recovered: 0, total: 0, spent: 0 })
@@ -137,26 +156,37 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
     }
   }
 
-  function handleAmountChange(val: string) {
-    if (val === '' || val === '.') { setAmount(val); return }
-    const n = parseFloat(val)
-    if (!isNaN(n) && n >= 0 && n <= 1) setAmount(val)
+  async function handleRebuildTrees() {
+    if (rebuildingTrees) return
+    setRebuildingTrees(true)
+    setRebuildProgress('Starting...')
+    try {
+      await tx.rebuildAllTrees((pool, done) => {
+        setRebuildProgress(done ? `${pool} done` : `Syncing ${pool}...`)
+      })
+      setRebuildProgress('All trees rebuilt')
+    } catch (err) {
+      console.error('Tree rebuild failed:', err)
+      setRebuildProgress('Rebuild failed')
+    } finally {
+      setRebuildingTrees(false)
+    }
   }
 
-  const isProcessing = tx.stage === 'depositing' || tx.stage === 'withdrawing' || tx.stage === 'generating_proof' || tx.stage === 'splitting' || tx.stage === 'combining'
-  const isDone = tx.stage === 'deposit_complete' || tx.stage === 'withdraw_complete' || tx.stage === 'split_complete' || tx.stage === 'combine_complete'
-  const isIdle = !isProcessing && !isDone && tx.stage !== 'error'
+  const isProcessing = tx.stage === 'depositing' || tx.stage === 'withdrawing' || tx.stage === 'generating_proof'
+  const isDone = tx.stage === 'deposit_complete' || tx.stage === 'withdraw_complete'
+  const isIdleUI = !isProcessing && !isDone && tx.stage !== 'error'
 
   return (
     <div className="tx-flow reveal reveal-3">
 
       {/* Tabs — always visible */}
       <div className="tx-tab-bar">
-        <button className={`tx-tab ${tab === 'deposit' ? 'tx-tab--active' : ''}`} onClick={() => setTab('deposit')}>
+        <button className={`tx-tab ${tab === 'deposit' ? 'tx-tab--active' : ''}`} onClick={() => { setTab('deposit'); setPrivacyAcknowledged(false) }}>
           Deposit
         </button>
-        <button className={`tx-tab ${tab === 'send' ? 'tx-tab--active' : ''}`} onClick={() => setTab('send')}>
-          Send
+        <button className={`tx-tab ${tab === 'send' ? 'tx-tab--active' : ''}`} onClick={() => { setTab('send'); setPrivacyAcknowledged(false) }}>
+          Quick Send
         </button>
         <button className={`tx-tab ${tab === 'manage' ? 'tx-tab--active' : ''}`} onClick={() => { setTab('manage'); refreshNotes() }}>
           Manage{notes.length > 0 ? ` (${notes.length})` : ''}
@@ -164,55 +194,93 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
       </div>
 
       {/* ── Deposit / Send tabs ── */}
-      {(tab === 'deposit' || tab === 'send') && isIdle && (
+      {(tab === 'deposit' || tab === 'send') && isIdleUI && (
         <>
-          {/* Amount */}
+          {/* Tier selector */}
           <div className="tx-field">
             <label className="tx-field__label">Amount</label>
-            <div className="tx-amount-input-wrap">
-              <input
-                className="tx-amount-input"
-                type="text"
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder="0.00"
-              />
-              <span className="tx-amount-input__unit">ALGO</span>
-              <button className="tx-amount-input__max" onClick={() => setAmount('1')}>MAX</button>
+            <div className="tx-tier-row">
+              {DENOMINATION_TIERS.map(tier => (
+                <button
+                  key={tier.label}
+                  className={`tx-tier-btn ${selectedTier.microAlgos === tier.microAlgos ? 'tx-tier-btn--active' : ''}`}
+                  onClick={() => setSelectedTier(tier)}
+                >
+                  {tier.label} ALGO
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Send: destination */}
           {tab === 'send' && (
-            <div className="tx-field">
-              <label className="tx-field__label">To</label>
-              <input
-                className={`tx-field__input ${destination.length > 0 && !isValidDest ? 'tx-field__input--invalid' : ''}`}
-                type="text"
-                placeholder="Algorand address..."
-                value={destination}
-                onChange={(e) => setDestination(e.target.value.trim())}
-                spellCheck={false}
-              />
-              {destination.length > 0 && !isValidDest && (
-                <div className="tx-field__error">Invalid Algorand address</div>
+            <>
+              <div className="tx-field">
+                <label className="tx-field__label">To</label>
+                <input
+                  className={`tx-field__input ${destination.length > 0 && !isValidDest ? 'tx-field__input--invalid' : ''}`}
+                  type="text"
+                  placeholder="Algorand address..."
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value.trim())}
+                  spellCheck={false}
+                />
+                {destination.length > 0 && !isValidDest && (
+                  <div className="tx-field__error">Invalid Algorand address</div>
+                )}
+              </div>
+              {tx.relayerAvailable && (
+                <label className="tx-relayer-toggle">
+                  <input
+                    type="checkbox"
+                    checked={tx.useRelayer}
+                    onChange={e => tx.setUseRelayer(e.target.checked)}
+                  />
+                  <span>Use relayer (hides your wallet address, 0.25 ALGO fee)</span>
+                </label>
               )}
+              <div className="privacy-warning privacy-warning--strong">
+                <strong>Reduced privacy:</strong> Quick Send deposits and withdraws in the same block, publicly linking both transactions on-chain. Your anonymity set is effectively zero.
+                <br /><br />
+                For maximum privacy, use{' '}
+                <button className="tx-info-link" onClick={() => setTab('deposit')}>Deposit</button>{' '}
+                first, wait for other pool activity, then withdraw from{' '}
+                <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button>.
+              </div>
+              <label className="privacy-ack">
+                <input
+                  type="checkbox"
+                  checked={privacyAcknowledged}
+                  onChange={e => setPrivacyAcknowledged(e.target.checked)}
+                />
+                <span>I understand this trade-off: lower fees, reduced privacy</span>
+              </label>
+            </>
+          )}
+
+          {tab === 'deposit' && (
+            <div className="tx-info-box">
+              <strong>How it works:</strong> Depositing shields your ALGO in the privacy pool. To send it to another address later, go to <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button> and withdraw. Withdrawal fee is ~0.23 ALGO.
             </div>
           )}
 
-          <CostBreakdown amount={numAmount} mode={tab === 'deposit' ? 'deposit' : 'send'} walletBalance={walletBalance} />
+          <CostBreakdown amount={tierAmount} mode={tab === 'deposit' ? 'deposit' : 'send'} walletBalance={walletBalance} />
 
           <div className="tx-flow__spacer" />
 
           {tab === 'deposit' ? (
-            <button
-              className={`tx-execute ${canDeposit ? 'tx-execute--ready' : 'tx-execute--disabled'}`}
-              onClick={handleDeposit}
-              disabled={!canDeposit}
-            >
-              Deposit {validAmount ? `${amount} ALGO` : ''}
-            </button>
+            <>
+              <button
+                className={`tx-execute ${canDeposit ? 'tx-execute--ready' : 'tx-execute--disabled'}`}
+                onClick={handleDeposit}
+                disabled={!canDeposit}
+              >
+                Deposit {selectedTier.label} ALGO
+              </button>
+              <div className="tx-info-box" style={{ marginTop: 14 }}>
+                <strong>Refreshed or new device?</strong> Go to <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button> and tap <strong>Recover Notes</strong> to restore your deposits.
+              </div>
+            </>
           ) : (
             <button
               className={`tx-execute ${canSend ? 'tx-execute--ready' : 'tx-execute--disabled'}`}
@@ -221,14 +289,14 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
             >
               {!isValidDest
                 ? 'Enter destination'
-                : `Send ${validAmount ? amount + ' ALGO' : ''}`}
+                : `Send ${selectedTier.label} ALGO`}
             </button>
           )}
         </>
       )}
 
       {/* ── Manage tab ── */}
-      {tab === 'manage' && isIdle && (
+      {tab === 'manage' && isIdleUI && (
         <>
           {notes.length === 0 ? (
             <div className="manage-empty">No deposits yet</div>
@@ -237,23 +305,12 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
               <div className="manage-list">
                 {notes.map((note, i) => {
                   const noteAlgo = Number(note.denomination) / 1_000_000
-                  const leftAlgo = Math.round(noteAlgo * splitPct / 100 * 1_000_000) / 1_000_000
-                  const rightAlgo = Math.round((noteAlgo - leftAlgo) * 1_000_000) / 1_000_000
-                  const canSplit = leftAlgo > 0 && rightAlgo > 0
                   return (
-                    <div key={i} className={`manage-note ${selectedForCombine.has(i) ? 'manage-note--selected' : ''}`}>
+                    <div key={i} className="manage-note">
                       <div className="manage-note__info">
-                        <label className="manage-note__checkbox-wrap">
-                          <input
-                            type="checkbox"
-                            checked={selectedForCombine.has(i)}
-                            onChange={() => toggleCombineSelect(i)}
-                            className="manage-note__checkbox"
-                          />
-                          <span className="manage-note__amount">
-                            {noteAlgo.toFixed(2)} ALGO
-                          </span>
-                        </label>
+                        <span className="manage-note__amount">
+                          {noteAlgo.toFixed(2)} ALGO
+                        </span>
                         <span className="manage-note__date">
                           {new Date(note.timestamp).toLocaleDateString()} {new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
@@ -270,11 +327,24 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                             spellCheck={false}
                             autoFocus
                           />
+                          {tx.relayerAvailable && (
+                            <label className="tx-relayer-toggle" style={{ marginTop: 6, marginBottom: 2 }}>
+                              <input
+                                type="checkbox"
+                                checked={tx.useRelayer}
+                                onChange={e => tx.setUseRelayer(e.target.checked)}
+                              />
+                              <span>Use relayer</span>
+                            </label>
+                          )}
+                          {isValidManageDest && (
+                            <CostBreakdown amount={noteAlgo} mode="withdraw" />
+                          )}
                           <div className="manage-note__actions">
                             <button
                               className="manage-btn manage-btn--send"
                               disabled={!isValidManageDest}
-                              onClick={() => handleManageSend(i)}
+                              onClick={() => handleManageSend(note.commitment)}
                             >
                               Send
                             </button>
@@ -286,48 +356,19 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                             </button>
                           </div>
                         </div>
-                      ) : splittingIdx === i ? (
-                        <div className="manage-note__send-form">
-                          <div className="manage-split__slider-wrap">
-                            <div className="manage-split__labels">
-                              <span className="manage-split__label-left">{leftAlgo.toFixed(3)}</span>
-                              <span className="manage-split__label-right">{rightAlgo.toFixed(3)}</span>
-                            </div>
-                            <div className="manage-split__track">
-                              <div className="manage-split__track-left" style={{ width: `${splitPct}%` }} />
-                              <div className="manage-split__track-right" style={{ width: `${100 - splitPct}%` }} />
-                            </div>
-                            <input
-                              type="range"
-                              min={1}
-                              max={99}
-                              value={splitPct}
-                              onChange={e => setSplitPct(Number(e.target.value))}
-                              className="manage-split__range"
-                            />
-                            <div className="manage-split__units">
-                              <span>ALGO</span>
-                              <span>ALGO</span>
-                            </div>
-                          </div>
-                          <CostBreakdown
-                            amount={noteAlgo}
-                            mode="split"
-                            splitLeft={leftAlgo}
-                            splitRight={rightAlgo}
-                            walletBalance={walletBalance}
-                          />
+                      ) : confirmDeleteIdx === i ? (
+                        <div className="manage-note__confirm-delete">
+                          <span className="manage-note__confirm-text">Delete this note? You will lose access to these funds.</span>
                           <div className="manage-note__actions">
                             <button
-                              className="manage-btn manage-btn--send"
-                              disabled={!canSplit}
-                              onClick={() => handleSplit(i, noteAlgo)}
+                              className="manage-btn manage-btn--delete"
+                              onClick={() => handleDelete(i)}
                             >
-                              Split
+                              Delete
                             </button>
                             <button
                               className="manage-btn manage-btn--cancel"
-                              onClick={() => { setSplittingIdx(null); setSplitPct(50) }}
+                              onClick={() => setConfirmDeleteIdx(null)}
                             >
                               Cancel
                             </button>
@@ -337,15 +378,16 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                         <div className="manage-note__actions">
                           <button
                             className="manage-btn manage-btn--send"
-                            onClick={() => { setSendingIdx(i); setSplittingIdx(null); setManageDestination('') }}
+                            onClick={() => { setSendingIdx(i); setManageDestination('') }}
                           >
                             Send
                           </button>
                           <button
-                            className="manage-btn manage-btn--split"
-                            onClick={() => { setSplittingIdx(i); setSendingIdx(null); setSplitPct(50) }}
+                            className="manage-btn manage-btn--delete-icon"
+                            onClick={() => setConfirmDeleteIdx(i)}
+                            title="Delete note"
                           >
-                            Split
+                            ×
                           </button>
                         </div>
                       )}
@@ -353,44 +395,52 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                   )
                 })}
               </div>
-
-              {selectedForCombine.size < 2 && notes.length >= 2 && (
-                <div className="manage-hint">Select 2 or more checkboxes to combine deposits</div>
-              )}
-
-              {selectedForCombine.size >= 2 && (
-                <div className="manage-combine-bar">
-                  <CostBreakdown
-                    amount={Array.from(selectedForCombine).reduce((sum, i) => sum + Number(notes[i].denomination), 0) / 1_000_000}
-                    mode="combine"
-                    combineCount={selectedForCombine.size}
-                    walletBalance={walletBalance}
-                  />
-                  <button className="manage-btn manage-btn--send" onClick={handleCombine}>
-                    Combine {selectedForCombine.size} Notes
-                  </button>
-                </div>
-              )}
             </>
           )}
 
-          <button
-            className={`manage-btn manage-btn--recover ${recovering ? 'manage-btn--loading' : ''}`}
-            onClick={handleRecover}
-            disabled={recovering || !activeAddress}
-            style={{ marginTop: 12, width: '100%' }}
-          >
-            {recovering ? 'Scanning chain...' : 'Recover Notes'}
-          </button>
-          {recoveryResult && (
-            <div className="manage-recovery-result">
-              {recoveryResult.recovered > 0
-                ? `Found ${recoveryResult.recovered} note${recoveryResult.recovered > 1 ? 's' : ''} (${recoveryResult.spent} spent)`
-                : recoveryResult.total > 0
-                  ? `All ${recoveryResult.total} deposits already accounted for`
-                  : 'No deposits found for this wallet'}
+          <div className="manage-recovery-section">
+            <div className="manage-recovery-section__header">Recovery</div>
+            <div className="manage-recovery-section__desc">
+              New device, cleared browser data, or refreshed the page? Use these tools to restore your deposits.
             </div>
-          )}
+
+            <div className="manage-recovery-item">
+              <button
+                className={`manage-btn manage-btn--recover ${recovering ? 'manage-btn--loading' : ''}`}
+                onClick={handleRecover}
+                disabled={recovering || !activeAddress}
+                style={{ width: '100%' }}
+              >
+                {recovering ? 'Scanning chain...' : 'Recover Notes'}
+              </button>
+              <div className="manage-recovery-item__desc">
+                Scans the blockchain for your deposits using your wallet key. Run this first on a new device.
+              </div>
+            </div>
+            {recoveryResult && (
+              <div className="manage-recovery-result">
+                {recoveryResult.recovered > 0
+                  ? `Found ${recoveryResult.recovered} note${recoveryResult.recovered > 1 ? 's' : ''} (${recoveryResult.spent} spent)`
+                  : recoveryResult.total > 0
+                    ? `All ${recoveryResult.total} deposits already accounted for`
+                    : 'No deposits found for this wallet'}
+              </div>
+            )}
+
+            <div className="manage-recovery-item">
+              <button
+                className={`manage-btn manage-btn--recover ${rebuildingTrees ? 'manage-btn--loading' : ''}`}
+                onClick={handleRebuildTrees}
+                disabled={rebuildingTrees}
+                style={{ width: '100%' }}
+              >
+                {rebuildingTrees ? rebuildProgress : 'Rebuild Trees from Chain'}
+              </button>
+              <div className="manage-recovery-item__desc">
+                Re-syncs the Merkle trees from on-chain data. Needed if withdrawals fail with a root mismatch error.
+              </div>
+            </div>
+          </div>
         </>
       )}
 
@@ -412,7 +462,7 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
             </a>
           )}
           <button className="tx-execute tx-execute--loading" disabled style={{ marginTop: 20 }}>
-            {tx.stage === 'depositing' ? 'Depositing...' : tx.stage === 'generating_proof' ? 'Proving...' : tx.stage === 'splitting' ? 'Splitting...' : tx.stage === 'combining' ? 'Combining...' : 'Sending...'}
+            {tx.stage === 'depositing' ? 'Depositing...' : tx.stage === 'generating_proof' ? 'Proving...' : 'Sending...'}
           </button>
         </div>
       )}
@@ -421,7 +471,7 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
       {isDone && (
         <div className="tx-status">
           <div className="tx-status__text">
-            <strong>{tx.stage === 'deposit_complete' ? 'Deposit confirmed.' : tx.stage === 'split_complete' ? 'Split complete.' : tx.stage === 'combine_complete' ? 'Combine complete.' : 'Transfer complete.'}</strong>
+            <strong>{tx.stage === 'deposit_complete' ? 'Deposit confirmed.' : 'Transfer complete.'}</strong>
             <br />
             {tx.message}
           </div>
@@ -449,6 +499,15 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
           </button>
         </div>
       )}
+
+      {/* Password modal for Pera / wallets without signData */}
+      <PasswordModal
+        open={showPasswordModal}
+        mode={hasPasswordKey() ? 'unlock' : 'create'}
+        onSubmit={handlePasswordSubmit}
+        onCancel={handlePasswordCancel}
+        externalError={passwordError}
+      />
     </div>
   )
 }

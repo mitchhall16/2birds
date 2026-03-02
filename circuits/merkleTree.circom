@@ -68,19 +68,24 @@ template MerkleTreeChecker(levels) {
 }
 
 /**
- * CommitmentHasher — Computes commitment = MiMC(secret, nullifier)
+ * CommitmentHasher — Computes commitment = MiMC(secret, nullifier, amount)
  * and nullifierHash = MiMC(nullifier)
+ *
+ * The amount is included in the commitment so the ZK proof cryptographically
+ * binds to the deposited amount, preventing deposit/withdraw amount mismatches.
  */
 template CommitmentHasher() {
     signal input secret;
     signal input nullifier;
+    signal input amount;
     signal output commitment;
     signal output nullifierHash;
 
-    // commitment = MiMCSponge([secret, nullifier])
-    component commitHasher = MiMCSponge(2, 220, 1);
+    // commitment = MiMCSponge([secret, nullifier, amount])
+    component commitHasher = MiMCSponge(3, 220, 1);
     commitHasher.ins[0] <== secret;
     commitHasher.ins[1] <== nullifier;
+    commitHasher.ins[2] <== amount;
     commitHasher.k <== 0;
     commitment <== commitHasher.outs[0];
 

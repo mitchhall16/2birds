@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
-import { CONTRACTS, ALGOD_CONFIG, INDEXER_CONFIG } from '../lib/config'
+import { ALGOD_CONFIG, INDEXER_CONFIG, POOL_CONTRACTS } from '../lib/config'
 import { loadNotes } from '../lib/privacy'
 import algosdk from 'algosdk'
 
 interface PoolState {
-  totalDeposited: number // total user-deposited ALGO in the pool
+  totalDeposited: number // total ALGO across all pools
   userBalance: number // this user's shielded notes total
   depositCount: number
   isLoading: boolean
@@ -15,9 +15,8 @@ interface PoolState {
 }
 
 /**
- * Query the indexer to compute real user deposits in the pool.
- * Only counts payments that are part of an atomic group (deposit txns),
- * and subtracts inner-transaction withdrawals from app calls.
+ * Query the indexer to compute real deposits in a pool.
+ * Counts grouped payments in, minus inner-transaction withdrawals out.
  */
 async function fetchPoolDeposits(poolAddr: string): Promise<number> {
   const base = INDEXER_CONFIG.baseServer.replace(/\/$/, '')
@@ -57,7 +56,7 @@ async function fetchPoolDeposits(poolAddr: string): Promise<number> {
     nextToken = data['next-token'] ?? ''
   } while (nextToken)
 
-  return Math.max(0, totalIn - totalOut) / 1_000_000
+  return Math.max(0, totalIn - totalOut)
 }
 
 export function usePoolState(): PoolState {
@@ -80,36 +79,41 @@ export function usePoolState(): PoolState {
         ALGOD_CONFIG.port,
       )
 
-      const poolAddr = CONTRACTS.PrivacyPool.appAddress
-      const appId = CONTRACTS.PrivacyPool.appId
-
-      // Pool total via indexer (grouped deposits minus withdrawals)
+      // Pool total: sum deposits across all 3 tier pools
       try {
-        const poolTotal = await fetchPoolDeposits(poolAddr)
-        setTotalDeposited(poolTotal)
+        const pools = Object.values(POOL_CONTRACTS)
+        const totals = await Promise.all(pools.map(p => fetchPoolDeposits(p.appAddress).catch(() => 0)))
+        setTotalDeposited(totals.reduce((a, b) => a + b, 0) / 1_000_000)
       } catch {
         setTotalDeposited(0)
       }
 
       // User's shielded balance from their local notes
       try {
-        const notes = loadNotes()
+        const notes = await loadNotes()
         const userTotal = notes.reduce((sum, n) => sum + Number(n.denomination), 0)
         setUserBalance(userTotal / 1_000_000)
       } catch {
         setUserBalance(0)
       }
 
-      // Deposit count from global state
+      // Deposit count: sum next_idx across all pools
       try {
-        const appInfo = await client.getApplicationByID(appId).do()
-        const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
-        for (const kv of globalState as any[]) {
-          const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
-          if (key === 'next_idx') {
-            setDepositCount(Number(kv.value?.uint ?? kv.value?.ui ?? 0))
-          }
+        const pools = Object.values(POOL_CONTRACTS)
+        let total = 0
+        for (const p of pools) {
+          try {
+            const appInfo = await client.getApplicationByID(p.appId).do()
+            const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
+            for (const kv of globalState as any[]) {
+              const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
+              if (key === 'next_idx') {
+                total += Number(kv.value?.uint ?? kv.value?.ui ?? 0)
+              }
+            }
+          } catch { /* skip unavailable pools */ }
         }
+        setDepositCount(total)
       } catch {
         setDepositCount(0)
       }

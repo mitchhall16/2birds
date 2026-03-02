@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import algosdk from 'algosdk'
-import { CONTRACTS, ALGOD_CONFIG, FEES } from '../lib/config'
+import { CONTRACTS, ALGOD_CONFIG, FEES, isValidTier, DENOMINATION_TIERS, getPoolForTier, RELAYER_URL, RELAYER_ADDRESS, RELAYER_FEE } from '../lib/config'
 import { useToast } from '../contexts/ToastContext'
 import { humanizeError } from '../lib/errorMessages'
 import {
@@ -13,24 +13,37 @@ import {
   incrementDepositIndex,
   computeNullifierHash,
   scalarToBytes,
+  bytesToScalar,
   uint64ToBytes,
   abiEncodeBytes,
   addressToScalar,
   encodeProofForVerifier,
   encodePublicSignals,
+  encodeDepositSignals,
+  encodePrivateSendSignals,
   METHOD_SELECTORS,
   depositBoxRefs,
+  privateSendBoxRefs,
   nullifierBox,
+  withdrawBoxRefs,
+  readEvictedRoot,
   saveNote,
   loadNotes,
   removeNote,
+  removeNoteByCommitment,
+  isNullifierSpent,
+  PasswordRequiredError,
   DepositNote,
+  setActiveWallet,
 } from '../lib/privacy'
 import {
   getOrCreateTree,
   insertLeaf,
   getPath,
   saveTree,
+  clearTreeCache,
+  incrementalSyncTree,
+  syncAllTreesFromChain,
 } from '../lib/tree'
 
 export type TxStage =
@@ -40,10 +53,6 @@ export type TxStage =
   | 'generating_proof'
   | 'withdrawing'
   | 'withdraw_complete'
-  | 'splitting'
-  | 'split_complete'
-  | 'combining'
-  | 'combine_complete'
   | 'error'
 
 interface TxState {
@@ -55,30 +64,51 @@ interface TxState {
 }
 
 interface UseTransactionReturn extends TxState {
-  deposit: (amountAlgo: number) => Promise<void>
-  withdraw: (noteIndex: number, destinationAddr: string) => Promise<void>
-  privateSend: (amountAlgo: number, destinationAddr: string) => Promise<void>
-  splitNote: (noteIndex: number, splitAmountAlgo: number) => Promise<void>
-  combineNotes: (noteIndices: number[]) => Promise<void>
-  reset: () => void
-  refreshNotes: () => void
+  deposit: (microAlgos: bigint) => Promise<void>
+  withdraw: (noteCommitment: bigint, destinationAddr: string) => Promise<void>
+  privateSend: (microAlgos: bigint, destinationAddr: string) => Promise<void>
+  reset: () => Promise<void>
+  refreshNotes: () => Promise<void>
+  rebuildAllTrees: (onProgress?: (pool: string, done: boolean) => void) => Promise<void>
+  useRelayer: boolean
+  setUseRelayer: (v: boolean) => void
+  relayerAvailable: boolean
 }
 
-const APP_ID = CONTRACTS.PrivacyPool.appId
-const APP_ADDR = CONTRACTS.PrivacyPool.appAddress
 const VERIFIER_APP_ID = CONTRACTS.ZkVerifier.appId
 const BUDGET_HELPER_APP_ID = CONTRACTS.ZkVerifier.budgetHelperAppId
+const DEPOSIT_VERIFIER_APP_ID = CONTRACTS.DepositVerifier.appId
+const DEPOSIT_BUDGET_HELPER_APP_ID = CONTRACTS.DepositVerifier.budgetHelperAppId
+const PRIVATESEND_VERIFIER_APP_ID = CONTRACTS.PrivateSendVerifier.appId
+const PRIVATESEND_BUDGET_HELPER_APP_ID = CONTRACTS.PrivateSendVerifier.budgetHelperAppId
+
+// Guard: refuse to operate if verifier apps are not deployed
+if (!VERIFIER_APP_ID) console.error('ZkVerifier appId is 0 — withdrawals will fail. Run the deploy script.')
+if (!DEPOSIT_VERIFIER_APP_ID) console.error('DepositVerifier appId is 0 — deposits will fail. Run the deploy script.')
+if (!PRIVATESEND_VERIFIER_APP_ID) console.error('PrivateSendVerifier appId is 0 — privateSend will fail. Run the deploy script.')
 
 export function useTransaction(): UseTransactionReturn {
   const { activeAddress, transactionSigner, algodClient, signData } = useWallet()
   const { addToast } = useToast()
+  const relayerAvailable = !!RELAYER_URL && !!RELAYER_ADDRESS
+  const [useRelayerState, setUseRelayer] = useState(relayerAvailable)
   const [state, setState] = useState<TxState>({
     stage: 'idle',
     message: '',
     txId: null,
     error: null,
-    savedNotes: loadNotes(),
+    savedNotes: [],
   })
+
+  // Track active wallet for per-wallet deposit counter
+  useEffect(() => {
+    if (activeAddress) setActiveWallet(activeAddress)
+  }, [activeAddress])
+
+  // Load notes async on mount
+  useEffect(() => {
+    loadNotes().then(notes => setState(s => ({ ...s, savedNotes: notes })))
+  }, [])
 
   const getClient = useCallback(() => {
     return algodClient ?? new algosdk.Algodv2(
@@ -89,8 +119,8 @@ export function useTransaction(): UseTransactionReturn {
   }, [algodClient])
 
   /** Read contract global state */
-  async function readContractState(client: algosdk.Algodv2) {
-    const appInfo = await client.getApplicationByID(APP_ID).do()
+  async function readContractState(client: algosdk.Algodv2, appId: number) {
+    const appInfo = await client.getApplicationByID(appId).do()
     const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
 
     let currentRoot = new Uint8Array(32)
@@ -114,106 +144,269 @@ export function useTransaction(): UseTransactionReturn {
     return { currentRoot, rootHistoryIndex, nextIndex }
   }
 
+  function bytesToHex(bytes: Uint8Array): string {
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
+  }
+
+  /** Submit a withdrawal via the relayer service */
+  async function submitViaRelayer(
+    proofBytes: Uint8Array,
+    signalsBytes: Uint8Array,
+    poolAppId: number,
+    nullifierHashBytes: Uint8Array,
+    rootBytes: Uint8Array,
+    recipient: string,
+    fee: number,
+  ): Promise<string> {
+    const resp = await fetch(`${RELAYER_URL}/api/withdraw`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proof: bytesToHex(proofBytes),
+        signals: bytesToHex(signalsBytes),
+        poolAppId,
+        nullifierHash: bytesToHex(nullifierHashBytes),
+        root: bytesToHex(rootBytes),
+        recipient,
+        relayerAddress: RELAYER_ADDRESS,
+        fee,
+      }),
+    })
+    const data = await resp.json()
+    if (!resp.ok) throw new Error(data.error || 'Relayer request failed')
+    return data.txId
+  }
+
+  /** Check wallet balance is sufficient before starting expensive proof generation */
+  async function checkBalance(client: algosdk.Algodv2, sender: string, requiredMicroAlgos: bigint): Promise<void> {
+    const accountInfo = await client.accountInformation(sender).do()
+    const balance = BigInt(accountInfo.amount)
+    const minBalance = BigInt(accountInfo.minBalance ?? 100_000)
+    const available = balance - minBalance
+    if (available < requiredMicroAlgos) {
+      const needed = (Number(requiredMicroAlgos) / 1_000_000).toFixed(3)
+      const have = (Number(available) / 1_000_000).toFixed(3)
+      throw new Error(`Insufficient balance: need ${needed} ALGO but only ${have} ALGO available (after min balance)`)
+    }
+  }
+
+  /** Build and submit a deposit with ZK insertion proof. Returns txId. */
+  async function executeDeposit(
+    client: algosdk.Algodv2,
+    sender: string,
+    signer: typeof transactionSigner,
+    pool: { appId: number; appAddress: string },
+    note: DepositNote,
+    microAlgos: bigint,
+  ): Promise<string> {
+    const commitmentBytes = scalarToBytes(note.commitment)
+
+    // Incremental sync: only fetch new leaves since last sync (O(delta) not O(N))
+    setState(s => ({ ...s, message: 'Syncing Merkle tree...' }))
+    const tree = await incrementalSyncTree(pool.appId)
+
+    // Use the synced tree's root directly as oldRoot (avoids race with separate RPC read)
+    const oldRoot = tree.root
+
+    // Read contract state only for box reference indices
+    const contractState = await readContractState(client, pool.appId)
+
+    // Insert into synced local tree
+    const { index: leafIndex, root: mimcRoot } = insertLeaf(tree, note.commitment)
+    note.leafIndex = leafIndex
+
+    const mimcRootBytes = scalarToBytes(mimcRoot)
+
+    // Get Merkle path for the insertion proof
+    const merklePath = getPath(tree, leafIndex)
+
+    // Generate deposit insertion ZK proof
+    setState(s => ({ ...s, stage: 'generating_proof', message: 'Generating deposit proof... (10-30 sec)' }))
+
+    const snarkjs = await import('snarkjs')
+
+    const circuitInput = {
+      oldRoot: oldRoot.toString(),
+      newRoot: mimcRoot.toString(),
+      commitment: note.commitment.toString(),
+      leafIndex: leafIndex.toString(),
+      pathElements: merklePath.pathElements.map(e => e.toString()),
+    }
+
+    const { proof } = await snarkjs.groth16.fullProve(
+      circuitInput,
+      '/circuits/deposit.wasm',
+      '/circuits/deposit_final.zkey',
+    )
+
+    const groth16Proof = {
+      pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])] as [bigint, bigint],
+      pi_b: [
+        [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
+        [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
+      ] as [[bigint, bigint], [bigint, bigint]],
+      pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])] as [bigint, bigint],
+    }
+
+    const proofBytes = encodeProofForVerifier(groth16Proof)
+    const signalsBytes = encodeDepositSignals(oldRoot, mimcRoot, note.commitment, BigInt(leafIndex))
+
+    // Pre-check: re-read on-chain root after proof gen — if it changed, skip submission
+    setState(s => ({ ...s, stage: 'depositing', message: 'Verifying tree state...' }))
+    const freshState = await readContractState(client, pool.appId)
+    if (bytesToScalar(freshState.currentRoot) !== oldRoot) {
+      throw new Error('Tree root changed during proof generation (concurrent deposit)')
+    }
+
+    setState(s => ({ ...s, message: 'Building deposit transaction...' }))
+    const params = await client.getTransactionParams().do()
+
+    // Read evicted root for knownRoots pruning (only when ring buffer wraps at >=1000 deposits)
+    const evictedRoot = await readEvictedRoot(client, pool.appId, freshState.rootHistoryIndex)
+    const boxes = depositBoxRefs(pool.appId, freshState.rootHistoryIndex, freshState.nextIndex, mimcRootBytes, evictedRoot)
+
+    // Build 3-txn group: [deposit verifier, payment, pool deposit]
+    const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
+      sender,
+      appIndex: DEPOSIT_VERIFIER_APP_ID,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC,
+      appArgs: [proofBytes, signalsBytes],
+      foreignApps: [DEPOSIT_BUDGET_HELPER_APP_ID],
+      suggestedParams: { ...params, fee: FEES.verifierCall, flatFee: true },
+    })
+
+    const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      sender,
+      receiver: pool.appAddress,
+      amount: Number(microAlgos),
+      suggestedParams: params,
+    })
+
+    const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
+      sender,
+      appIndex: pool.appId,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC,
+      appArgs: [
+        METHOD_SELECTORS.deposit,
+        abiEncodeBytes(commitmentBytes),
+        abiEncodeBytes(mimcRootBytes),
+      ],
+      foreignApps: [DEPOSIT_VERIFIER_APP_ID],
+      boxes,
+      suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
+    })
+
+    algosdk.assignGroupID([verifierAppCall, payTxn, appCallTxn])
+
+    setState(s => ({ ...s, message: 'Approve deposit in your wallet...' }))
+    const signedTxns = await signer([verifierAppCall, payTxn, appCallTxn], [0, 1, 2])
+
+    setState(s => ({ ...s, message: 'Submitting deposit...' }))
+    const result = await client.sendRawTransaction(signedTxns).do()
+    const txId = (result as any).txid ?? (result as any).txId
+
+    setState(s => ({ ...s, message: 'Waiting for confirmation...' }))
+    await algosdk.waitForConfirmation(client, txId, 4)
+
+    // Persist tree after successful confirmation
+    saveTree(tree, pool.appId)
+    return txId
+  }
+
+  /** Detect if an error is a stale root mismatch (concurrent deposit) */
+  function isStaleRootError(err: unknown): boolean {
+    const msg = String(err)
+    // Only retry on our explicit pre-check failure (detected before submission, no wasted fee)
+    return msg.includes('concurrent deposit')
+  }
+
+  const MAX_DEPOSIT_RETRIES = 3
+
   // ── DEPOSIT ──────────────────────────────
-  const deposit = useCallback(async (amountAlgo: number) => {
+  const deposit = useCallback(async (microAlgos: bigint) => {
     if (!activeAddress || !transactionSigner) {
       addToast('error', 'Wallet not connected')
       setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
       return
     }
 
-    if (amountAlgo <= 0 || amountAlgo > 1) {
-      addToast('error', 'Amount must be between 0 and 1 ALGO')
-      setState(s => ({ ...s, stage: 'error', error: 'Amount must be between 0 and 1 ALGO' }))
+    if (!isValidTier(microAlgos)) {
+      addToast('error', `Invalid denomination. Use ${DENOMINATION_TIERS.map(t => t.label).join(', ')} ALGO`)
+      setState(s => ({ ...s, stage: 'error', error: 'Invalid denomination tier' }))
       return
     }
 
-    const amountMicroAlgo = Math.round(amountAlgo * 1_000_000)
+    if (!DEPOSIT_VERIFIER_APP_ID) {
+      addToast('error', 'Deposit verifier not deployed. Run the deploy script first.')
+      setState(s => ({ ...s, stage: 'error', error: 'Deposit verifier not deployed (appId = 0)' }))
+      return
+    }
+
+    const amountMicroAlgo = Number(microAlgos)
+    const amountAlgo = amountMicroAlgo / 1_000_000
     const client = getClient()
+    const pool = getPoolForTier(microAlgos)
 
     try {
-      setState({ stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null, savedNotes: state.savedNotes })
+      setState(s => ({ ...s, stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null }))
 
       await initMimc()
+
+      // Pre-check wallet balance before expensive proof generation
+      setState(s => ({ ...s, message: 'Checking wallet balance...' }))
+      await checkBalance(client, activeAddress, microAlgos + FEES.deposit)
 
       // Derive deterministic note from wallet signature (or use cached master key)
       setState(s => ({ ...s, message: 'Deriving deposit key...' }))
       const masterKey = await deriveMasterKey(signData)
       const depositIdx = getNextDepositIndex()
-      const note = deriveDeposit(masterKey, depositIdx, BigInt(amountMicroAlgo), 0)
-      const commitmentBytes = scalarToBytes(note.commitment)
+      const note = deriveDeposit(masterKey, depositIdx, microAlgos, 0)
 
-      // Insert into local MiMC Merkle tree and get new root
-      const tree = await getOrCreateTree()
-      const { index: leafIndex, root: mimcRoot } = insertLeaf(tree, note.commitment)
-      note.leafIndex = leafIndex
+      // Attempt deposit with retry on stale root (concurrent deposit by another user)
+      let txId: string | undefined
+      for (let attempt = 1; attempt <= MAX_DEPOSIT_RETRIES; attempt++) {
+        try {
+          txId = await executeDeposit(client, activeAddress, transactionSigner, pool, note, microAlgos)
+          break // success
+        } catch (err) {
+          if (attempt < MAX_DEPOSIT_RETRIES && isStaleRootError(err)) {
+            console.warn(`Deposit attempt ${attempt} failed (stale root), retrying...`)
+            clearTreeCache(pool.appId) // Force fresh sync on retry
+            setState(s => ({
+              ...s,
+              stage: 'depositing',
+              message: `Another deposit was processed. Retrying... (${attempt}/${MAX_DEPOSIT_RETRIES})`,
+            }))
+            continue
+          }
+          throw err // non-retryable or out of retries
+        }
+      }
 
-      const mimcRootBytes = scalarToBytes(mimcRoot)
-
-      const contractState = await readContractState(client)
-
-      setState(s => ({ ...s, message: 'Building deposit transaction...' }))
-      const params = await client.getTransactionParams().do()
-
-      // Only 3 box references needed (no on-chain tree)
-      const boxes = depositBoxRefs(APP_ID, contractState.rootHistoryIndex, contractState.nextIndex)
-
-      // Build group: [payment, app call] — just 2 transactions, no noops
-      const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: APP_ADDR,
-        amount: amountMicroAlgo,
-        suggestedParams: params,
-      })
-
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.deposit,
-          abiEncodeBytes(commitmentBytes),
-          abiEncodeBytes(mimcRootBytes),
-        ],
-        boxes,
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-
-      algosdk.assignGroupID([payTxn, appCallTxn])
-
-      setState(s => ({ ...s, message: 'Approve deposit in your wallet...' }))
-      const signedTxns = await transactionSigner([payTxn, appCallTxn], [0, 1])
-
-      setState(s => ({ ...s, message: 'Submitting deposit...' }))
-      const result = await client.sendRawTransaction(signedTxns).do()
-      const txId = (result as any).txid ?? (result as any).txId
-
-      setState(s => ({ ...s, message: 'Waiting for confirmation...' }))
-      await algosdk.waitForConfirmation(client, txId, 4)
-
-      // Persist note, tree, and increment deterministic counter
-      saveNote(note)
-      saveTree(tree)
+      // Persist note and increment deterministic counter
+      await saveNote(note)
       incrementDepositIndex()
 
       addToast('success', `Deposited ${amountAlgo} ALGO into the privacy pool`)
+      const updatedNotes = await loadNotes()
       setState({
         stage: 'deposit_complete',
         message: `Deposit confirmed! ${amountAlgo} ALGO is now shielded in the pool.`,
-        txId,
+        txId: txId!,
         error: null,
-        savedNotes: loadNotes(),
+        savedNotes: updatedNotes,
       })
     } catch (err) {
+      if (err instanceof PasswordRequiredError) throw err
       const msg = humanizeError(err)
       console.error('Deposit error:', err)
       addToast('error', msg)
       setState(s => ({ ...s, stage: 'error', error: msg }))
     }
-  }, [activeAddress, transactionSigner, signData, getClient, state.savedNotes, addToast])
+  }, [activeAddress, transactionSigner, signData, getClient, addToast])
 
   // ── WITHDRAW ─────────────────────────────
-  const withdraw = useCallback(async (noteIndex: number, destinationAddr: string) => {
+  const withdraw = useCallback(async (noteCommitment: bigint, destinationAddr: string) => {
     if (!activeAddress || !transactionSigner) {
       addToast('error', 'Wallet not connected')
       setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
@@ -226,24 +419,40 @@ export function useTransaction(): UseTransactionReturn {
       return
     }
 
-    const notes = loadNotes()
-    if (noteIndex < 0 || noteIndex >= notes.length) {
+    if (!VERIFIER_APP_ID) {
+      addToast('error', 'Withdraw verifier not deployed. Run the deploy script first.')
+      setState(s => ({ ...s, stage: 'error', error: 'Withdraw verifier not deployed (appId = 0)' }))
+      return
+    }
+
+    const notes = await loadNotes()
+    const note = notes.find(n => n.commitment === noteCommitment)
+    if (!note) {
       addToast('error', 'No deposit note found')
       setState(s => ({ ...s, stage: 'error', error: 'No deposit note found' }))
       return
     }
-
-    const note = notes[noteIndex]
     const client = getClient()
+    const pool = getPoolForTier(note.denomination)
 
     try {
-      setState(s => ({ ...s, stage: 'withdrawing', message: 'Initializing cryptography...', txId: null, error: null }))
+      setState(s => ({ ...s, stage: 'withdrawing', message: 'Checking note status...', txId: null, error: null }))
 
       await initMimc()
 
-      // Load local Merkle tree and get path for this deposit
-      setState(s => ({ ...s, message: 'Loading Merkle tree...' }))
-      const tree = await getOrCreateTree()
+      // Check if nullifier is already spent before generating expensive proof
+      const alreadySpent = await isNullifierSpent(client, pool.appId, note.nullifier)
+      if (alreadySpent) {
+        await removeNoteByCommitment(note.commitment)
+        const updated = await loadNotes()
+        addToast('error', 'This note has already been withdrawn')
+        setState({ stage: 'error', message: '', error: 'Note already spent on-chain', txId: null, savedNotes: updated })
+        return
+      }
+
+      // Sync local Merkle tree from chain before proof generation
+      setState(s => ({ ...s, message: 'Syncing Merkle tree...' }))
+      const tree = await incrementalSyncTree(pool.appId)
       const merklePath = getPath(tree, note.leafIndex)
       const root = tree.root
 
@@ -253,15 +462,18 @@ export function useTransaction(): UseTransactionReturn {
       const snarkjs = await import('snarkjs')
 
       const nullifierHash = computeNullifierHash(note.nullifier)
-      const zeroAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+      const viaRelayer = useRelayerState && relayerAvailable
+      const relayerAddr = viaRelayer ? RELAYER_ADDRESS : 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+      const relayerFee = viaRelayer ? RELAYER_FEE : 0n
 
       const circuitInput = {
         // Public inputs
         root: root.toString(),
         nullifierHash: nullifierHash.toString(),
         recipient: addressToScalar(destinationAddr).toString(),
-        relayer: addressToScalar(zeroAddr).toString(),
-        fee: '0',
+        relayer: addressToScalar(relayerAddr).toString(),
+        fee: relayerFee.toString(),
+        amount: note.denomination.toString(),
         // Private inputs
         secret: note.secret.toString(),
         nullifier: note.nullifier.toString(),
@@ -289,620 +501,41 @@ export function useTransaction(): UseTransactionReturn {
 
       // Encode proof and public signals for verifier app
       const proofBytes = encodeProofForVerifier(groth16Proof)
-      const signalsBytes = encodePublicSignals(root, nullifierHash, destinationAddr, zeroAddr, 0n)
-
-      const params = await client.getTransactionParams().do()
+      const signalsBytes = encodePublicSignals(root, nullifierHash, destinationAddr, relayerAddr, relayerFee, note.denomination)
       const nullifierHashBytes = scalarToBytes(nullifierHash)
-      const withdrawAmount = Number(note.denomination)
-
-      // Build 2-txn atomic group:
-      // [0] App call to ZK verifier (proof + signals as args, fee covers inner budget padding calls)
-      const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: VERIFIER_APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [proofBytes, signalsBytes],
-        foreignApps: [BUDGET_HELPER_APP_ID],
-        suggestedParams: { ...params, fee: FEES.verifierCall, flatFee: true },
-      })
-
-      // [1] App call — withdraw(nullifierHash, recipient, relayer, fee, root, amount)
-      const recipientPubKey = algosdk.decodeAddress(destinationAddr).publicKey
-      const relayerPubKey = algosdk.decodeAddress(zeroAddr).publicKey
       const rootBytes = scalarToBytes(root)
-
-      const withdrawAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.withdraw,
-          abiEncodeBytes(nullifierHashBytes),
-          recipientPubKey,
-          relayerPubKey,
-          uint64ToBytes(0n),
-          abiEncodeBytes(rootBytes),
-          uint64ToBytes(BigInt(withdrawAmount)),
-        ],
-        accounts: [destinationAddr],
-        boxes: [nullifierBox(APP_ID, nullifierHashBytes)],
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-
-      algosdk.assignGroupID([verifierAppCall, withdrawAppCall])
-
-      setState(s => ({ ...s, message: 'Approve withdrawal in your wallet...' }))
-
-      // User signs both transactions
-      const signedTxns = await transactionSigner(
-        [verifierAppCall, withdrawAppCall],
-        [0, 1],
-      )
-
-      const txId = withdrawAppCall.txID()
-
-      setState(s => ({ ...s, message: 'Submitting withdrawal...' }))
-      await client.sendRawTransaction(signedTxns).do()
-
-      setState(s => ({ ...s, message: 'Waiting for confirmation...' }))
-      await algosdk.waitForConfirmation(client, txId, 4)
-
-      // Remove used note
-      removeNote(noteIndex)
-
-      const algoAmount = (Number(note.denomination) / 1_000_000).toFixed(6).replace(/\.?0+$/, '')
-      addToast('success', `Withdrew ${algoAmount} ALGO to destination`)
-      setState({
-        stage: 'withdraw_complete',
-        message: `${algoAmount} ALGO withdrawn from the pool to the destination!`,
-        txId,
-        error: null,
-        savedNotes: loadNotes(),
-      })
-    } catch (err) {
-      const msg = humanizeError(err)
-      console.error('Withdraw error:', err)
-      addToast('error', msg)
-      setState(s => ({ ...s, stage: 'error', error: msg }))
-    }
-  }, [activeAddress, transactionSigner, getClient, addToast])
-
-  // ── PRIVATE SEND (deposit → immediate withdraw) ──
-  const privateSend = useCallback(async (amountAlgo: number, destinationAddr: string) => {
-    if (!activeAddress || !transactionSigner) {
-      addToast('error', 'Wallet not connected')
-      setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
-      return
-    }
-    if (amountAlgo <= 0 || amountAlgo > 1) {
-      addToast('error', 'Amount must be between 0 and 1 ALGO')
-      setState(s => ({ ...s, stage: 'error', error: 'Amount must be between 0 and 1 ALGO' }))
-      return
-    }
-    if (!algosdk.isValidAddress(destinationAddr)) {
-      addToast('error', 'Invalid destination address')
-      setState(s => ({ ...s, stage: 'error', error: 'Invalid destination address' }))
-      return
-    }
-
-    const amountMicroAlgo = Math.round(amountAlgo * 1_000_000)
-    const client = getClient()
-
-    try {
-      // ── Step 1: Deposit ──
-      setState({ stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null, savedNotes: state.savedNotes })
-
-      await initMimc()
-
-      setState(s => ({ ...s, message: 'Deriving deposit key...' }))
-      const masterKey = await deriveMasterKey(signData)
-      const depositIdx = getNextDepositIndex()
-      const note = deriveDeposit(masterKey, depositIdx, BigInt(amountMicroAlgo), 0)
-      const commitmentBytes = scalarToBytes(note.commitment)
-
-      // Insert into local MiMC Merkle tree
-      const tree = await getOrCreateTree()
-      const { index: leafIndex, root: mimcRoot } = insertLeaf(tree, note.commitment)
-      note.leafIndex = leafIndex
-
-      const mimcRootBytes = scalarToBytes(mimcRoot)
-
-      let contractState = await readContractState(client)
-
-      setState(s => ({ ...s, message: 'Building deposit transaction...' }))
-      let params = await client.getTransactionParams().do()
-
-      const boxes = depositBoxRefs(APP_ID, contractState.rootHistoryIndex, contractState.nextIndex)
-
-      const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: APP_ADDR,
-        amount: amountMicroAlgo,
-        suggestedParams: params,
-      })
-
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.deposit,
-          abiEncodeBytes(commitmentBytes),
-          abiEncodeBytes(mimcRootBytes),
-        ],
-        boxes,
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-
-      algosdk.assignGroupID([payTxn, appCallTxn])
-
-      setState(s => ({ ...s, message: 'Approve deposit in your wallet...' }))
-      const depositSigned = await transactionSigner([payTxn, appCallTxn], [0, 1])
-
-      setState(s => ({ ...s, message: 'Submitting deposit...' }))
-      const depositResult = await client.sendRawTransaction(depositSigned).do()
-      const depositTxId = (depositResult as any).txid ?? (depositResult as any).txId
-
-      setState(s => ({ ...s, message: 'Waiting for deposit confirmation...' }))
-      await algosdk.waitForConfirmation(client, depositTxId, 4)
-
-      saveNote(note)
-      saveTree(tree)
-      incrementDepositIndex()
-
-      // ── Step 2: Generate ZK proof ──
-      setState(s => ({ ...s, stage: 'generating_proof', message: 'Computing zero-knowledge proof... (10-30 sec)', txId: depositTxId }))
-
-      const snarkjs = await import('snarkjs')
-
-      const nullifierHash = computeNullifierHash(note.nullifier)
-      const root = tree.root
-      const merklePath = getPath(tree, leafIndex)
-      const zeroAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-
-      const circuitInput = {
-        root: root.toString(),
-        nullifierHash: nullifierHash.toString(),
-        recipient: addressToScalar(destinationAddr).toString(),
-        relayer: addressToScalar(zeroAddr).toString(),
-        fee: '0',
-        secret: note.secret.toString(),
-        nullifier: note.nullifier.toString(),
-        pathElements: merklePath.pathElements.map(e => e.toString()),
-        pathIndices: merklePath.pathIndices,
-      }
-
-      const { proof } = await snarkjs.groth16.fullProve(
-        circuitInput,
-        '/circuits/withdraw.wasm',
-        '/circuits/withdraw_final.zkey',
-      )
-
-      const groth16Proof = {
-        pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])] as [bigint, bigint],
-        pi_b: [
-          [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
-          [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
-        ] as [[bigint, bigint], [bigint, bigint]],
-        pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])] as [bigint, bigint],
-      }
-
-      // ── Step 3: Withdraw to destination ──
-      setState(s => ({ ...s, stage: 'withdrawing', message: 'Building withdrawal transaction...' }))
-
-      const proofBytes = encodeProofForVerifier(groth16Proof)
-      const signalsBytes = encodePublicSignals(root, nullifierHash, destinationAddr, zeroAddr, 0n)
-
-      params = await client.getTransactionParams().do()
-      const nullifierHashBytes = scalarToBytes(nullifierHash)
-
-      // [0] App call to ZK verifier
-      const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: VERIFIER_APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [proofBytes, signalsBytes],
-        foreignApps: [BUDGET_HELPER_APP_ID],
-        suggestedParams: { ...params, fee: FEES.verifierCall, flatFee: true },
-      })
-
-      const recipientPubKey = algosdk.decodeAddress(destinationAddr).publicKey
-      const relayerPubKey = algosdk.decodeAddress(zeroAddr).publicKey
-      const rootBytes = scalarToBytes(root)
-
-      // [1] App call — withdraw
-      const withdrawAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.withdraw,
-          abiEncodeBytes(nullifierHashBytes),
-          recipientPubKey,
-          relayerPubKey,
-          uint64ToBytes(0n),
-          abiEncodeBytes(rootBytes),
-          uint64ToBytes(BigInt(amountMicroAlgo)),
-        ],
-        accounts: [destinationAddr],
-        boxes: [nullifierBox(APP_ID, nullifierHashBytes)],
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-
-      algosdk.assignGroupID([verifierAppCall, withdrawAppCall])
-
-      setState(s => ({ ...s, message: 'Approve withdrawal in your wallet...' }))
-      const withdrawSigned = await transactionSigner(
-        [verifierAppCall, withdrawAppCall],
-        [0, 1],
-      )
-
-      const withdrawTxId = withdrawAppCall.txID()
-
-      setState(s => ({ ...s, message: 'Submitting withdrawal...' }))
-      await client.sendRawTransaction(withdrawSigned).do()
-
-      setState(s => ({ ...s, message: 'Waiting for withdrawal confirmation...' }))
-      await algosdk.waitForConfirmation(client, withdrawTxId, 4)
-
-      // Remove the note we just used
-      const currentNotes = loadNotes()
-      const usedIdx = currentNotes.findIndex(n =>
-        n.nullifier === note.nullifier && n.secret === note.secret
-      )
-      if (usedIdx >= 0) removeNote(usedIdx)
-
-      addToast('success', `${amountAlgo} ALGO sent privately to ${destinationAddr.slice(0, 6)}...${destinationAddr.slice(-4)}`)
-      setState({
-        stage: 'withdraw_complete',
-        message: `${amountAlgo} ALGO sent privately to ${destinationAddr.slice(0, 6)}...${destinationAddr.slice(-4)}`,
-        txId: withdrawTxId,
-        error: null,
-        savedNotes: loadNotes(),
-      })
-    } catch (err) {
-      const msg = humanizeError(err)
-      console.error('Private send error:', err)
-      addToast('error', msg)
-      setState(s => ({ ...s, stage: 'error', error: msg }))
-    }
-  }, [activeAddress, transactionSigner, signData, getClient, state.savedNotes, addToast])
-
-  // ── SPLIT NOTE ──────────────────────────
-  const splitNote = useCallback(async (noteIndex: number, splitAmountAlgo: number) => {
-    if (!activeAddress || !transactionSigner) {
-      addToast('error', 'Wallet not connected')
-      setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
-      return
-    }
-
-    const notes = loadNotes()
-    if (noteIndex < 0 || noteIndex >= notes.length) {
-      addToast('error', 'Note not found')
-      setState(s => ({ ...s, stage: 'error', error: 'Note not found' }))
-      return
-    }
-
-    const note = notes[noteIndex]
-    const totalAlgo = Number(note.denomination) / 1_000_000
-    if (splitAmountAlgo <= 0 || splitAmountAlgo >= totalAlgo) {
-      addToast('error', `Split amount must be between 0 and ${totalAlgo} ALGO`)
-      setState(s => ({ ...s, stage: 'error', error: `Split amount must be between 0 and ${totalAlgo} ALGO` }))
-      return
-    }
-
-    const client = getClient()
-
-    try {
-      setState({ stage: 'splitting', message: 'Withdrawing original note (step 1/3)...', txId: null, error: null, savedNotes: state.savedNotes })
-
-      // Step 1: Withdraw the original note to self
-      await initMimc()
-
-      const tree = await getOrCreateTree()
-      const merklePath = getPath(tree, note.leafIndex)
-      const root = tree.root
-
-      setState(s => ({ ...s, stage: 'generating_proof', message: 'Computing zero-knowledge proof for withdrawal... (10-30 sec)' }))
-
-      const snarkjs = await import('snarkjs')
-      const nullifierHash = computeNullifierHash(note.nullifier)
-      const zeroAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-
-      const circuitInput = {
-        root: root.toString(),
-        nullifierHash: nullifierHash.toString(),
-        recipient: addressToScalar(activeAddress).toString(),
-        relayer: addressToScalar(zeroAddr).toString(),
-        fee: '0',
-        secret: note.secret.toString(),
-        nullifier: note.nullifier.toString(),
-        pathElements: merklePath.pathElements.map(e => e.toString()),
-        pathIndices: merklePath.pathIndices,
-      }
-
-      const { proof } = await snarkjs.groth16.fullProve(
-        circuitInput,
-        '/circuits/withdraw.wasm',
-        '/circuits/withdraw_final.zkey',
-      )
-
-      const groth16Proof = {
-        pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])] as [bigint, bigint],
-        pi_b: [
-          [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
-          [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
-        ] as [[bigint, bigint], [bigint, bigint]],
-        pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])] as [bigint, bigint],
-      }
-
-      setState(s => ({ ...s, stage: 'splitting', message: 'Building withdrawal transaction...' }))
-
-      const proofBytes = encodeProofForVerifier(groth16Proof)
-      const signalsBytes = encodePublicSignals(root, nullifierHash, activeAddress, zeroAddr, 0n)
-
-      let params = await client.getTransactionParams().do()
-      const nullifierHashBytes = scalarToBytes(nullifierHash)
-      const withdrawAmount = Number(note.denomination)
-
-      // [0] App call to ZK verifier
-      const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: VERIFIER_APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [proofBytes, signalsBytes],
-        foreignApps: [BUDGET_HELPER_APP_ID],
-        suggestedParams: { ...params, fee: FEES.verifierCall, flatFee: true },
-      })
-
-      const recipientPubKey = algosdk.decodeAddress(activeAddress).publicKey
-      const relayerPubKey = algosdk.decodeAddress(zeroAddr).publicKey
-      const rootBytes = scalarToBytes(root)
-
-      // [1] App call — withdraw
-      const withdrawAppCall = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.withdraw,
-          abiEncodeBytes(nullifierHashBytes),
-          recipientPubKey,
-          relayerPubKey,
-          uint64ToBytes(0n),
-          abiEncodeBytes(rootBytes),
-          uint64ToBytes(BigInt(withdrawAmount)),
-        ],
-        accounts: [activeAddress],
-        boxes: [nullifierBox(APP_ID, nullifierHashBytes)],
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-
-      algosdk.assignGroupID([verifierAppCall, withdrawAppCall])
-
-      setState(s => ({ ...s, message: 'Approve withdrawal in your wallet...' }))
-      const signedGroup = await transactionSigner(
-        [verifierAppCall, withdrawAppCall],
-        [0, 1],
-      )
-
-      setState(s => ({ ...s, message: 'Submitting withdrawal...' }))
-      await client.sendRawTransaction(signedGroup).do()
-      const withdrawTxId = withdrawAppCall.txID()
-      await algosdk.waitForConfirmation(client, withdrawTxId, 4)
-
-      // Remove the original note
-      removeNote(noteIndex)
-
-      // Step 2: Deposit first split amount
-      const splitMicro1 = Math.round(splitAmountAlgo * 1_000_000)
-      const splitMicro2 = withdrawAmount - splitMicro1
-
-      setState(s => ({ ...s, message: `Depositing ${splitAmountAlgo} ALGO (step 2/3)...` }))
-
-      const masterKey = await deriveMasterKey(signData)
-
-      const depositIdx1 = getNextDepositIndex()
-      const note1 = deriveDeposit(masterKey, depositIdx1, BigInt(splitMicro1), 0)
-      const commitment1 = scalarToBytes(note1.commitment)
-      const { index: leaf1, root: root1 } = insertLeaf(tree, note1.commitment)
-      note1.leafIndex = leaf1
-
-      let contractState = await readContractState(client)
-      params = await client.getTransactionParams().do()
-
-      const boxes1 = depositBoxRefs(APP_ID, contractState.rootHistoryIndex, contractState.nextIndex)
-      const payTxn1 = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: APP_ADDR,
-        amount: splitMicro1,
-        suggestedParams: params,
-      })
-      const appCall1 = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.deposit,
-          abiEncodeBytes(commitment1),
-          abiEncodeBytes(scalarToBytes(root1)),
-        ],
-        boxes: boxes1,
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-      algosdk.assignGroupID([payTxn1, appCall1])
-
-      setState(s => ({ ...s, message: 'Approve first deposit in your wallet...' }))
-      const signed1 = await transactionSigner([payTxn1, appCall1], [0, 1])
-      const res1 = await client.sendRawTransaction(signed1).do()
-      const txId1 = (res1 as any).txid ?? (res1 as any).txId ?? appCall1.txID()
-      await algosdk.waitForConfirmation(client, txId1, 4)
-
-      saveNote(note1)
-      saveTree(tree)
-      incrementDepositIndex()
-
-      // Step 3: Deposit second split amount
-      const splitAlgo2 = splitMicro2 / 1_000_000
-      setState(s => ({ ...s, message: `Depositing ${splitAlgo2} ALGO (step 3/3)...` }))
-
-      const depositIdx2 = getNextDepositIndex()
-      const note2 = deriveDeposit(masterKey, depositIdx2, BigInt(splitMicro2), 0)
-      const commitment2 = scalarToBytes(note2.commitment)
-      const { index: leaf2, root: root2 } = insertLeaf(tree, note2.commitment)
-      note2.leafIndex = leaf2
-
-      contractState = await readContractState(client)
-      params = await client.getTransactionParams().do()
-
-      const boxes2 = depositBoxRefs(APP_ID, contractState.rootHistoryIndex, contractState.nextIndex)
-      const payTxn2 = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: APP_ADDR,
-        amount: splitMicro2,
-        suggestedParams: params,
-      })
-      const appCall2 = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.deposit,
-          abiEncodeBytes(commitment2),
-          abiEncodeBytes(scalarToBytes(root2)),
-        ],
-        boxes: boxes2,
-        suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
-      })
-      algosdk.assignGroupID([payTxn2, appCall2])
-
-      setState(s => ({ ...s, message: 'Approve second deposit in your wallet...' }))
-      const signed2 = await transactionSigner([payTxn2, appCall2], [0, 1])
-      const res2 = await client.sendRawTransaction(signed2).do()
-      const txId2 = (res2 as any).txid ?? (res2 as any).txId ?? appCall2.txID()
-      await algosdk.waitForConfirmation(client, txId2, 4)
-
-      saveNote(note2)
-      saveTree(tree)
-      incrementDepositIndex()
-
-      addToast('success', `Split ${totalAlgo} ALGO into ${splitAmountAlgo} + ${splitAlgo2} ALGO`)
-      setState({
-        stage: 'split_complete',
-        message: `Split complete! ${totalAlgo} ALGO → ${splitAmountAlgo} + ${splitAlgo2} ALGO`,
-        txId: withdrawTxId,
-        error: null,
-        savedNotes: loadNotes(),
-      })
-    } catch (err) {
-      const msg = humanizeError(err)
-      console.error('Split error:', err)
-      addToast('error', msg)
-      setState(s => ({ ...s, stage: 'error', error: msg, savedNotes: loadNotes() }))
-    }
-  }, [activeAddress, transactionSigner, signData, getClient, state.savedNotes, addToast])
-
-  // ── COMBINE NOTES ──────────────────────────
-  const combineNotes = useCallback(async (noteIndices: number[]) => {
-    if (!activeAddress || !transactionSigner) {
-      addToast('error', 'Wallet not connected')
-      setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
-      return
-    }
-
-    if (noteIndices.length < 2) {
-      addToast('error', 'Select at least 2 notes to combine')
-      setState(s => ({ ...s, stage: 'error', error: 'Select at least 2 notes to combine' }))
-      return
-    }
-
-    const allNotes = loadNotes()
-    const selectedNotes = noteIndices.map(i => allNotes[i])
-    if (selectedNotes.some(n => !n)) {
-      addToast('error', 'One or more notes not found')
-      setState(s => ({ ...s, stage: 'error', error: 'One or more notes not found' }))
-      return
-    }
-
-    const totalMicro = selectedNotes.reduce((sum, n) => sum + Number(n.denomination), 0)
-    const totalAlgo = totalMicro / 1_000_000
-    const client = getClient()
-
-    try {
-      setState({ stage: 'combining', message: 'Initializing cryptography...', txId: null, error: null, savedNotes: state.savedNotes })
-
-      await initMimc()
-      const tree = await getOrCreateTree()
-      const snarkjs = await import('snarkjs')
-      const zeroAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-
-      // Step 1: Withdraw each note to self
-      // Process in reverse index order so removal doesn't shift indices
-      const sortedIndices = [...noteIndices].sort((a, b) => b - a)
-
-      for (let wi = 0; wi < selectedNotes.length; wi++) {
-        const origIdx = noteIndices[wi]
-        const note = selectedNotes[wi]
-
-        setState(s => ({ ...s, stage: 'generating_proof', message: `Computing proof ${wi + 1}/${selectedNotes.length}... (10-30 sec)` }))
-
-        const merklePath = getPath(tree, note.leafIndex)
-        const root = tree.root
-
-        const nullifierHash = computeNullifierHash(note.nullifier)
-        const circuitInput = {
-          root: root.toString(),
-          nullifierHash: nullifierHash.toString(),
-          recipient: addressToScalar(activeAddress).toString(),
-          relayer: addressToScalar(zeroAddr).toString(),
-          fee: '0',
-          secret: note.secret.toString(),
-          nullifier: note.nullifier.toString(),
-          pathElements: merklePath.pathElements.map(e => e.toString()),
-          pathIndices: merklePath.pathIndices,
-        }
-
-        const { proof } = await snarkjs.groth16.fullProve(
-          circuitInput,
-          '/circuits/withdraw.wasm',
-          '/circuits/withdraw_final.zkey',
+      const recipientSignalBytes = scalarToBytes(addressToScalar(destinationAddr))
+      const relayerSignalBytes = scalarToBytes(addressToScalar(relayerAddr))
+
+      let txId: string
+
+      if (viaRelayer) {
+        // Submit via relayer — user doesn't sign, preserving privacy
+        setState(s => ({ ...s, message: 'Submitting via relayer...' }))
+        txId = await submitViaRelayer(
+          proofBytes, signalsBytes, pool.appId,
+          nullifierHashBytes, rootBytes, destinationAddr,
+          Number(relayerFee),
         )
-
-        const groth16Proof = {
-          pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])] as [bigint, bigint],
-          pi_b: [
-            [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
-            [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
-          ] as [[bigint, bigint], [bigint, bigint]],
-          pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])] as [bigint, bigint],
-        }
-
-        setState(s => ({ ...s, stage: 'combining', message: `Withdrawing note ${wi + 1}/${selectedNotes.length}...` }))
-
-        const proofBytes = encodeProofForVerifier(groth16Proof)
-        const signalsBytes = encodePublicSignals(root, nullifierHash, activeAddress, zeroAddr, 0n)
-
+      } else {
+        // Direct submission — user signs both transactions
         const params = await client.getTransactionParams().do()
-        const nullifierHashBytes = scalarToBytes(nullifierHash)
 
-        // [0] App call to ZK verifier
         const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
           sender: activeAddress,
           appIndex: VERIFIER_APP_ID,
           onComplete: algosdk.OnApplicationComplete.NoOpOC,
           appArgs: [proofBytes, signalsBytes],
           foreignApps: [BUDGET_HELPER_APP_ID],
-          suggestedParams: { ...params, fee: FEES.verifierCall, flatFee: true },
+          suggestedParams: { ...params, fee: FEES.withdrawVerifierCall, flatFee: true },
         })
 
-        const recipientPubKey = algosdk.decodeAddress(activeAddress).publicKey
-        const relayerPubKey = algosdk.decodeAddress(zeroAddr).publicKey
-        const rootBytes = scalarToBytes(root)
+        const recipientPubKey = algosdk.decodeAddress(destinationAddr).publicKey
+        const relayerPubKey = algosdk.decodeAddress(relayerAddr).publicKey
 
-        // [1] App call — withdraw
         const withdrawAppCall = algosdk.makeApplicationCallTxnFromObject({
           sender: activeAddress,
-          appIndex: APP_ID,
+          appIndex: pool.appId,
           onComplete: algosdk.OnApplicationComplete.NoOpOC,
           appArgs: [
             METHOD_SELECTORS.withdraw,
@@ -911,102 +544,303 @@ export function useTransaction(): UseTransactionReturn {
             relayerPubKey,
             uint64ToBytes(0n),
             abiEncodeBytes(rootBytes),
-            uint64ToBytes(BigInt(Number(note.denomination))),
+            abiEncodeBytes(recipientSignalBytes),
+            abiEncodeBytes(relayerSignalBytes),
           ],
-          accounts: [activeAddress],
-          boxes: [nullifierBox(APP_ID, nullifierHashBytes)],
+          accounts: [destinationAddr],
+          boxes: withdrawBoxRefs(pool.appId, nullifierHashBytes, rootBytes),
           suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
         })
 
         algosdk.assignGroupID([verifierAppCall, withdrawAppCall])
 
-        setState(s => ({ ...s, message: `Approve withdrawal ${wi + 1}/${selectedNotes.length} in your wallet...` }))
-        const signedGroup = await transactionSigner(
+        setState(s => ({ ...s, message: 'Approve withdrawal in your wallet...' }))
+        const signedTxns = await transactionSigner(
           [verifierAppCall, withdrawAppCall],
           [0, 1],
         )
 
-        await client.sendRawTransaction(signedGroup).do()
-        await algosdk.waitForConfirmation(client, withdrawAppCall.txID(), 4)
+        txId = withdrawAppCall.txID()
+        setState(s => ({ ...s, message: 'Submitting withdrawal...' }))
+        await client.sendRawTransaction(signedTxns).do()
+
+        setState(s => ({ ...s, message: 'Waiting for confirmation...' }))
+        await algosdk.waitForConfirmation(client, txId, 4)
       }
 
-      // Remove all used notes (reverse order so indices stay valid)
-      for (const idx of sortedIndices) {
-        removeNote(idx)
-      }
+      // Remove used note by commitment (safe regardless of index shifts)
+      await removeNoteByCommitment(note.commitment)
 
-      // Step 2: Deposit combined amount as one new note
-      setState(s => ({ ...s, stage: 'combining', message: `Depositing combined ${totalAlgo} ALGO...` }))
-
-      const masterKey = await deriveMasterKey(signData)
-      const depositIdx = getNextDepositIndex()
-      const newNote = deriveDeposit(masterKey, depositIdx, BigInt(totalMicro), 0)
-      const commitmentBytes = scalarToBytes(newNote.commitment)
-      const { index: leafIndex, root: newRoot } = insertLeaf(tree, newNote.commitment)
-      newNote.leafIndex = leafIndex
-
-      const contractState = await readContractState(client)
-      const depParams = await client.getTransactionParams().do()
-
-      const boxes = depositBoxRefs(APP_ID, contractState.rootHistoryIndex, contractState.nextIndex)
-      const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: APP_ADDR,
-        amount: totalMicro,
-        suggestedParams: depParams,
-      })
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          METHOD_SELECTORS.deposit,
-          abiEncodeBytes(commitmentBytes),
-          abiEncodeBytes(scalarToBytes(newRoot)),
-        ],
-        boxes,
-        suggestedParams: { ...depParams, fee: BigInt(2000), flatFee: true },
-      })
-      algosdk.assignGroupID([payTxn, appCallTxn])
-
-      setState(s => ({ ...s, message: 'Approve combined deposit in your wallet...' }))
-      const signed = await transactionSigner([payTxn, appCallTxn], [0, 1])
-      const depRes = await client.sendRawTransaction(signed).do()
-      const depTxId = (depRes as any).txid ?? (depRes as any).txId ?? appCallTxn.txID()
-      await algosdk.waitForConfirmation(client, depTxId, 4)
-
-      saveNote(newNote)
-      saveTree(tree)
-      incrementDepositIndex()
-
-      addToast('success', `Combined ${selectedNotes.length} notes into ${totalAlgo} ALGO`)
+      const algoAmount = (Number(note.denomination) / 1_000_000).toFixed(6).replace(/\.?0+$/, '')
+      addToast('success', `Withdrew ${algoAmount} ALGO to destination`)
+      const wNotes = await loadNotes()
       setState({
-        stage: 'combine_complete',
-        message: `Combined ${selectedNotes.length} notes into a single ${totalAlgo} ALGO note.`,
-        txId: appCallTxn.txID(),
+        stage: 'withdraw_complete',
+        message: `${algoAmount} ALGO withdrawn from the pool to the destination!`,
+        txId,
         error: null,
-        savedNotes: loadNotes(),
+        savedNotes: wNotes,
       })
     } catch (err) {
+      if (err instanceof PasswordRequiredError) throw err
       const msg = humanizeError(err)
-      console.error('Combine error:', err)
+      console.error('Withdraw error:', err)
       addToast('error', msg)
-      setState(s => ({ ...s, stage: 'error', error: msg, savedNotes: loadNotes() }))
+      setState(s => ({ ...s, stage: 'error', error: msg }))
     }
-  }, [activeAddress, transactionSigner, signData, getClient, state.savedNotes, addToast])
+  }, [activeAddress, transactionSigner, getClient, addToast, useRelayerState, relayerAvailable, signData])
 
-  const reset = useCallback(() => {
+  /** Build and submit a privateSend with ZK combined proof. Returns txId. */
+  async function executePrivateSend(
+    client: algosdk.Algodv2,
+    sender: string,
+    signer: typeof transactionSigner,
+    pool: { appId: number; appAddress: string },
+    note: DepositNote,
+    microAlgos: bigint,
+    destinationAddr: string,
+  ): Promise<string> {
+    // Sync tree and prepare insertion
+    setState(s => ({ ...s, message: 'Syncing Merkle tree...' }))
+    const tree = await incrementalSyncTree(pool.appId)
+    const oldRoot = tree.root
+    const contractState = await readContractState(client, pool.appId)
+
+    const { index: leafIndex, root: newRoot } = insertLeaf(tree, note.commitment)
+    note.leafIndex = leafIndex
+
+    const merklePath = getPath(tree, leafIndex)
+    const nullifierHash = computeNullifierHash(note.nullifier)
+    const relayerAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+    const relayerFee = 0n
+
+    // Generate ONE combined ZK proof (privateSend circuit)
+    setState(s => ({ ...s, stage: 'generating_proof', message: 'Computing zero-knowledge proof... (10-30 sec)' }))
+
+    const snarkjs = await import('snarkjs')
+
+    const circuitInput = {
+      oldRoot: oldRoot.toString(),
+      newRoot: newRoot.toString(),
+      commitment: note.commitment.toString(),
+      leafIndex: leafIndex.toString(),
+      nullifierHash: nullifierHash.toString(),
+      recipient: addressToScalar(destinationAddr).toString(),
+      relayer: addressToScalar(relayerAddr).toString(),
+      fee: relayerFee.toString(),
+      amount: microAlgos.toString(),
+      secret: note.secret.toString(),
+      nullifier: note.nullifier.toString(),
+      pathElements: merklePath.pathElements.map(e => e.toString()),
+    }
+
+    const { proof } = await snarkjs.groth16.fullProve(
+      circuitInput,
+      '/circuits/privateSend.wasm',
+      '/circuits/privateSend_final.zkey',
+    )
+
+    const groth16Proof = {
+      pi_a: [BigInt(proof.pi_a[0]), BigInt(proof.pi_a[1])] as [bigint, bigint],
+      pi_b: [
+        [BigInt(proof.pi_b[0][0]), BigInt(proof.pi_b[0][1])],
+        [BigInt(proof.pi_b[1][0]), BigInt(proof.pi_b[1][1])],
+      ] as [[bigint, bigint], [bigint, bigint]],
+      pi_c: [BigInt(proof.pi_c[0]), BigInt(proof.pi_c[1])] as [bigint, bigint],
+    }
+
+    // Pre-check: re-read on-chain root after proof gen — if it changed, abort
+    setState(s => ({ ...s, stage: 'depositing', message: 'Verifying tree state...' }))
+    const freshState = await readContractState(client, pool.appId)
+    if (bytesToScalar(freshState.currentRoot) !== oldRoot) {
+      throw new Error('Tree root changed during proof generation (concurrent deposit)')
+    }
+
+    // Build 3-txn group: [privateSend verifier call, payment, pool privateSend call]
+    setState(s => ({ ...s, stage: 'withdrawing', message: 'Building transaction...' }))
+
+    const proofBytes = encodeProofForVerifier(groth16Proof)
+    const signalsBytes = encodePrivateSendSignals(
+      oldRoot, newRoot, note.commitment, BigInt(leafIndex),
+      nullifierHash, destinationAddr, relayerAddr, relayerFee, microAlgos,
+    )
+
+    const commitmentBytes = scalarToBytes(note.commitment)
+    const mimcRootBytes = scalarToBytes(newRoot)
+    const nullifierHashBytes = scalarToBytes(nullifierHash)
+    const recipientSignalBytes = scalarToBytes(addressToScalar(destinationAddr))
+    const relayerSignalBytes = scalarToBytes(addressToScalar(relayerAddr))
+    const recipientPubKey = algosdk.decodeAddress(destinationAddr).publicKey
+    const relayerPubKey = algosdk.decodeAddress(relayerAddr).publicKey
+
+    const params = await client.getTransactionParams().do()
+
+    const verifierAppCall = algosdk.makeApplicationCallTxnFromObject({
+      sender,
+      appIndex: PRIVATESEND_VERIFIER_APP_ID,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC,
+      appArgs: [proofBytes, signalsBytes],
+      foreignApps: [PRIVATESEND_BUDGET_HELPER_APP_ID],
+      suggestedParams: { ...params, fee: FEES.privateSendVerifierCall, flatFee: true },
+    })
+
+    const payTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      sender,
+      receiver: pool.appAddress,
+      amount: Number(microAlgos),
+      suggestedParams: params,
+    })
+
+    // Read evicted root for knownRoots pruning (only when ring buffer wraps at >=1000 deposits)
+    const evictedRoot = await readEvictedRoot(client, pool.appId, freshState.rootHistoryIndex)
+    const boxes = privateSendBoxRefs(pool.appId, freshState.rootHistoryIndex, freshState.nextIndex, nullifierHashBytes, mimcRootBytes, evictedRoot)
+
+    const poolAppCall = algosdk.makeApplicationCallTxnFromObject({
+      sender,
+      appIndex: pool.appId,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC,
+      appArgs: [
+        METHOD_SELECTORS.privateSend,
+        abiEncodeBytes(commitmentBytes),
+        abiEncodeBytes(mimcRootBytes),
+        abiEncodeBytes(nullifierHashBytes),
+        recipientPubKey,
+        relayerPubKey,
+        uint64ToBytes(0n),
+        abiEncodeBytes(recipientSignalBytes),
+        abiEncodeBytes(relayerSignalBytes),
+      ],
+      foreignApps: [PRIVATESEND_VERIFIER_APP_ID],
+      accounts: [destinationAddr],
+      boxes,
+      suggestedParams: { ...params, fee: BigInt(2000), flatFee: true },
+    })
+
+    algosdk.assignGroupID([verifierAppCall, payTxn, poolAppCall])
+
+    setState(s => ({ ...s, message: 'Approve transaction in your wallet...' }))
+    const signedTxns = await signer(
+      [verifierAppCall, payTxn, poolAppCall],
+      [0, 1, 2],
+    )
+
+    setState(s => ({ ...s, message: 'Submitting transaction...' }))
+    const result = await client.sendRawTransaction(signedTxns).do()
+    const txId = (result as any).txid ?? (result as any).txId
+
+    setState(s => ({ ...s, message: 'Waiting for confirmation...' }))
+    await algosdk.waitForConfirmation(client, txId, 4)
+
+    // Persist tree after successful confirmation
+    saveTree(tree, pool.appId)
+    return txId
+  }
+
+  // ── PRIVATE SEND (combined single-proof deposit+withdraw) ──
+  const privateSend = useCallback(async (microAlgos: bigint, destinationAddr: string) => {
+    if (!activeAddress || !transactionSigner) {
+      addToast('error', 'Wallet not connected')
+      setState(s => ({ ...s, stage: 'error', error: 'Wallet not connected' }))
+      return
+    }
+    if (!isValidTier(microAlgos)) {
+      addToast('error', `Invalid denomination. Use ${DENOMINATION_TIERS.map(t => t.label).join(', ')} ALGO`)
+      setState(s => ({ ...s, stage: 'error', error: 'Invalid denomination tier' }))
+      return
+    }
+    if (!algosdk.isValidAddress(destinationAddr)) {
+      addToast('error', 'Invalid destination address')
+      setState(s => ({ ...s, stage: 'error', error: 'Invalid destination address' }))
+      return
+    }
+
+    if (!PRIVATESEND_VERIFIER_APP_ID) {
+      addToast('error', 'PrivateSend verifier not deployed. Run the deploy script first.')
+      setState(s => ({ ...s, stage: 'error', error: 'PrivateSend verifier not deployed (appId = 0)' }))
+      return
+    }
+
+    const amountMicroAlgo = Number(microAlgos)
+    const amountAlgo = amountMicroAlgo / 1_000_000
+    const client = getClient()
+    const pool = getPoolForTier(microAlgos)
+
+    try {
+      setState(s => ({ ...s, stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null }))
+
+      await initMimc()
+
+      // Pre-check wallet balance for combined privateSend fee
+      setState(s => ({ ...s, message: 'Checking wallet balance...' }))
+      await checkBalance(client, activeAddress, microAlgos + FEES.privateSend)
+
+      setState(s => ({ ...s, message: 'Deriving deposit key...' }))
+      const masterKey = await deriveMasterKey(signData)
+      const depositIdx = getNextDepositIndex()
+      const note = deriveDeposit(masterKey, depositIdx, microAlgos, 0)
+
+      // Attempt privateSend with retry on stale root (concurrent deposit by another user)
+      let txId: string | undefined
+      for (let attempt = 1; attempt <= MAX_DEPOSIT_RETRIES; attempt++) {
+        try {
+          txId = await executePrivateSend(client, activeAddress, transactionSigner, pool, note, microAlgos, destinationAddr)
+          break // success
+        } catch (err) {
+          if (attempt < MAX_DEPOSIT_RETRIES && isStaleRootError(err)) {
+            console.warn(`PrivateSend attempt ${attempt} failed (stale root), retrying...`)
+            clearTreeCache(pool.appId) // Force fresh sync on retry
+            setState(s => ({
+              ...s,
+              stage: 'depositing',
+              message: `Another deposit was processed. Retrying... (${attempt}/${MAX_DEPOSIT_RETRIES})`,
+            }))
+            continue
+          }
+          throw err // non-retryable or out of retries
+        }
+      }
+
+      // Increment deterministic counter (no note to persist — privateSend is atomic deposit+withdraw)
+      incrementDepositIndex()
+
+      addToast('success', `${amountAlgo} ALGO sent privately to ${destinationAddr.slice(0, 6)}...${destinationAddr.slice(-4)}`)
+      const psNotes = await loadNotes()
+      setState({
+        stage: 'withdraw_complete',
+        message: `${amountAlgo} ALGO sent privately to ${destinationAddr.slice(0, 6)}...${destinationAddr.slice(-4)}`,
+        txId: txId!,
+        error: null,
+        savedNotes: psNotes,
+      })
+    } catch (err) {
+      if (err instanceof PasswordRequiredError) throw err
+      const msg = humanizeError(err)
+      console.error('Private send error:', err)
+      addToast('error', msg)
+      setState(s => ({ ...s, stage: 'error', error: msg }))
+    }
+  }, [activeAddress, transactionSigner, signData, getClient, addToast])
+
+  const reset = useCallback(async () => {
+    const notes = await loadNotes()
     setState({
       stage: 'idle',
       message: '',
       txId: null,
       error: null,
-      savedNotes: loadNotes(),
+      savedNotes: notes,
     })
   }, [])
 
-  const refreshNotes = useCallback(() => {
-    setState(s => ({ ...s, savedNotes: loadNotes() }))
+  const refreshNotes = useCallback(async () => {
+    const notes = await loadNotes()
+    setState(s => ({ ...s, savedNotes: notes }))
+  }, [])
+
+  const rebuildAllTrees = useCallback(async (
+    onProgress?: (pool: string, done: boolean) => void,
+  ) => {
+    await syncAllTreesFromChain(onProgress)
   }, [])
 
   return {
@@ -1014,9 +848,11 @@ export function useTransaction(): UseTransactionReturn {
     deposit,
     withdraw,
     privateSend,
-    splitNote,
-    combineNotes,
     reset,
     refreshNotes,
+    rebuildAllTrees,
+    useRelayer: useRelayerState,
+    setUseRelayer,
+    relayerAvailable,
   }
 }

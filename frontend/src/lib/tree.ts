@@ -5,15 +5,19 @@
  * This module maintains a local incremental Merkle tree using MiMC hashing
  * so that we can generate ZK proofs (Merkle paths) for withdrawals.
  *
- * Ported from packages/pool/src/pool/merkle.ts (~60 lines core logic).
+ * Trees are keyed by pool appId so each pool has its own independent tree.
  */
 
 import { initMimc, mimcHash, bytesToScalar, scalarToBytes } from './privacy'
-import { CONTRACTS, ALGOD_CONFIG } from './config'
+import { CONTRACTS, ALGOD_CONFIG, POOL_CONTRACTS } from './config'
 import algosdk from 'algosdk'
 
-const TREE_DEPTH = 20
-const TREE_STORAGE_KEY = 'privacy_pool_merkle_tree'
+const TREE_DEPTH = 16
+const OLD_TREE_STORAGE_KEY = 'privacy_pool_merkle_tree'
+
+function treeStorageKey(appId: number): string {
+  return `privacy_pool_merkle_tree_${appId}`
+}
 
 type Scalar = bigint
 
@@ -57,7 +61,31 @@ class MerkleTree {
     const index = this.leaves.length
     if (index >= 2 ** this.depth) throw new Error('Merkle tree is full')
     this.leaves.push(leaf)
-    this.rebuildLayers()
+
+    // O(depth) incremental update — only recompute hashes along the insertion path
+    this.layers[0].push(leaf)
+    let currentIndex = index
+
+    for (let level = 0; level < this.depth; level++) {
+      const parentIndex = Math.floor(currentIndex / 2)
+      const leftIndex = parentIndex * 2
+      const rightIndex = leftIndex + 1
+
+      const left = this.layers[level][leftIndex]
+      const right = rightIndex < this.layers[level].length
+        ? this.layers[level][rightIndex]
+        : this.zeroHashes[level]
+      const parent = mimcHash(left, right)
+
+      if (parentIndex < this.layers[level + 1].length) {
+        this.layers[level + 1][parentIndex] = parent
+      } else {
+        this.layers[level + 1].push(parent)
+      }
+
+      currentIndex = parentIndex
+    }
+
     return index
   }
 
@@ -88,23 +116,6 @@ class MerkleTree {
     return { pathElements, pathIndices }
   }
 
-  private rebuildLayers(): void {
-    this.layers[0] = [...this.leaves]
-
-    for (let level = 1; level <= this.depth; level++) {
-      const prevLayer = this.layers[level - 1]
-      const currentLayer: Scalar[] = []
-
-      for (let i = 0; i < prevLayer.length; i += 2) {
-        const left = prevLayer[i]
-        const right = i + 1 < prevLayer.length ? prevLayer[i + 1] : this.zeroHashes[level - 1]
-        currentLayer.push(mimcHash(left, right))
-      }
-
-      this.layers[level] = currentLayer
-    }
-  }
-
   serialize(): string {
     return JSON.stringify({
       depth: this.depth,
@@ -113,18 +124,63 @@ class MerkleTree {
   }
 }
 
-// ── Module-level tree cache ──────────────────
+// ── Module-level tree cache (keyed by appId) ──────────────────
 
-let cachedTree: MerkleTree | null = null
+const cachedTrees = new Map<number, MerkleTree>()
 
-/** Get or create the local Merkle tree (loads from localStorage if available) */
-export async function getOrCreateTree(): Promise<MerkleTree> {
-  if (cachedTree) return cachedTree
+/** Migrate old single-key tree storage to per-pool key if it exists */
+async function migrateOldTree(zeroHashes: Scalar[]): Promise<void> {
+  const stored = localStorage.getItem(OLD_TREE_STORAGE_KEY)
+  if (!stored) return
+
+  try {
+    const obj = JSON.parse(stored)
+    const leafCount = obj.leaves?.length ?? 0
+    if (leafCount === 0) {
+      localStorage.removeItem(OLD_TREE_STORAGE_KEY)
+      return
+    }
+
+    // Try to find which pool this tree belongs to by comparing leaf count to on-chain next_idx
+    const client = new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
+    for (const [, pool] of Object.entries(POOL_CONTRACTS)) {
+      try {
+        const appInfo = await client.getApplicationByID(pool.appId).do()
+        const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
+        let nextIndex = 0
+        for (const kv of globalState) {
+          const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
+          if (key === 'next_idx') nextIndex = Number(kv.value?.uint ?? kv.value?.ui ?? 0)
+        }
+        if (nextIndex > 0 && nextIndex === leafCount) {
+          localStorage.setItem(treeStorageKey(pool.appId), stored)
+          break
+        }
+      } catch {
+        continue
+      }
+    }
+  } catch {
+    // Corrupted data
+  }
+
+  localStorage.removeItem(OLD_TREE_STORAGE_KEY)
+}
+
+/** Get or create the local Merkle tree for a specific pool */
+export async function getOrCreateTree(appId: number): Promise<MerkleTree> {
+  const cached = cachedTrees.get(appId)
+  if (cached) return cached
 
   await initMimc()
   const zeroHashes = computeZeroHashes(TREE_DEPTH)
 
-  const stored = localStorage.getItem(TREE_STORAGE_KEY)
+  // Migrate old single-key storage on first access
+  if (localStorage.getItem(OLD_TREE_STORAGE_KEY)) {
+    await migrateOldTree(zeroHashes)
+  }
+
+  const stored = localStorage.getItem(treeStorageKey(appId))
   if (stored) {
     try {
       const obj = JSON.parse(stored)
@@ -132,15 +188,16 @@ export async function getOrCreateTree(): Promise<MerkleTree> {
       for (const leaf of obj.leaves) {
         tree.insert(BigInt(leaf))
       }
-      cachedTree = tree
+      cachedTrees.set(appId, tree)
       return tree
     } catch {
       // Corrupted — create fresh
     }
   }
 
-  cachedTree = new MerkleTree(TREE_DEPTH, zeroHashes)
-  return cachedTree
+  const tree = new MerkleTree(TREE_DEPTH, zeroHashes)
+  cachedTrees.set(appId, tree)
+  return tree
 }
 
 /** Insert a commitment leaf and return the new MiMC root */
@@ -154,48 +211,91 @@ export function getPath(tree: MerkleTree, leafIndex: number): MerklePath {
   return tree.getPath(leafIndex)
 }
 
-/** Persist the tree to localStorage */
-export function saveTree(tree: MerkleTree): void {
-  localStorage.setItem(TREE_STORAGE_KEY, tree.serialize())
+/** Persist the tree to localStorage for a specific pool */
+export function saveTree(tree: MerkleTree, appId: number): void {
+  localStorage.setItem(treeStorageKey(appId), tree.serialize())
 }
 
-/** Rebuild the tree from on-chain commitment boxes (recovery / sync) */
-export async function syncTreeFromChain(appId?: number): Promise<MerkleTree> {
+/** Read on-chain nextIndex for a pool */
+async function readOnChainNextIndex(client: algosdk.Algodv2, appId: number): Promise<number> {
+  const appInfo = await client.getApplicationByID(appId).do()
+  const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
+  for (const kv of globalState) {
+    const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
+    if (key === 'next_idx') return Number(kv.value?.uint ?? kv.value?.ui ?? 0)
+  }
+  return 0
+}
+
+/** Fetch a single commitment box from chain */
+async function fetchCommitmentBox(client: algosdk.Algodv2, appId: number, index: number): Promise<bigint> {
+  const boxName = new Uint8Array(11) // "cmt" (3) + uint64 (8)
+  boxName.set(new TextEncoder().encode('cmt'), 0)
+  const idxBytes = new Uint8Array(8)
+  let val = BigInt(index)
+  for (let b = 7; b >= 0; b--) {
+    idxBytes[b] = Number(val & 0xffn)
+    val >>= 8n
+  }
+  boxName.set(idxBytes, 3)
+  const boxResult = await client.getApplicationBoxByName(appId, boxName).do()
+  return bytesToScalar(boxResult.value)
+}
+
+/**
+ * Incremental tree sync — only fetches new leaves since last sync.
+ * O(delta) instead of O(N). Falls back to full rebuild if local tree is corrupted.
+ */
+export async function incrementalSyncTree(appId: number): Promise<MerkleTree> {
+  await initMimc()
+
+  const client = new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
+  const onChainNextIndex = await readOnChainNextIndex(client, appId)
+
+  // Load existing local tree
+  const tree = await getOrCreateTree(appId)
+  const localNextIndex = tree.nextIndex
+
+  if (localNextIndex === onChainNextIndex) {
+    // Already in sync
+    return tree
+  }
+
+  if (localNextIndex > onChainNextIndex) {
+    // Local tree is ahead of chain — corrupted, do full rebuild
+    console.warn(`Local tree ahead of chain (${localNextIndex} > ${onChainNextIndex}), rebuilding`)
+    return syncTreeFromChain(appId)
+  }
+
+  // Fetch only the missing leaves (delta)
+  for (let i = localNextIndex; i < onChainNextIndex; i++) {
+    try {
+      const commitment = await fetchCommitmentBox(client, appId, i)
+      tree.insert(commitment)
+    } catch {
+      console.warn(`Missing commitment box at index ${i}, falling back to full rebuild`)
+      return syncTreeFromChain(appId)
+    }
+  }
+
+  cachedTrees.set(appId, tree)
+  saveTree(tree, appId)
+  return tree
+}
+
+/** Rebuild the tree from on-chain commitment boxes (full recovery / sync) */
+export async function syncTreeFromChain(appId: number): Promise<MerkleTree> {
   await initMimc()
   const zeroHashes = computeZeroHashes(TREE_DEPTH)
   const tree = new MerkleTree(TREE_DEPTH, zeroHashes)
 
-  const id = appId ?? CONTRACTS.PrivacyPool.appId
   const client = new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
-
-  // Read nextIndex from global state
-  const appInfo = await client.getApplicationByID(id).do()
-  const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
-
-  let nextIndex = 0
-  for (const kv of globalState) {
-    const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
-    if (key === 'next_idx') {
-      nextIndex = Number(kv.value?.uint ?? kv.value?.ui ?? 0)
-    }
-  }
+  const nextIndex = await readOnChainNextIndex(client, appId)
 
   // Read each commitment box sequentially
-  const enc = new TextEncoder()
   for (let i = 0; i < nextIndex; i++) {
-    const boxName = new Uint8Array(11) // "cmt" (3) + uint64 (8)
-    boxName.set(enc.encode('cmt'), 0)
-    const idxBytes = new Uint8Array(8)
-    let val = BigInt(i)
-    for (let b = 7; b >= 0; b--) {
-      idxBytes[b] = Number(val & 0xffn)
-      val >>= 8n
-    }
-    boxName.set(idxBytes, 3)
-
     try {
-      const boxResult = await client.getApplicationBoxByName(id, boxName).do()
-      const commitment = bytesToScalar(boxResult.value)
+      const commitment = await fetchCommitmentBox(client, appId, i)
       tree.insert(commitment)
     } catch {
       console.warn(`Missing commitment box at index ${i}, stopping sync`)
@@ -203,15 +303,37 @@ export async function syncTreeFromChain(appId?: number): Promise<MerkleTree> {
     }
   }
 
-  cachedTree = tree
-  saveTree(tree)
+  cachedTrees.set(appId, tree)
+  saveTree(tree, appId)
   return tree
 }
 
+/** Sync all pool trees from chain */
+export async function syncAllTreesFromChain(
+  onProgress?: (pool: string, done: boolean) => void,
+): Promise<void> {
+  for (const [denom, pool] of Object.entries(POOL_CONTRACTS)) {
+    onProgress?.(`${Number(denom) / 1_000_000} ALGO pool`, false)
+    try {
+      await syncTreeFromChain(pool.appId)
+    } catch (err) {
+      console.warn(`Failed to sync tree for pool ${denom}:`, err)
+    }
+    onProgress?.(`${Number(denom) / 1_000_000} ALGO pool`, true)
+  }
+}
+
 /** Clear the cached tree (useful when switching contracts) */
-export function clearTreeCache(): void {
-  cachedTree = null
-  localStorage.removeItem(TREE_STORAGE_KEY)
+export function clearTreeCache(appId?: number): void {
+  if (appId !== undefined) {
+    cachedTrees.delete(appId)
+    localStorage.removeItem(treeStorageKey(appId))
+  } else {
+    cachedTrees.clear()
+    for (const [, pool] of Object.entries(POOL_CONTRACTS)) {
+      localStorage.removeItem(treeStorageKey(pool.appId))
+    }
+  }
 }
 
 export type { MerklePath, MerkleTree }

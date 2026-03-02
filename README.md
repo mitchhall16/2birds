@@ -135,16 +135,16 @@ graph TD
     E -.->|atomic group| G
 ```
 
-## Merkle Tree (Incremental, Depth 20)
+## Merkle Tree (Incremental, Depth 16)
 
 ```mermaid
 graph TB
     ROOT[Root = MiMC&#40H_L, H_R&#41]
-    ROOT --- L19[Level 19]
-    ROOT --- R19[Level 19]
-    L19 --- L18a[Level 18]
-    L19 --- R18a[Level 18]
-    R19 --- L18b["zero[19]"]
+    ROOT --- L15[Level 15]
+    ROOT --- R15[Level 15]
+    L15 --- L14a[Level 14]
+    L15 --- R14a[Level 14]
+    R15 --- L14b["zero[15]"]
 
     L18a --- LEAF0["Leaf 0<br/>commitment"]
     L18a --- LEAF1["Leaf 1<br/>commitment"]
@@ -221,7 +221,7 @@ cd circuits && bash build.sh
   Creating deposit (secret + nullifier)...
   Commitment: 76232192545840885598...
   NullifierHash: 68893552353962002315...
-  Building Merkle tree (depth 20, 1 leaf)...
+  Building Merkle tree (depth 16, 1 leaf)...
   Merkle root: 20340347044506301858...
   Generating Groth16 proof (this takes 5-15 seconds)...
   Proof generated in 2.1s
@@ -276,7 +276,7 @@ frontend/
 │   │   └── useDeploy.ts              # Contract deployment
 │   ├── lib/
 │   │   ├── privacy.ts                 # MiMC, commitments, nullifiers, note storage, recovery
-│   │   ├── tree.ts                    # Client-side MiMC Merkle tree (depth 20)
+│   │   ├── tree.ts                    # Client-side MiMC Merkle tree (depth 16)
 │   │   ├── config.ts                  # Contract addresses, algod/indexer endpoints
 │   │   └── errorMessages.ts           # Human-readable error mapping
 │   └── styles/

@@ -1,6 +1,6 @@
 #pragma version 11
 // Groth16 Verifier Application for Algorand AVM
-// nPublic: 5
+// nPublic: 6
 // Generated from verification key
 
 // === Budget padding: approve immediately if no args (inner call) ===
@@ -31,17 +31,17 @@ txna ApplicationArgs 0
 extract 192 64
 store 2 // pi_c
 
-// === Step 2: Extract 5 public signals from arg[1] (160 bytes) ===
+// === Step 2: Extract 6 public signals from arg[1] (192 bytes) ===
 txna ApplicationArgs 1
 len
-pushint 160
+pushint 192
 ==
 assert // public signals must be nPublic * 32 bytes
 
 // === Step 3: Pad opcode budget via inner calls to budget helper ===
 budget_pad_loop:
 global OpcodeBudget
-pushint 150000
+pushint 148000
 >
 bnz budget_pad_done
 itxn_begin
@@ -58,11 +58,11 @@ budget_pad_done:
 // === Step 4: Compute vk_x = IC[0] + sum(signals[i] * IC[i+1]) ===
 
 // vk_x = IC[0]
-pushbytes 0x049c655dfa0e221a78944d87c16d31dbf28d4a9e3e087cce94d6615ac2060a350d9a30a993aa4686940171e2fac2b0bd9daa86296506b08d3c9a254b6990f53e
+pushbytes 0x10bc40e1e4c31d8632323a14c55ddc20a8d0e6eab85d5ce54530dda8a7daeaf310d97e31b5767907b06eed7c8c759fac370b7717d8e20e4539891a3e37358b7a
 store 10 // vk_x = IC[0]
 
 // vk_x += signal[0] * IC[1]
-pushbytes 0x0980b571e1f27024ec00f3868a3d06ab8df1046582480ecd70a97cb8b417358522aa59e4f9a36567e4e99c2173edb144dec156615afc637b3572a65019d6f698
+pushbytes 0x191e22243016b795a4e5a386e7580d29036b09ae739ff2d755f1acd538d4217929b30dee069ce71fcfcb3d1940a38ee6e443a6776737ffed8dcd88d30d8e8025
 txna ApplicationArgs 1
 extract 0 32
 ec_scalar_mul BN254g1
@@ -72,7 +72,7 @@ ec_add BN254g1
 store 10 // vk_x updated
 
 // vk_x += signal[1] * IC[2]
-pushbytes 0x0f85215fe696a87790d657f3a83f3a52bbbf4845a7c26ea5a2b19c3c71caf0c80356ada9cb6432149db3b945c9fee0825f41b2abfb44559e6dae03dadbdfd075
+pushbytes 0x1c015031bf570a4b8e286bcc2c9d23f96135bcad13b094b011665d4985d465861b89b81feff4a20c6e85b5d085ac29b084c51b4b76d2b0866ca62a662daa60c8
 txna ApplicationArgs 1
 extract 32 32
 ec_scalar_mul BN254g1
@@ -82,7 +82,7 @@ ec_add BN254g1
 store 10 // vk_x updated
 
 // vk_x += signal[2] * IC[3]
-pushbytes 0x049d0cca74d16362fbf7cd2283877dd52e5f7e6ed243f4c966dfd18cc766b35625fa2686b6e97a2d3b5206c8687d9c9dd4a807a8d5facf65ac1cfb07ccd90568
+pushbytes 0x196e1c6fd0c81ba2de21b9ed01d83dc342767d3972841b228b78227d5153bb6b23c1c1ecf4b2839a9b970d4ab3860e54145f6824557528d9cefdb037c882ab6c
 txna ApplicationArgs 1
 extract 64 32
 ec_scalar_mul BN254g1
@@ -92,7 +92,7 @@ ec_add BN254g1
 store 10 // vk_x updated
 
 // vk_x += signal[3] * IC[4]
-pushbytes 0x29221dae722e3a49d50c28c849497d9733b55946f6e6cccd3a643c74745b7b2d2cd6e62102988239578d2dcb93b0836d8684d9467093e5d2fb2cf0f246d2128a
+pushbytes 0x02693549ac7a483bb9bd68343c260c2cd8fe1b231cea5368a61610caef83910b11e9d393b12826ed256d0373c2fa470b4a19ab6b0064420cc0037b0d9c0f31e6
 txna ApplicationArgs 1
 extract 96 32
 ec_scalar_mul BN254g1
@@ -102,9 +102,19 @@ ec_add BN254g1
 store 10 // vk_x updated
 
 // vk_x += signal[4] * IC[5]
-pushbytes 0x07ad7835a4118923c4f25526e4577457a442ec4006b9299bd105378884e991a00d5290fecc5c5e94348a121fcb7e1908960413e956b896b14a3790ebb09d113e
+pushbytes 0x1d5ebb6f1be6ebc4462d0ff034fb82a92a99d50cc2a34f89c0b799875b48c1d111a6b106b3730aa544246a5b5867aec3372b17181ba52127262f0b0368684001
 txna ApplicationArgs 1
 extract 128 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[5] * IC[6]
+pushbytes 0x0e57cbf67fdd20cdc5b263cbafca251dad3460d4d38dd9ba793229c26582be381e90a8996ede72f27e448abba49ab47d57fa4617d9c3309fafe1130b835663cb
+txna ApplicationArgs 1
+extract 160 32
 ec_scalar_mul BN254g1
 load 10
 swap
@@ -147,7 +157,7 @@ pushbytes 0x0e187847ad4c798374d0d6732bf501847dd68bc0e071241e0213bc7fc13db7ab0967
 concat
 pushbytes 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c212c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b // gamma
 concat
-pushbytes 0x2ca824c553031513991d639662e4d2c5deec3f4020547d46101fc97028d4849507ea784ea408f73cc3f663680ee38f5a44ae32a2bc964ae34c58beecca4aabcd098d583e0761064b01168631f59198104482cdf56c3757941e263f2375ca3bbd2a1ffbbe25392e0e229095e4d84ecf34207af0f780a4dadb7ab8a62ad3f2cac7 // delta
+pushbytes 0x00870c962e79bcb50f6191aa67243629aca149ec4be9944b74054b5b24d35ad82d78ba2b6e96cba1a4f74cfe67a82b0711cce62a15f9cc570f7ecafb6b27eca71e1f0765d7556a1af1656649eb82177f21c9adf3b61e756eb0fe71e6ae16c5750f2f7a532ce57ad035f0085f1a4dcc22d01e10dc301e7fbc6b49ee8a83af5643 // delta
 concat
 
 // Verify: e(-A,B) * e(alpha,beta) * e(vk_x,gamma) * e(C,delta) == 1

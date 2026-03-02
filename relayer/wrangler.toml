@@ -1,0 +1,13 @@
+name = "privacy-pool-relayer"
+main = "src/index.ts"
+compatibility_date = "2024-05-01"
+
+[vars]
+ALGOD_URL = "https://testnet-api.algonode.cloud"
+VERIFIER_APP_ID = "756420114"
+BUDGET_HELPER_APP_ID = "756420102"
+ALLOWED_POOL_IDS = "756420118,756420130,756420132"
+
+# Secrets (set via `wrangler secret put`):
+# RELAYER_MNEMONIC — 25-word Algorand mnemonic for the relayer account
+# ALLOWED_ORIGINS — comma-separated CORS origins (optional)

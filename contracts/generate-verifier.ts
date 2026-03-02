@@ -56,10 +56,10 @@ function encodeG1(point: string[]): string {
 
 /**
  * Encode a BN254 G2 point (affine) as 128 bytes:
- * x_imag (32 BE) || x_real (32 BE) || y_imag (32 BE) || y_real (32 BE)
+ * x_real (32 BE) || x_imag (32 BE) || y_real (32 BE) || y_imag (32 BE)
  *
- * AVM expects: x1 (imaginary), x0 (real), y1 (imaginary), y0 (real)
- * snarkjs vkey gives: [x0, x1], [y0, y1]
+ * AVM expects: x0 (real), x1 (imaginary), y0 (real), y1 (imaginary)
+ * snarkjs vkey gives: [x0, x1], [y0, y1] — same order
  */
 function encodeG2(point: string[][]): string {
   const x0 = BigInt(point[0][0]); // real (A0)
@@ -81,12 +81,6 @@ function encodeScalar(s: bigint): string {
  * BN254 G1 field prime for point negation: negate y coordinate
  */
 const BN254_FIELD_PRIME = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
-
-function negateG1Y(yStr: string): string {
-  const y = BigInt(yStr);
-  const negY = BN254_FIELD_PRIME - y;
-  return negY.toString();
-}
 
 function generateTeal(vkey: VKey): string {
   const nPublic = vkey.nPublic;
@@ -205,7 +199,15 @@ function generateTeal(vkey: VKey): string {
     // Push IC point first (A = point, 64 bytes), then signal scalar (B = scalar, 32 bytes)
     lines.push(`pushbytes ${IC[i + 1]}`);
     lines.push('txna ApplicationArgs 1');
-    lines.push(`extract ${i * 32} 32`);
+    const offset = i * 32;
+    if (offset <= 255) {
+      lines.push(`extract ${offset} 32`);
+    } else {
+      // extract immediate only supports offsets 0-255; use stack-based extract3
+      lines.push(`pushint ${offset}`);
+      lines.push('pushint 32');
+      lines.push('extract3');
+    }
     lines.push('ec_scalar_mul BN254g1');
     // Add to vk_x
     lines.push('load 10');
@@ -330,4 +332,4 @@ console.log(`  Clear:    ${clearOutputPath}`);
 console.log(`  Public signals: ${vkey.nPublic}`);
 console.log(`  IC points: ${vkey.IC.length}`);
 console.log(`  TEAL version: 11`);
-console.log(`  Budget padding: dynamic (target 70,000 opcodes)`);
+console.log(`  Budget padding: dynamic (target 150,000 opcodes)`);

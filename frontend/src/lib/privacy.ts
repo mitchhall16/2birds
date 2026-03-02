@@ -1,19 +1,32 @@
 import { buildMimcSponge } from 'circomlibjs'
 import algosdk from 'algosdk'
-import { CONTRACTS, POOL_DENOMINATION } from './config'
+import { POOL_DENOMINATION, POOL_CONTRACTS, getPoolForTier } from './config'
 
 // BN254 scalar field modulus
 const BN254_R = 21888242871839275222246405745257275088548364400416034343698204186575808495617n
 
+/** Thrown when signData fails and a password is needed to derive the master key */
+export class PasswordRequiredError extends Error {
+  constructor() {
+    super('Password required to derive master key')
+    this.name = 'PasswordRequiredError'
+  }
+}
+
 // MiMC sponge instance (initialized async)
 let mimcSponge: any = null
 let mimcF: any = null
+let mimcInitPromise: Promise<void> | null = null
 
 /** Initialize MiMC WASM — must be called before any hash operations */
 export async function initMimc(): Promise<void> {
   if (mimcSponge) return
-  mimcSponge = await buildMimcSponge()
-  mimcF = mimcSponge.F
+  if (mimcInitPromise) return mimcInitPromise
+  mimcInitPromise = (async () => {
+    mimcSponge = await buildMimcSponge()
+    mimcF = mimcSponge.F
+  })()
+  return mimcInitPromise
 }
 
 /** MiMC hash of two field elements (used for commitments) */
@@ -26,6 +39,12 @@ export function mimcHash(left: bigint, right: bigint): bigint {
 export function mimcHashSingle(x: bigint): bigint {
   if (!mimcSponge) throw new Error('MiMC not initialized — call initMimc() first')
   return mimcF.toObject(mimcSponge.multiHash([x], 0, 1))
+}
+
+/** MiMC hash of three field elements (used for commitment = MiMC(secret, nullifier, amount)) */
+export function mimcHashTriple(a: bigint, b: bigint, c: bigint): bigint {
+  if (!mimcSponge) throw new Error('MiMC not initialized — call initMimc() first')
+  return mimcF.toObject(mimcSponge.multiHash([a, b, c], 0, 1))
 }
 
 /** Generate a random scalar in the BN254 field */
@@ -91,7 +110,8 @@ export async function createDeposit(
   await initMimc()
   const secret = randomScalar()
   const nullifier = randomScalar()
-  const commitment = mimcHash(secret, nullifier)
+  // commitment = MiMC(secret, nullifier, amount) — binds proof to deposited amount
+  const commitment = mimcHashTriple(secret, nullifier, denomination)
 
   return {
     secret,
@@ -114,7 +134,10 @@ export function computeNullifierHash(nullifier: bigint): bigint {
 // Pre-computed from SHA-512/256 of method signatures (first 4 bytes, per ARC-4)
 export const METHOD_SELECTORS = {
   deposit: new Uint8Array([0xfc, 0x1b, 0xba, 0xae]),   // deposit(byte[],byte[])void
-  withdraw: new Uint8Array([0x91, 0xca, 0x46, 0x52]),   // withdraw(byte[],address,address,uint64,byte[],uint64)void
+  // withdraw(byte[],address,address,uint64,byte[],byte[],byte[])void
+  withdraw: new Uint8Array([0x1b, 0xd9, 0xeb, 0x9c]),
+  // privateSend(byte[],byte[],byte[],address,address,uint64,byte[],byte[])void
+  privateSend: new Uint8Array([0xbb, 0xf9, 0x96, 0x55]),
 } as const
 
 /** ABI-encode a byte[] value (2-byte length prefix + data) */
@@ -170,18 +193,47 @@ export function commitmentBox(appId: number, leafIndex: number) {
   return { appIndex: appId, name }
 }
 
-/** Build all box references needed for a deposit (3 boxes — no on-chain tree) */
-export function depositBoxRefs(appId: number, rootHistoryIndex: number, leafIndex: number) {
-  return [
-    rootBox(appId, rootHistoryIndex % 100),
+/** Build all box references needed for a deposit (4-5 boxes — includes evicted root if ring buffer wraps) */
+export function depositBoxRefs(appId: number, rootHistoryIndex: number, leafIndex: number, mimcRoot: Uint8Array, evictedRoot?: Uint8Array) {
+  const refs = [
+    rootBox(appId, rootHistoryIndex % 1000),
     amountBox(appId, leafIndex),
     commitmentBox(appId, leafIndex),
+    knownRootBox(appId, mimcRoot),
   ]
+  // When ring buffer wraps (>=1000 deposits), include the old root's knownRoots box for eviction
+  if (evictedRoot) {
+    refs.push(knownRootBox(appId, evictedRoot))
+  }
+  return refs
+}
+
+/** Read the root stored at a ring buffer slot (for eviction). Returns undefined if slot is empty. */
+export async function readEvictedRoot(client: algosdk.Algodv2, appId: number, rootHistoryIndex: number): Promise<Uint8Array | undefined> {
+  if (rootHistoryIndex < 1000) return undefined // ring buffer hasn't wrapped yet
+  const slot = rootHistoryIndex % 1000
+  const boxName = new Uint8Array(12)
+  boxName.set(TEXT_ENCODER.encode('root'), 0)
+  boxName.set(uint64ToBytes(BigInt(slot)), 4)
+  try {
+    const box = await client.getApplicationBoxByName(appId, boxName).do()
+    return box.value as Uint8Array
+  } catch {
+    return undefined
+  }
+}
+
+/** Build box reference for knownRoots lookup */
+export function knownRootBox(appId: number, root: Uint8Array) {
+  const name = new Uint8Array(2 + root.length) // "kr" (2) + root hash
+  name.set(TEXT_ENCODER.encode('kr'), 0)
+  name.set(root, 2)
+  return { appIndex: appId, name }
 }
 
 /** Build all box references needed for a withdrawal */
 export function withdrawBoxRefs(appId: number, nullifierHash: Uint8Array, root: Uint8Array) {
-  return [nullifierBox(appId, nullifierHash)]
+  return [nullifierBox(appId, nullifierHash), knownRootBox(appId, root)]
 }
 
 // ── Note Serialization ──────────────────
@@ -209,47 +261,184 @@ export function decodeNote(json: string): DepositNote {
   }
 }
 
-const NOTES_KEY = 'privacy_pool_notes'
+// ── Encrypted Note Storage (v2) ─────────
 
-export function saveNote(note: DepositNote): void {
-  const existing = loadAllNotes()
-  existing.push({ ...note, appId: CONTRACTS.PrivacyPool.appId })
-  localStorage.setItem(NOTES_KEY, JSON.stringify(existing.map(encodeNote)))
+const NOTES_KEY = 'privacy_pool_notes'
+const NOTES_V2_KEY = 'privacy_pool_notes_v2'
+const HKDF_SALT_KEY = 'privacy_pool_hkdf_salt'
+
+/** Get or create a persistent random HKDF salt */
+function getHkdfSalt(): Uint8Array {
+  const stored = localStorage.getItem(HKDF_SALT_KEY)
+  if (stored) {
+    return Uint8Array.from(stored.match(/.{2}/g)!.map(b => parseInt(b, 16)))
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(32))
+  const hex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('')
+  localStorage.setItem(HKDF_SALT_KEY, hex)
+  return salt
 }
 
-/** Load all notes regardless of contract */
-function loadAllNotes(): DepositNote[] {
+/** Derive an AES-256-GCM key from the master key via HKDF (only when deterministic) */
+async function deriveEncryptionKey(): Promise<CryptoKey | null> {
+  if (!masterKeyDeterministic) return null
+  const mk = await getCachedMasterKey()
+  if (!mk) return null
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    scalarToBytes(mk) as ArrayBufferView<ArrayBuffer>,
+    'HKDF',
+    false,
+    ['deriveKey'],
+  )
+  return crypto.subtle.deriveKey(
+    { name: 'HKDF', hash: 'SHA-256', salt: getHkdfSalt() as ArrayBufferView<ArrayBuffer>, info: new TextEncoder().encode('privacy-pool-notes-v2') },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  )
+}
+
+/** Convert Uint8Array to base64 without spread operator (avoids stack overflow on large payloads) */
+function uint8ToBase64(bytes: Uint8Array): string {
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
+/** Encrypt a string with AES-256-GCM, return base64(iv || ciphertext) */
+async function encryptData(key: CryptoKey, plaintext: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ct = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(plaintext),
+  )
+  const combined = new Uint8Array(12 + ct.byteLength)
+  combined.set(iv, 0)
+  combined.set(new Uint8Array(ct), 12)
+  return uint8ToBase64(combined)
+}
+
+/** Decrypt base64(iv || ciphertext) with AES-256-GCM */
+async function decryptData(key: CryptoKey, encoded: string): Promise<string> {
+  const combined = Uint8Array.from(atob(encoded), c => c.charCodeAt(0))
+  const iv = combined.slice(0, 12)
+  const ct = combined.slice(12)
+  const pt = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    ct,
+  )
+  return new TextDecoder().decode(pt)
+}
+
+/** Migrate v1 plaintext notes to v2 encrypted format */
+async function migrateV1ToV2(encKey: CryptoKey): Promise<void> {
+  const raw = localStorage.getItem(NOTES_KEY)
+  if (!raw) return
   try {
-    const raw = localStorage.getItem(NOTES_KEY)
-    if (!raw) return []
-    return JSON.parse(raw).map((s: string) => decodeNote(s))
+    // v1 format: JSON array of encoded note strings
+    const notes: DepositNote[] = JSON.parse(raw).map((s: string) => decodeNote(s))
+    if (notes.length > 0) {
+      const plaintext = JSON.stringify(notes.map(encodeNote))
+      const encrypted = await encryptData(encKey, plaintext)
+      localStorage.setItem(NOTES_V2_KEY, encrypted)
+    }
+    localStorage.removeItem(NOTES_KEY)
   } catch {
-    return []
+    // Corrupted v1 data, just remove it
+    localStorage.removeItem(NOTES_KEY)
   }
 }
 
-/** Load notes for the current contract only */
-export function loadNotes(): DepositNote[] {
-  const appId = CONTRACTS.PrivacyPool.appId
-  return loadAllNotes().filter(n => !n.appId || n.appId === appId)
-}
+/** Load all notes regardless of contract (async, decrypted) */
+async function loadAllNotesAsync(): Promise<DepositNote[]> {
+  const encKey = await deriveEncryptionKey()
 
-/** Remove a note by index (from filtered list) */
-export function removeNote(noteIndex: number): void {
-  const appId = CONTRACTS.PrivacyPool.appId
-  const all = loadAllNotes()
-  // Find the actual index in the full list
-  let matchCount = 0
-  for (let i = 0; i < all.length; i++) {
-    if (!all[i].appId || all[i].appId === appId) {
-      if (matchCount === noteIndex) {
-        all.splice(i, 1)
-        break
-      }
-      matchCount++
+  // Migrate v1 → v2 if needed
+  if (encKey && localStorage.getItem(NOTES_KEY)) {
+    await migrateV1ToV2(encKey)
+  }
+
+  // Try v2 encrypted format
+  if (encKey) {
+    const encrypted = localStorage.getItem(NOTES_V2_KEY)
+    if (!encrypted) return []
+    try {
+      const plaintext = await decryptData(encKey, encrypted)
+      return JSON.parse(plaintext).map((s: string) => decodeNote(s))
+    } catch {
+      return []
     }
   }
-  localStorage.setItem(NOTES_KEY, JSON.stringify(all.map(encodeNote)))
+
+  // No encryption key available — return empty (notes require master key)
+  // Any v1 plaintext notes will be migrated when master key becomes available
+  return []
+}
+
+/** Save all notes (encrypted — requires master key) */
+async function saveAllNotesAsync(notes: DepositNote[]): Promise<void> {
+  const plaintext = JSON.stringify(notes.map(encodeNote))
+  const encKey = await deriveEncryptionKey()
+  if (encKey) {
+    const encrypted = await encryptData(encKey, plaintext)
+    localStorage.setItem(NOTES_V2_KEY, encrypted)
+    localStorage.removeItem(NOTES_KEY)
+  } else {
+    // No encryption key — store nothing. Notes will be re-derived from master key on next login.
+    console.warn('Cannot save notes: no encryption key available (master key not yet derived)')
+  }
+}
+
+export async function saveNote(note: DepositNote): Promise<void> {
+  const pool = getPoolForTier(note.denomination)
+  const existing = await loadAllNotesAsync()
+  existing.push({ ...note, appId: pool.appId })
+  await saveAllNotesAsync(existing)
+}
+
+/** Load deposit notes, filtering out stale notes from defunct pools */
+export async function loadNotes(): Promise<DepositNote[]> {
+  // Build a map: appId → denomination (microAlgos string key)
+  const poolByAppId = new Map<number, string>()
+  for (const [denom, pool] of Object.entries(POOL_CONTRACTS)) {
+    poolByAppId.set(pool.appId, denom)
+  }
+
+  const all = await loadAllNotesAsync()
+  const valid = all.filter(n => {
+    if (!n.appId) return false
+    const expectedDenom = poolByAppId.get(n.appId)
+    if (!expectedDenom) return false
+    // Cross-check: note's denomination must match the pool it claims to belong to
+    return n.denomination.toString() === expectedDenom
+  })
+  // Do NOT auto-delete notes with unknown appIds — they may belong to a
+  // previous deployment and could be recovered after redeployment.
+  return valid
+}
+
+/** Remove a note by index (from filtered loadNotes list) */
+export async function removeNote(noteIndex: number): Promise<void> {
+  const filtered = await loadNotes()
+  if (noteIndex < 0 || noteIndex >= filtered.length) return
+  const target = filtered[noteIndex]
+  await removeNoteByCommitment(target.commitment)
+}
+
+/** Remove a note by its commitment value (safe regardless of index shifting) */
+export async function removeNoteByCommitment(commitment: bigint): Promise<void> {
+  const all = await loadAllNotesAsync()
+  const idx = all.findIndex(n => n.commitment === commitment)
+  if (idx >= 0) {
+    all.splice(idx, 1)
+    await saveAllNotesAsync(all)
+  }
 }
 
 // ── ZK Proof Encoding ───────────────────
@@ -273,8 +462,8 @@ export function encodeProofForVerifier(proof: {
   const result = new Uint8Array(256)
   result.set(scalarToBytes(proof.pi_a[0]), 0)
   result.set(scalarToBytes(proof.pi_a[1]), 32)
-  // AVM (gnark-crypto) expects G2 as: x_real || x_imag || y_real || y_imag
-  // snarkjs gives pi_b as: [[x_real, x_imag], [y_real, y_imag]] — same order
+  // AVM (gnark-crypto) expects G2 as: x_real (A0) || x_imag (A1) || y_real (A0) || y_imag (A1)
+  // snarkjs gives pi_b as: [[x_c0, x_c1], [y_c0, y_c1]] where c0=real, c1=imag — same order
   result.set(scalarToBytes(proof.pi_b[0][0]), 64)
   result.set(scalarToBytes(proof.pi_b[0][1]), 96)
   result.set(scalarToBytes(proof.pi_b[1][0]), 128)
@@ -284,21 +473,78 @@ export function encodeProofForVerifier(proof: {
   return result
 }
 
-/** Encode 5 public signals as 160 bytes for the LogicSig verifier (arg 1) */
+/** Encode 4 deposit public signals as 128 bytes for the deposit verifier (arg 1) */
+export function encodeDepositSignals(
+  oldRoot: bigint,
+  newRoot: bigint,
+  commitment: bigint,
+  leafIndex: bigint,
+): Uint8Array {
+  const result = new Uint8Array(128)
+  result.set(scalarToBytes(oldRoot), 0)
+  result.set(scalarToBytes(newRoot), 32)
+  result.set(scalarToBytes(commitment), 64)
+  result.set(scalarToBytes(leafIndex), 96)
+  return result
+}
+
+/** Encode 6 public signals as 192 bytes for the LogicSig verifier (arg 1) */
 export function encodePublicSignals(
   root: bigint,
   nullifierHash: bigint,
   recipient: string,
   relayer: string,
   fee: bigint,
+  amount: bigint,
 ): Uint8Array {
-  const result = new Uint8Array(160)
+  const result = new Uint8Array(192)
   result.set(scalarToBytes(root), 0)
   result.set(scalarToBytes(nullifierHash), 32)
   result.set(scalarToBytes(addressToScalar(recipient)), 64)
   result.set(scalarToBytes(addressToScalar(relayer)), 96)
   result.set(scalarToBytes(fee), 128)
+  result.set(scalarToBytes(amount), 160)
   return result
+}
+
+/** Encode 9 public signals as 288 bytes for the combined privateSend verifier (arg 1) */
+export function encodePrivateSendSignals(
+  oldRoot: bigint,
+  newRoot: bigint,
+  commitment: bigint,
+  leafIndex: bigint,
+  nullifierHash: bigint,
+  recipient: string,
+  relayer: string,
+  fee: bigint,
+  amount: bigint,
+): Uint8Array {
+  const result = new Uint8Array(288)
+  result.set(scalarToBytes(oldRoot), 0)
+  result.set(scalarToBytes(newRoot), 32)
+  result.set(scalarToBytes(commitment), 64)
+  result.set(scalarToBytes(leafIndex), 96)
+  result.set(scalarToBytes(nullifierHash), 128)
+  result.set(scalarToBytes(addressToScalar(recipient)), 160)
+  result.set(scalarToBytes(addressToScalar(relayer)), 192)
+  result.set(scalarToBytes(fee), 224)
+  result.set(scalarToBytes(amount), 256)
+  return result
+}
+
+/** Build all box references needed for a privateSend (5-6 boxes — commitment, amount, root history, nullifier, knownRoot, evicted root) */
+export function privateSendBoxRefs(appId: number, rootHistoryIndex: number, leafIndex: number, nullifierHash: Uint8Array, mimcRoot: Uint8Array, evictedRoot?: Uint8Array) {
+  const refs = [
+    commitmentBox(appId, leafIndex),
+    amountBox(appId, leafIndex),
+    rootBox(appId, rootHistoryIndex % 1000),
+    nullifierBox(appId, nullifierHash),
+    knownRootBox(appId, mimcRoot),
+  ]
+  if (evictedRoot) {
+    refs.push(knownRootBox(appId, evictedRoot))
+  }
+  return refs
 }
 
 // ── Deterministic Note Derivation ────────
@@ -311,13 +557,64 @@ const MASTER_KEY_MESSAGE = 'privacy-pool-master-key-v1'
 /** Cached master key for this session */
 let cachedMasterKey: bigint | null = null
 
+/** Whether the master key was deterministically derived (signData) vs random fallback */
+let masterKeyDeterministic = false
+
+/** Per-tab ephemeral key for encrypting master key in sessionStorage */
+let tabEncryptionKey: CryptoKey | null = null
+
+async function getTabKey(): Promise<CryptoKey> {
+  if (tabEncryptionKey) return tabEncryptionKey
+  tabEncryptionKey = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  )
+  return tabEncryptionKey
+}
+
+/** Encrypt master key before storing in sessionStorage */
+async function encryptMasterKey(mk: bigint): Promise<string> {
+  const key = await getTabKey()
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ct = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    scalarToBytes(mk) as ArrayBufferView<ArrayBuffer>,
+  )
+  const combined = new Uint8Array(12 + ct.byteLength)
+  combined.set(iv, 0)
+  combined.set(new Uint8Array(ct), 12)
+  return uint8ToBase64(combined)
+}
+
+/** Decrypt master key from sessionStorage */
+async function decryptMasterKey(encoded: string): Promise<bigint> {
+  const key = await getTabKey()
+  const combined = Uint8Array.from(atob(encoded), c => c.charCodeAt(0))
+  const iv = combined.slice(0, 12)
+  const ct = combined.slice(12)
+  const pt = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    ct,
+  )
+  return bytesToScalar(new Uint8Array(pt))
+}
+
 /** Get the master key, loading from sessionStorage cache if available */
-export function getCachedMasterKey(): bigint | null {
+export async function getCachedMasterKey(): Promise<bigint | null> {
   if (cachedMasterKey) return cachedMasterKey
   const stored = sessionStorage.getItem(MASTER_KEY_SESSION)
   if (stored) {
-    cachedMasterKey = BigInt(stored)
-    return cachedMasterKey
+    try {
+      cachedMasterKey = await decryptMasterKey(stored)
+      return cachedMasterKey
+    } catch {
+      // Tab key changed (new tab loaded same session) — key is unrecoverable
+      sessionStorage.removeItem(MASTER_KEY_SESSION)
+      return null
+    }
   }
   return null
 }
@@ -331,7 +628,7 @@ export async function deriveMasterKey(
   signData?: ((data: string, metadata: { scope: number; encoding: string }) => Promise<{ signature: Uint8Array }>) | null,
 ): Promise<bigint> {
   // Check cache first
-  const cached = getCachedMasterKey()
+  const cached = await getCachedMasterKey()
   if (cached) return cached
 
   await initMimc()
@@ -348,22 +645,20 @@ export async function deriveMasterKey(
       // Hash the signature into a BN254 scalar to use as master key
       const sigScalar = bytesToScalar(result.signature.slice(0, 32))
       masterKey = mimcHash(sigScalar, bytesToScalar(result.signature.slice(32, 64)))
+      masterKeyDeterministic = true
     } catch {
-      // Wallet doesn't support signData — use random key for this session
-      const bytes = new Uint8Array(32)
-      crypto.getRandomValues(bytes)
-      masterKey = bytesToScalar(bytes) % BN254_R
+      // Wallet doesn't support signData — prompt user for password
+      throw new PasswordRequiredError()
     }
   } else {
-    // No signData available — use random key for this session
-    const bytes = new Uint8Array(32)
-    crypto.getRandomValues(bytes)
-    masterKey = bytesToScalar(bytes) % BN254_R
+    // No signData available — prompt user for password
+    throw new PasswordRequiredError()
   }
 
-  // Cache in memory and sessionStorage
+  // Cache in memory and encrypted in sessionStorage
   cachedMasterKey = masterKey
-  sessionStorage.setItem(MASTER_KEY_SESSION, masterKey.toString())
+  const encrypted = await encryptMasterKey(masterKey)
+  sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
 
   return masterKey
 }
@@ -381,7 +676,8 @@ export function deriveDeposit(
 ): DepositNote {
   const secret = mimcHash(masterKey, BigInt(depositIndex * 2))
   const nullifier = mimcHash(masterKey, BigInt(depositIndex * 2 + 1))
-  const commitment = mimcHash(secret, nullifier)
+  // commitment = MiMC(secret, nullifier, amount) — binds proof to deposited amount
+  const commitment = mimcHashTriple(secret, nullifier, denomination)
 
   return {
     secret,
@@ -394,22 +690,36 @@ export function deriveDeposit(
   }
 }
 
-/** Get the next deposit index for this wallet (how many deterministic deposits exist) */
+/** Active wallet address for per-wallet counter keying */
+let _activeWallet = ''
+export function setActiveWallet(addr: string) { _activeWallet = addr }
+
+/** Get the next deposit index for this wallet (global across all tiers) */
 export function getNextDepositIndex(): number {
-  const key = `privacy_pool_deposit_counter_${CONTRACTS.PrivacyPool.appId}`
+  const key = _activeWallet
+    ? `privacy_pool_deposit_counter_${_activeWallet}`
+    : 'privacy_pool_deposit_counter'
+  // Migrate from old global key if per-wallet key doesn't exist yet
+  const globalKey = 'privacy_pool_deposit_counter'
+  const globalVal = localStorage.getItem(globalKey)
+  if (_activeWallet && globalVal && !localStorage.getItem(key)) {
+    localStorage.setItem(key, globalVal)
+  }
   return parseInt(localStorage.getItem(key) || '0', 10)
 }
 
 /** Increment the deposit counter after a successful deposit */
 export function incrementDepositIndex(): void {
-  const key = `privacy_pool_deposit_counter_${CONTRACTS.PrivacyPool.appId}`
+  const key = _activeWallet
+    ? `privacy_pool_deposit_counter_${_activeWallet}`
+    : 'privacy_pool_deposit_counter'
   const current = getNextDepositIndex()
   localStorage.setItem(key, (current + 1).toString())
 }
 
 /**
- * Recover notes by scanning the chain for matching commitments.
- * Iterates deposit indices 0, 1, 2, ... checking if each commitment exists on-chain.
+ * Recover notes by scanning all pool tiers for matching commitments.
+ * Fetches all commitment boxes once per pool, then compares locally — O(n + m) per pool.
  * Skips notes whose nullifiers have already been spent.
  */
 export async function recoverNotes(
@@ -419,134 +729,253 @@ export async function recoverNotes(
 ): Promise<{ recovered: DepositNote[]; total: number; spent: number }> {
   await initMimc()
 
-  const id = appId ?? CONTRACTS.PrivacyPool.appId
+  // If a specific appId is given, look up its denomination; otherwise scan all tiers
+  const poolsToScan: { appId: number; denomination: bigint }[] = appId
+    ? (() => {
+        const entry = Object.entries(POOL_CONTRACTS).find(([, p]) => p.appId === appId)
+        const denom = entry ? BigInt(entry[0]) : POOL_DENOMINATION
+        return [{ appId, denomination: denom }]
+      })()
+    : Object.entries(POOL_CONTRACTS).map(([denom, pool]) => ({
+        appId: pool.appId,
+        denomination: BigInt(denom),
+      }))
+
   const recovered: DepositNote[] = []
   let total = 0
   let spent = 0
+  let highestDerivationIndex = -1
 
-  // Read nextIndex from global state to know how many deposits exist
-  const appInfo = await client.getApplicationByID(id).do()
-  const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
-  let onChainNextIndex = 0
-  for (const kv of globalState) {
-    const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
-    if (key === 'next_idx') onChainNextIndex = Number(kv.value?.uint ?? kv.value?.ui ?? 0)
-  }
+  for (const pool of poolsToScan) {
+    const id = pool.appId
 
-  // Try deposit indices until we find 5 consecutive misses
-  let consecutiveMisses = 0
-  for (let i = 0; consecutiveMisses < 5; i++) {
-    const note = deriveDeposit(masterKey, i)
-    const commitBytes = scalarToBytes(note.commitment)
+    // Read nextIndex from global state
+    let onChainNextIndex = 0
+    try {
+      const appInfo = await client.getApplicationByID(id).do()
+      const globalState = (appInfo as any).params?.globalState || (appInfo as any).params?.['global-state'] || []
+      for (const kv of globalState) {
+        const key = typeof kv.key === 'string' ? atob(kv.key) : new TextDecoder().decode(kv.key)
+        if (key === 'next_idx') onChainNextIndex = Number(kv.value?.uint ?? kv.value?.ui ?? 0)
+      }
+    } catch {
+      continue // Pool doesn't exist or is inaccessible
+    }
 
-    // Check if this commitment exists on-chain
-    const boxName = new Uint8Array(11)
-    boxName.set(TEXT_ENCODER.encode('cmt'), 0)
+    if (onChainNextIndex === 0) continue
 
-    // We need to find which leaf index has this commitment
-    let foundLeafIndex = -1
-    for (let leaf = 0; leaf < onChainNextIndex; leaf++) {
-      const leafBoxName = new Uint8Array(11)
-      leafBoxName.set(TEXT_ENCODER.encode('cmt'), 0)
-      leafBoxName.set(uint64ToBytes(BigInt(leaf)), 3)
-      try {
-        const boxResult = await client.getApplicationBoxByName(id, leafBoxName).do()
-        if (arraysEqual(boxResult.value, commitBytes)) {
-          foundLeafIndex = leaf
-          break
-        }
-      } catch {
+    // Batch fetch: commitments and amounts in parallel (BATCH_SIZE concurrent RPCs)
+    const BATCH_SIZE = 10
+    const onChainCommitments = new Map<string, number>() // hex(commitment) → leafIndex
+    const onChainAmounts = new Map<number, bigint>() // leafIndex → amount
+
+    for (let start = 0; start < onChainNextIndex; start += BATCH_SIZE) {
+      const end = Math.min(start + BATCH_SIZE, onChainNextIndex)
+      const batch = Array.from({ length: end - start }, (_, i) => {
+        const leaf = start + i
+        return (async () => {
+          // Fetch commitment box
+          const cmtBoxName = new Uint8Array(11)
+          cmtBoxName.set(TEXT_ENCODER.encode('cmt'), 0)
+          cmtBoxName.set(uint64ToBytes(BigInt(leaf)), 3)
+          try {
+            const boxResult = await client.getApplicationBoxByName(id, cmtBoxName).do()
+            const hex = Array.from(boxResult.value as Uint8Array).map(b => b.toString(16).padStart(2, '0')).join('')
+            onChainCommitments.set(hex, leaf)
+          } catch {
+            return
+          }
+          // Fetch amount box
+          const amtBoxName = new Uint8Array(11)
+          amtBoxName.set(TEXT_ENCODER.encode('amt'), 0)
+          amtBoxName.set(uint64ToBytes(BigInt(leaf)), 3)
+          try {
+            const amtBox = await client.getApplicationBoxByName(id, amtBoxName).do()
+            onChainAmounts.set(leaf, bytesToScalar(amtBox.value))
+          } catch {
+            // Default denomination will be used
+          }
+        })()
+      })
+      await Promise.all(batch)
+    }
+
+    // Try deposit indices across all tiers — local comparison against the pre-fetched map
+    let consecutiveMisses = 0
+    for (let i = 0; consecutiveMisses < 20; i++) {
+      const note = deriveDeposit(masterKey, i, pool.denomination)
+      const commitBytes = scalarToBytes(note.commitment)
+      const commitHex = Array.from(commitBytes).map(b => b.toString(16).padStart(2, '0')).join('')
+
+      const foundLeafIndex = onChainCommitments.get(commitHex)
+      if (foundLeafIndex === undefined) {
+        consecutiveMisses++
         continue
       }
-    }
 
-    if (foundLeafIndex === -1) {
-      consecutiveMisses++
-      continue
-    }
+      consecutiveMisses = 0
+      total++
+      highestDerivationIndex = Math.max(highestDerivationIndex, i)
+      note.leafIndex = foundLeafIndex
+      note.appId = id
 
-    consecutiveMisses = 0
-    total++
-    note.leafIndex = foundLeafIndex
-    note.appId = id
+      // Use pre-fetched amount
+      const fetchedAmount = onChainAmounts.get(foundLeafIndex)
+      if (fetchedAmount !== undefined) {
+        note.denomination = fetchedAmount
+      }
 
-    // Read the deposited amount
-    const amtBoxName = new Uint8Array(11)
-    amtBoxName.set(TEXT_ENCODER.encode('amt'), 0)
-    amtBoxName.set(uint64ToBytes(BigInt(foundLeafIndex)), 3)
-    try {
-      const amtBox = await client.getApplicationBoxByName(id, amtBoxName).do()
-      note.denomination = bytesToScalar(amtBox.value)
-    } catch {
-      // Default to pool denomination
-    }
+      // Check if nullifier has been spent
+      const nullHash = computeNullifierHash(note.nullifier)
+      const nullBytes = scalarToBytes(nullHash)
+      const nullBoxName = new Uint8Array(4 + nullBytes.length)
+      nullBoxName.set(TEXT_ENCODER.encode('null'), 0)
+      nullBoxName.set(nullBytes, 4)
+      try {
+        await client.getApplicationBoxByName(id, nullBoxName).do()
+        // Box exists — nullifier spent, skip this note
+        spent++
+        continue
+      } catch {
+        // Box doesn't exist — not spent, note is recoverable
+      }
 
-    // Check if nullifier has been spent
-    const nullHash = computeNullifierHash(note.nullifier)
-    const nullBytes = scalarToBytes(nullHash)
-    const nullBoxName = new Uint8Array(4 + nullBytes.length)
-    nullBoxName.set(TEXT_ENCODER.encode('null'), 0)
-    nullBoxName.set(nullBytes, 4)
-    try {
-      await client.getApplicationBoxByName(id, nullBoxName).do()
-      // Box exists — nullifier spent, skip this note
-      spent++
-      continue
-    } catch {
-      // Box doesn't exist — not spent, note is recoverable
-    }
-
-    recovered.push(note)
-  }
-
-  // Save recovered notes and update counter
-  const existingNotes = loadNotes()
-  for (const note of recovered) {
-    const alreadyExists = existingNotes.some(n =>
-      n.commitment === note.commitment && n.appId === note.appId
-    )
-    if (!alreadyExists) {
-      saveNote(note)
+      recovered.push(note)
     }
   }
 
-  // Update deposit counter to highest index found
-  if (total > 0) {
-    const key = `privacy_pool_deposit_counter_${id}`
+  // Batch save recovered notes (avoids O(N^2) from saving one at a time)
+  const existingNotes = await loadNotes()
+  const newNotes = recovered.filter(note =>
+    !existingNotes.some(n => n.commitment === note.commitment && n.appId === note.appId)
+  )
+  if (newNotes.length > 0) {
+    const all = await loadAllNotesAsync()
+    for (const note of newNotes) {
+      const pool = getPoolForTier(note.denomination)
+      all.push({ ...note, appId: pool.appId })
+    }
+    await saveAllNotesAsync(all)
+  }
+
+  // Update deposit counter to one past the highest derivation index found.
+  // This must track the derivation index (not match count), because spent notes
+  // from privateSend/withdrawals also consumed derivation indices.
+  if (highestDerivationIndex >= 0) {
+    const newCounter = highestDerivationIndex + 1
     const current = getNextDepositIndex()
-    if (total > current) {
-      localStorage.setItem(key, total.toString())
+    if (newCounter > current) {
+      const counterKey = _activeWallet
+        ? `privacy_pool_deposit_counter_${_activeWallet}`
+        : 'privacy_pool_deposit_counter'
+      localStorage.setItem(counterKey, newCounter.toString())
     }
   }
 
   return { recovered, total, spent }
 }
 
-/** Compare two Uint8Arrays */
-function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
+/** Check if a nullifier has already been spent on-chain */
+export async function isNullifierSpent(
+  client: algosdk.Algodv2,
+  appId: number,
+  nullifier: bigint,
+): Promise<boolean> {
+  const nullHash = computeNullifierHash(nullifier)
+  const nullBytes = scalarToBytes(nullHash)
+  const boxName = new Uint8Array(4 + nullBytes.length)
+  boxName.set(new TextEncoder().encode('null'), 0)
+  boxName.set(nullBytes, 4)
+  try {
+    await client.getApplicationBoxByName(appId, boxName).do()
+    return true // box exists = spent
+  } catch {
+    return false // box doesn't exist = unspent
   }
-  return true
+}
+
+// ── Password-Based Key Derivation (Pera fallback) ────────
+
+const PWD_SALT_KEY = 'privacy_pool_pwd_salt'
+const PWD_HASH_KEY = 'privacy_pool_pwd_hash'
+
+/** Check if a password-derived key has been set up */
+export function hasPasswordKey(): boolean {
+  return localStorage.getItem(PWD_SALT_KEY) !== null
+}
+
+/** Derive an AES key from a password using PBKDF2 */
+async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promise<Uint8Array> {
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  )
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: salt as ArrayBufferView<ArrayBuffer>, iterations: 600_000 },
+    keyMaterial,
+    256,
+  )
+  return new Uint8Array(bits)
+}
+
+/** Derive and cache a master key from a user-provided password */
+export async function deriveMasterKeyFromPassword(password: string): Promise<bigint> {
+  await initMimc()
+
+  let salt: Uint8Array
+  const existingSaltHex = localStorage.getItem(PWD_SALT_KEY)
+
+  if (existingSaltHex) {
+    // Existing password — verify it
+    salt = Uint8Array.from(existingSaltHex.match(/.{2}/g)!.map(b => parseInt(b, 16)))
+    const derived = await deriveKeyFromPassword(password, salt)
+
+    // Verify password by checking hash
+    const hashBuf = await crypto.subtle.digest('SHA-256', derived as ArrayBufferView<ArrayBuffer>)
+    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+    const storedHash = localStorage.getItem(PWD_HASH_KEY)
+    if (storedHash && hashHex !== storedHash) {
+      throw new Error('Incorrect password')
+    }
+
+    const masterKey = bytesToScalar(derived) % BN254_R
+    masterKeyDeterministic = true
+    cachedMasterKey = masterKey
+    const encrypted = await encryptMasterKey(masterKey)
+    sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
+    return masterKey
+  } else {
+    // New password setup
+    salt = crypto.getRandomValues(new Uint8Array(32))
+    const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('')
+    const derived = await deriveKeyFromPassword(password, salt)
+
+    // Store salt and verification hash
+    const hashBuf = await crypto.subtle.digest('SHA-256', derived as ArrayBufferView<ArrayBuffer>)
+    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+    localStorage.setItem(PWD_SALT_KEY, saltHex)
+    localStorage.setItem(PWD_HASH_KEY, hashHex)
+
+    const masterKey = bytesToScalar(derived) % BN254_R
+    masterKeyDeterministic = true
+    cachedMasterKey = masterKey
+    const encrypted = await encryptMasterKey(masterKey)
+    sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
+    return masterKey
+  }
 }
 
 /** Clear master key cache (on wallet disconnect) */
 export function clearMasterKey(): void {
   cachedMasterKey = null
+  masterKeyDeterministic = false
   sessionStorage.removeItem(MASTER_KEY_SESSION)
 }
 
 // ── Utilities ───────────────────────────
-
-export function getPoolConfig() {
-  return {
-    appId: BigInt(CONTRACTS.PrivacyPool.appId),
-    assetId: 0,
-    denomination: POOL_DENOMINATION,
-    merkleDepth: 20,
-  }
-}
 
 export function formatAlgo(microAlgos: bigint | number): string {
   const n = typeof microAlgos === 'bigint' ? microAlgos : BigInt(microAlgos)

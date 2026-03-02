@@ -1,0 +1,205 @@
+#pragma version 11
+// Groth16 Verifier Application for Algorand AVM
+// nPublic: 9
+// Generated from verification key
+
+// === Budget padding: approve immediately if no args (inner call) ===
+txn NumAppArgs
+pushint 0
+==
+bnz budget_pad_approve
+
+// === Step 1: Extract proof from arg[0] (256 bytes) ===
+txna ApplicationArgs 0
+len
+pushint 256
+==
+assert // proof must be 256 bytes
+
+// pi_a = arg[0][0:64] (G1 point)
+txna ApplicationArgs 0
+extract 0 64
+store 0 // pi_a
+
+// pi_b = arg[0][64:192] (G2 point)
+txna ApplicationArgs 0
+extract 64 128
+store 1 // pi_b
+
+// pi_c = arg[0][192:256] (G1 point)
+txna ApplicationArgs 0
+extract 192 64
+store 2 // pi_c
+
+// === Step 2: Extract 9 public signals from arg[1] (288 bytes) ===
+txna ApplicationArgs 1
+len
+pushint 288
+==
+assert // public signals must be nPublic * 32 bytes
+
+// === Step 3: Pad opcode budget via inner calls to budget helper ===
+budget_pad_loop:
+global OpcodeBudget
+pushint 155000
+>
+bnz budget_pad_done
+itxn_begin
+pushint 6 // appl
+itxn_field TypeEnum
+txna Applications 1 // budget helper app from foreign apps
+itxn_field ApplicationID
+pushint 0
+itxn_field Fee
+itxn_submit
+b budget_pad_loop
+budget_pad_done:
+
+// === Step 4: Compute vk_x = IC[0] + sum(signals[i] * IC[i+1]) ===
+
+// vk_x = IC[0]
+pushbytes 0x00eaaf0ec202d51d95a81113a347e41f418a0c61c7b6ac0da202357859a71935096b9377ed367a668b812fd3f12fb1b8c0626621fe9306659272eef4ac8701a8
+store 10 // vk_x = IC[0]
+
+// vk_x += signal[0] * IC[1]
+pushbytes 0x22a90b18ab954e05b1d1eebf840d5224c895382b78a681f35ee51e9c05164b430c8a288504d31211f67fa636f7b59ff89550ecab61ca2b5c5de004bb7163f397
+txna ApplicationArgs 1
+extract 0 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[1] * IC[2]
+pushbytes 0x2d6eeafc7beca730523842c877bafd0dd82be08c211796c3318f14ee3af2bb1d204e810395ceeef87bea6951f49e38c931e820c6d591dfefd2c42eb3fbd20e52
+txna ApplicationArgs 1
+extract 32 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[2] * IC[3]
+pushbytes 0x298521ed2913e9d33b86e9a238e59f2e4494ddd5ca687b986c4716a6ccd21c110a22e2125af669a8e0547c6bc6c2b566a94f79f79ae22b9ef661afafefa2cb71
+txna ApplicationArgs 1
+extract 64 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[3] * IC[4]
+pushbytes 0x1e9ac443666b829bd46587923efba284a7677fa6dd02213dd229a444166ee8d4166741c0a9f5fa710a9a70c8ab9bebd0e0c686db2c8a72b7224bf5cd5e1012e2
+txna ApplicationArgs 1
+extract 96 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[4] * IC[5]
+pushbytes 0x2ab559d3483ccd1d95e3fc6796504fc3c7fdaa6e5656156c00555104013ebe3e038b95bc5f18073bead91653eb9d457d6f94e5765348b98d71506e94cd39c65b
+txna ApplicationArgs 1
+extract 128 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[5] * IC[6]
+pushbytes 0x128653387d0e8a9209cecf5f2cfe00fa7fe70f7210085594cbd8c9ef7e27447b1b133339e17e697b2fc0e37e8331842cb855d8c73bd8c430281c217facacf2a8
+txna ApplicationArgs 1
+extract 160 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[6] * IC[7]
+pushbytes 0x1a46811b6627f60a7ecdd6a816c430c361b0250bdf19a50ae2be24a4d36c7d66028194760dac289ef6f55150b9aed8aa30d2ab5b0e2d25748acc134f9ca515d3
+txna ApplicationArgs 1
+extract 192 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[7] * IC[8]
+pushbytes 0x102442bd803177be2201d542755f7c426b348501e26b0fe7894da36fbc3da4e11d0e5123836ce13f6334c679b6c85c89e732bba05d4063b46be94e648a6bfe24
+txna ApplicationArgs 1
+extract 224 32
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// vk_x += signal[8] * IC[9]
+pushbytes 0x0550980a4761cad51c0ab690785212d2c3fead69bd0b4c23eb38c107e302520a0b485712a512b891f81458fbc8b1cfb9b9be6406ca09c59c8eb6edfcec9fd697
+txna ApplicationArgs 1
+pushint 256
+pushint 32
+extract3
+ec_scalar_mul BN254g1
+load 10
+swap
+ec_add BN254g1
+store 10 // vk_x updated
+
+// === Step 5: Negate pi_a (flip y coordinate) ===
+load 0 // pi_a
+extract 0 32 // A.x
+load 0 // pi_a
+extract 32 32 // A.y
+pushbytes 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47 // field prime
+swap
+b- // field_prime - A.y
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat // left-pad to 32 bytes
+// Stack: A.x, neg_A.y
+concat // -A = A.x || neg_A.y
+store 3 // -pi_a (negated)
+
+// === Step 6: Pairing check ===
+// G1 array: -A || alpha || vk_x || C
+load 3 // -A
+pushbytes 0x2d4d9aa7e302d9df41749d5507949d05dbea33fbb16c643b22f599a2be6df2e214bedd503c37ceb061d8ec60209fe345ce89830a19230301f076caff004d1926 // alpha
+concat
+load 10 // vk_x
+concat
+load 2 // C
+concat
+
+// G2 array: B || beta || gamma || delta
+load 1 // B
+pushbytes 0x0e187847ad4c798374d0d6732bf501847dd68bc0e071241e0213bc7fc13db7ab0967032fcbf776d1afc985f88877f182d38480a653f2decaa9794cbc3bf3060c1739c1b1a457a8c7313123d24d2f9192f896b7c63eea05a9d57f06547ad0cec8304cfbd1e08a704a99f5e847d93f8c3caafddec46b7a0d379da69a4d112346a7 // beta
+concat
+pushbytes 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c212c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b // gamma
+concat
+pushbytes 0x0ab53d1ba8472f598827c059d138ffaa00ba0b00e5c4314dbe316aab10f035cd23ea46b8a81d9527f1cbf1777dce4d4b91912702ebfda30f51dace0c7c71313f2f4c8d8abaafa4f0613d077755045a4a92a401e59bb06e77833c4f92e2f8e5a103d8bdad6c93efd7067523c909c367e1782350ee8e6c9dd93ca340ce804ba058 // delta
+concat
+
+// Verify: e(-A,B) * e(alpha,beta) * e(vk_x,gamma) * e(C,delta) == 1
+ec_pairing_check BN254g1
+assert // pairing check must pass
+
+pushint 1 // approve
+return
+
+// Budget padding entry point — approve immediately
+budget_pad_approve:
+pushint 1
+return

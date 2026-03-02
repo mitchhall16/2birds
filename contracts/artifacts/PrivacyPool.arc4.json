@@ -13,6 +13,18 @@
         {
           "name": "assetId",
           "type": "uint64"
+        },
+        {
+          "name": "verifierAppId",
+          "type": "uint64"
+        },
+        {
+          "name": "insertionVerifierAppId",
+          "type": "uint64"
+        },
+        {
+          "name": "privateSendVerifierAppId",
+          "type": "uint64"
         }
       ],
       "returns": {
@@ -21,7 +33,7 @@
     },
     {
       "name": "deposit",
-      "desc": "Deposit funds into the privacy pool.\nCommitment = MiMC(secret, nullifier) computed off-chain.\nmimcRoot = new MiMC Merkle root after inserting this commitment (computed off-chain).\nMust be accompanied by a payment of any amount  0.",
+      "desc": "Deposit funds into the privacy pool.\nCommitment = MiMC(secret, nullifier) computed off-chain.\nmimcRoot = new MiMC Merkle root after inserting this commitment (computed off-chain).\nMust be accompanied by a payment of exactly the pool's denomination.",
       "args": [
         {
           "name": "commitment",
@@ -38,7 +50,7 @@
     },
     {
       "name": "withdraw",
-      "desc": "Withdraw funds from the privacy pool.\nRequires a valid ZK proof verified by LogicSig in the same atomic group.",
+      "desc": "Withdraw funds from the privacy pool.\nRequires a valid ZK proof verified by LogicSig in the same atomic group.\nAlways sends the pool's denomination — no amount parameter.",
       "args": [
         {
           "name": "nullifierHash",
@@ -61,8 +73,53 @@
           "type": "byte[]"
         },
         {
-          "name": "amount",
+          "name": "recipientSignal",
+          "type": "byte[]"
+        },
+        {
+          "name": "relayerSignal",
+          "type": "byte[]"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "privateSend",
+      "desc": "Combined deposit + withdraw in one atomic operation.\nUses a single combined ZK proof (privateSend circuit) instead of two.\nSaves ~0.228 ALGO by eliminating one verifier call.",
+      "args": [
+        {
+          "name": "commitment",
+          "type": "byte[]"
+        },
+        {
+          "name": "mimcRoot",
+          "type": "byte[]"
+        },
+        {
+          "name": "nullifierHash",
+          "type": "byte[]"
+        },
+        {
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "name": "relayer",
+          "type": "address"
+        },
+        {
+          "name": "fee",
           "type": "uint64"
+        },
+        {
+          "name": "recipientSignal",
+          "type": "byte[]"
+        },
+        {
+          "name": "relayerSignal",
+          "type": "byte[]"
         }
       ],
       "returns": {
@@ -72,6 +129,22 @@
     {
       "name": "optInToAsset",
       "desc": "Opt into an ASA (required before the pool can receive ASA deposits).",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "updateApplication",
+      "desc": "Block contract updates — contract is immutable after deployment.",
+      "args": [],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "name": "deleteApplication",
+      "desc": "Block contract deletion — pool funds must remain accessible.",
       "args": [],
       "returns": {
         "type": "void"

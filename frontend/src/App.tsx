@@ -29,7 +29,7 @@ export function App() {
 
   const handleComplete = useCallback(() => {
     pool.refresh()
-  }, [pool])
+  }, [pool.refresh])
 
   return (
     <>
@@ -48,7 +48,7 @@ export function App() {
 
       {/* Balances — bottom right */}
       <div className="pool-badges">
-        {pool.userBalance > 0 && (
+        {activeAddress && pool.userBalance > 0 && (
           <div className="pool-badge pool-badge--user">
             <span className="pool-badge__label">Your Balance</span>
             <span className="pool-badge__value">{pool.userBalance.toFixed(3)} ALGO</span>
