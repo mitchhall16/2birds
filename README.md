@@ -26,7 +26,8 @@ graph TB
         SR[Stealth Registry Contract]
         SP[Shielded Pool Contract]
         CA[Confidential Asset Contract]
-        LS[LogicSig Groth16 Verifier<br/>BN254 pairing check]
+        VF[Verifier Application<br/>BN254 pairing check]
+        BH[Budget Helper App]
     end
 
     subgraph "Infrastructure"
@@ -44,13 +45,14 @@ graph TB
     SHIELDED -->|snarkjs| ST
 
     POOL -->|atomic group| PP
-    POOL -->|proof| LS
+    POOL -->|proof| VF
     STEALTH --> SR
     SHIELDED --> SP
     CONF --> CA
 
+    VF -->|inner calls| BH
     REL -->|submit withdrawal| PP
-    LS -->|verify in group| PP
+    VF -->|verify in group| PP
 ```
 
 ## Privacy Primitives
@@ -85,7 +87,7 @@ sequenceDiagram
     participant User
     participant SDK
     participant Circuit
-    participant LogicSig
+    participant Verifier as Verifier App
     participant Contract
 
     Note over User,Contract: DEPOSIT
@@ -102,9 +104,10 @@ sequenceDiagram
     SDK->>Circuit: Generate Groth16 proof
     Note right of Circuit: Proves: I know a valid leaf<br/>without revealing which one
     Circuit-->>SDK: proof {pi_a, pi_b, pi_c}
-    SDK->>LogicSig: Encode proof as args
-    SDK->>Contract: Atomic group: [LogicSig verify, app call withdraw]
-    LogicSig->>LogicSig: BN254 pairing check (~145K opcodes)
+    SDK->>Verifier: App call with proof + signals
+    Verifier->>Verifier: Budget pad via ~225 inner calls
+    Verifier->>Verifier: BN254 pairing check (~145K opcodes)
+    SDK->>Contract: Atomic group: [verifier call, withdraw call]
     Contract->>Contract: Check nullifier not spent
     Contract->>Contract: Check root is known
     Contract->>User: Send funds to recipient
@@ -114,9 +117,10 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    subgraph "LogicSig (8 inner txn fees = 0.008 ALGO)"
+    subgraph "Verifier Application (~225 inner calls = ~0.228 ALGO)"
         A[Extract proof from args<br/>pi_a, pi_b, pi_c] --> B[Extract public signals<br/>root, nullifierHash, recipient, relayer, fee]
-        B --> C[Compute vk_x = IC_0 + sum of public_i * IC_i<br/>ec_scalar_mul + ec_add on BN254g1]
+        B --> BP[Budget padding loop<br/>~225 inner calls to budget helper<br/>until OpcodeBudget > 150,000]
+        BP --> C[Compute vk_x = IC_0 + sum of public_i * IC_i<br/>ec_scalar_mul + ec_add on BN254g1]
         C --> D[Pairing check<br/>e&#40-A, B&#41 * e&#40alpha, beta&#41 * e&#40vk_x, gamma&#41 * e&#40C, delta&#41 == 1]
         D -->|pass| E[Approve transaction]
         D -->|fail| F[Reject]
@@ -172,15 +176,22 @@ privacy-sdk/
 │   ├── privacy-pool.algo.ts      # Tornado Cash model for Algorand
 │   ├── stealth-registry.algo.ts  # Stealth meta-address registry
 │   ├── shielded-pool.algo.ts     # Full privacy UTXO pool
-│   └── confidential-asset.algo.ts # Hidden transfer amounts
+│   ├── confidential-asset.algo.ts # Hidden transfer amounts
+│   ├── generate-verifier.ts      # Generates TEAL verifier from vkey.json
+│   ├── withdraw_verifier.teal    # Generated Groth16 verifier (BN254)
+│   └── budget_helper.teal        # NoOp app for opcode budget padding
 ├── circuits/
 │   ├── withdraw.circom           # Withdrawal proof (~30K constraints)
 │   ├── merkleTree.circom         # MiMC Merkle membership
 │   ├── range-proof.circom        # Amount range proofs
 │   ├── shielded-transfer.circom  # Full shielded transfer (~150K constraints)
 │   └── build/                    # Compiled WASM, zkeys, vkeys
+├── scripts/
+│   ├── deploy-verifier.ts        # Deploy verifier + budget helper to testnet
+│   └── fund-pool.ts              # Fund pool contract
+├── frontend/                     # React frontend (Cloudflare Pages)
 ├── demo.ts             # Interactive demo (no blockchain needed)
-└── test-proof.ts       # Real Groth16 proof generation & verification
+└── test-testnet.ts     # Testnet integration tests
 ```
 
 ## Quick Start
@@ -223,6 +234,8 @@ cd circuits && bash build.sh
 
 **URL**: https://algo-privacy.pages.dev (Cloudflare Pages, Algorand Testnet)
 
+To use: Install Pera Wallet, go to Settings > Developer Settings > Node Settings > Testnet, fund from the [testnet dispenser](https://bank.testnet.algorand.network/), then connect at the URL above.
+
 **Build & Deploy**:
 ```bash
 cd frontend && npx vite build
@@ -235,17 +248,16 @@ npx wrangler pages deploy dist --project-name algo-privacy --branch main --commi
 |---------|--------|-------|
 | Wallet connect (Pera/Defly) | Working | via @txnlab/use-wallet-react |
 | Deposit (variable 0-1 ALGO) | Working | MiMC commitment + Merkle tree insert |
-| Withdraw (Send to address) | Working | ZK proof + LogicSig verifier in 3-txn atomic group |
+| Withdraw (Send to address) | Working | ZK proof + verifier app in 2-txn atomic group |
 | Private Send (deposit+withdraw) | Working | One-click deposit-then-withdraw to destination |
+| Split notes | Working | Withdraw original, re-deposit as two notes via slider UI |
+| Combine notes | Working | Select 2+ checkboxes, withdraw all, re-deposit as one |
 | Pool balance badge | Working | Queries indexer for grouped deposits minus withdrawals |
 | Your balance badge | Working | Sum of local notes (localStorage) |
 | Note recovery | Working | Re-derives notes from master key, checks nullifiers on-chain |
-| Note management (Manage tab) | Working | Send individual notes to any address |
-| Split notes (slider UI) | Built, untested | Withdraw original, re-deposit as two notes. 400 error under investigation |
-| Combine notes | Built, untested | Withdraw multiple, re-deposit as single note |
-| Animated pool blob | Working | Scales with pool balance |
+| Cost breakdown | Working | Per-operation fee breakdown with tooltip explanations |
+| Animated pool blob | Working | Metaball visualization scales with pool balance |
 | Toast notifications | Working | Success/error feedback |
-| Deploy new contract | Working | In-app contract deployment for fresh pools |
 
 ### Key Files
 
@@ -256,12 +268,12 @@ frontend/
 │   ├── components/
 │   │   ├── TransactionFlow.tsx        # Deposit/Send/Manage tabs, split/combine UI
 │   │   ├── PoolBlob.tsx               # Animated background blob
-│   │   ├── CostBreakdown.tsx          # Fee estimates
+│   │   ├── CostBreakdown.tsx          # Fee breakdown with tooltips + wallet balance
 │   │   └── StatusBar.tsx              # Network/wallet status
 │   ├── hooks/
 │   │   ├── useTransaction.ts          # deposit, withdraw, privateSend, splitNote, combineNotes
 │   │   ├── usePoolState.ts            # Pool balance (indexer), user balance (notes), wallet balance
-│   │   └── useDeployer.ts             # Contract deployment
+│   │   └── useDeploy.ts              # Contract deployment
 │   ├── lib/
 │   │   ├── privacy.ts                 # MiMC, commitments, nullifiers, note storage, recovery
 │   │   ├── tree.ts                    # Client-side MiMC Merkle tree (depth 20)
@@ -272,52 +284,57 @@ frontend/
 │       └── components.css             # All component styles
 ├── public/
 │   ├── circuits/                      # withdraw.wasm, withdraw_final.zkey
-│   └── contracts/                     # withdraw_verifier.teal
+│   └── contracts/                     # withdraw_verifier.teal, withdraw_verifier_clear.teal
 └── vite.config.ts
 ```
 
-### Contract (Testnet)
+### Contracts (Testnet)
 
-- **App ID**: 756386181
-- **App Address**: `FMRABDCQUIZAVWTKIYAZEQZUWC6546MZZTOI2A3YG34PVY3SXBZH4NHQNY`
-- **Global state**: `root` (current Merkle root), `rhi` (root history index), `next_idx` (deposit count)
-- **Box storage**: commitments (by index), nullifiers (by hash), root history (circular buffer)
-- Users can deploy their own contract via the Deploy banner (stored in localStorage)
+| Contract | App ID | Notes |
+|----------|--------|-------|
+| Privacy Pool | 756386181 | Main pool — deposits, withdrawals, Merkle tree |
+| Stealth Registry | 756386179 | Stealth meta-address registry |
+| Shielded Pool | 756386192 | Full UTXO privacy system |
+| Confidential Asset | 756386193 | Hidden transfer amounts |
+| ZK Verifier | 756401238 | Groth16 BN254 pairing check |
+| Budget Helper | 756401228 | NoOp app for opcode budget padding |
 
 ### Known Issues / TODO
 
-- **Split 400 error**: `splitNote()` gets `Sig:[0 0 0...]` error from algod. The withdraw-to-self step may need debugging with specific wallet providers. The `assembleWithdrawGroup()` helper handles both compact and full signer arrays, but the root cause may be elsewhere (stale Merkle state, wallet-specific signer behavior, etc.)
-- **Combine**: Not yet tested live. Same withdraw group assembly as split.
-- **Pool balance accuracy**: Uses indexer to count grouped payments (deposits) minus inner-txn payments (withdrawals). Solo payments (setup funding) are excluded. Polls every 30s.
 - **Note persistence**: Notes are in localStorage only. Clearing browser data loses notes. Recovery re-derives from master key but requires wallet signature.
+- **Pool balance accuracy**: Uses indexer to count grouped payments minus inner-txn payments. Polls every 30s.
+- **Relayer**: The relayer field exists in the circuit but is currently set to the zero address. A relayer would enable withdrawals without linking the sender's wallet.
+- **Wallet linkability**: The signing wallet is visible as the sender of all transactions. For true unlinkability, a relayer is needed to submit withdrawal transactions on behalf of the user.
 
 ## On-Chain Costs
 
 | Operation | Cost | Details |
 |-----------|------|---------|
 | Deposit | ~0.002 ALGO | Payment (0.001) + app call (0.001), 3 box refs |
-| Withdraw | ~0.009 ALGO | Fund LogicSig (0.001) + verifier (0.006) + app call (0.002) |
-| Split | ~0.013 ALGO | 1 withdraw (0.009) + 2 deposits (0.004) |
-| Combine (2 notes) | ~0.020 ALGO | 2 withdraws (0.018) + 1 deposit (0.002) |
+| Withdraw / Send | ~0.232 ALGO | Verifier app call (0.228, covers ~225 inner budget calls) + pool app call (0.002) + deposit (0.002) |
+| Split | ~0.234 ALGO | 1 withdraw (0.230) + 2 deposits (0.004) |
+| Combine (2 notes) | ~0.462 ALGO | 2 withdraws (0.460) + 1 deposit (0.002) |
 | Stealth Register | ~0.05 ALGO | Box MBR for meta-address (128 bytes) |
-| Stealth Send | Standard | Normal Algorand transfer to one-time address |
+
+Most of the cost comes from the ZK proof verification step — the BN254 pairing check needs ~145,000 opcodes, which requires ~225 inner app calls to the budget helper at 0.001 ALGO each.
 
 ## Tech Stack
 
 - **Circuits**: Circom 2.1.6 + snarkjs (Groth16)
-- **Curve**: BN254 (alt_bn128) — native AVM v10+ support
+- **Curve**: BN254 (alt_bn128) — native AVM v11 support
 - **Hash**: MiMC Sponge (220 rounds, x^5 Feistel) — compatible with circomlib
 - **Contracts**: TealScript (compiles to TEAL for AVM)
+- **Verifier**: Generated TEAL application from verification key (gnark-crypto G2 encoding)
 - **SDK**: TypeScript monorepo (npm workspaces)
-- **Proving**: snarkjs WASM prover (~2s proof generation)
+- **Proving**: snarkjs WASM prover (~2s proof generation in browser)
 - **Verification**: BN254 pairing check via AVM opcodes (`ec_add`, `ec_scalar_mul`, `ec_pairing_check`)
+- **Frontend**: React + Vite, deployed on Cloudflare Pages
 
 ## AVM Requirements
 
-- AVM v10+ for BN254 curve operations
-- AVM v11 for MiMC opcode
+- AVM v11 for BN254 curve operations (`ec_scalar_mul`, `ec_add`, `ec_pairing_check`)
 - Box storage for Merkle tree, nullifier set, root history
-- LogicSig opcode pooling (145K opcodes via 8 inner transaction fees)
+- Application opcode budget pooling (~225 inner calls to budget helper for ~150K opcodes)
 
 ## License
 
