@@ -13,6 +13,9 @@ packages/circuits/artifacts/*.sym
 # Powers of Tau file (36 MB download)
 *.ptau
 
+# PLONK zkey files (73-176 MB each, too large for git)
+frontend/public/circuits/*.zkey
+
 # Environment / secrets
 .env
 .env.*

@@ -32,6 +32,27 @@
       }
     },
     {
+      "name": "setPlonkVerifiers",
+      "desc": "Set PLONK LogicSig verifier addresses (creator only, one-time setup).\nOnce set, the contract will accept LogicSig-based verification instead of app calls.",
+      "args": [
+        {
+          "name": "withdrawAddr",
+          "type": "address"
+        },
+        {
+          "name": "depositAddr",
+          "type": "address"
+        },
+        {
+          "name": "privateSendAddr",
+          "type": "address"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
       "name": "deposit",
       "desc": "Deposit funds into the privacy pool.\nCommitment = MiMC(secret, nullifier) computed off-chain.\nmimcRoot = new MiMC Merkle root after inserting this commitment (computed off-chain).\nMust be accompanied by a payment of exactly the pool's denomination.",
       "args": [

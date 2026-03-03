@@ -563,12 +563,12 @@ function generatePlonkLsigTeal(vkey: PlonkVKey): string {
   lines.push('store 48 // -LHS');
   lines.push('');
 
-  // BN254 G2 generator (identity point for [1]_2)
+  // BN254 G2 generator [1]_2 encoded as (x_a0, x_a1, y_a0, y_a1) per AVM spec
   const G2_GEN = '0x' +
-    '198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2' +
     '1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed' +
-    '090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acddb9e557b7367' +
-    '12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa';
+    '198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2' +
+    '12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa' +
+    '090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b';
 
   lines.push('// G1 array: -LHS || RHS');
   lines.push('load 48 // -LHS');

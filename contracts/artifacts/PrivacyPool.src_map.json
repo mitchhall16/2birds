@@ -1,3671 +1,7994 @@
 [
   {
     "teal": 1,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      0
+    ]
   },
   {
     "teal": 2,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ]
   },
   {
     "teal": 3,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133
+    ]
   },
   {
     "teal": 15,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      134,
+      135
+    ]
   },
   {
     "teal": 16,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      136
+    ]
   },
   {
     "teal": 17,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      137,
+      138
+    ]
   },
   {
     "teal": 18,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      139
+    ]
   },
   {
     "teal": 19,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      140,
+      141
+    ]
   },
   {
     "teal": 20,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      142
+    ]
   },
   {
     "teal": 21,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168
+    ]
   },
   {
     "teal": 25,
     "source": "contracts/privacy-pool.algo.ts:6",
-    "errorMessage": "The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?"
+    "errorMessage": "The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?",
+    "pc": [
+      169
+    ]
   },
   {
     "teal": 30,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      170,
+      171,
+      172
+    ]
   },
   {
     "teal": 31,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      173
+    ]
   },
   {
     "teal": 34,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      174,
+      175,
+      176
+    ]
   },
   {
     "teal": 35,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      177
+    ]
   },
   {
     "teal": 38,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      178,
+      179,
+      180
+    ]
   },
   {
     "teal": 39,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      181
+    ]
   },
   {
     "teal": 42,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      182,
+      183,
+      184
+    ]
   },
   {
     "teal": 43,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      185
+    ]
   },
   {
     "teal": 46,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      186,
+      187,
+      188
+    ]
   },
   {
     "teal": 47,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      189
+    ]
   },
   {
     "teal": 50,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      190,
+      191,
+      192
+    ]
   },
   {
     "teal": 51,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      193
+    ]
   },
   {
     "teal": 52,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      194
+    ]
   },
   {
     "teal": 58,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      195,
+      196,
+      197
+    ]
   },
   {
     "teal": 62,
-    "source": "contracts/privacy-pool.algo.ts:30"
+    "source": "contracts/privacy-pool.algo.ts:33",
+    "pc": [
+      198
+    ]
   },
   {
     "teal": 63,
-    "source": "contracts/privacy-pool.algo.ts:30"
+    "source": "contracts/privacy-pool.algo.ts:33",
+    "pc": [
+      199,
+      200
+    ]
   },
   {
     "teal": 64,
-    "source": "contracts/privacy-pool.algo.ts:30"
+    "source": "contracts/privacy-pool.algo.ts:33",
+    "pc": [
+      201
+    ]
   },
   {
     "teal": 68,
-    "source": "contracts/privacy-pool.algo.ts:31"
+    "source": "contracts/privacy-pool.algo.ts:34",
+    "pc": [
+      202
+    ]
   },
   {
     "teal": 69,
-    "source": "contracts/privacy-pool.algo.ts:31"
+    "source": "contracts/privacy-pool.algo.ts:34",
+    "pc": [
+      203,
+      204
+    ]
   },
   {
     "teal": 70,
-    "source": "contracts/privacy-pool.algo.ts:31"
+    "source": "contracts/privacy-pool.algo.ts:34",
+    "pc": [
+      205
+    ]
   },
   {
     "teal": 74,
-    "source": "contracts/privacy-pool.algo.ts:32"
+    "source": "contracts/privacy-pool.algo.ts:35",
+    "pc": [
+      206,
+      207
+    ]
   },
   {
     "teal": 75,
-    "source": "contracts/privacy-pool.algo.ts:32"
+    "source": "contracts/privacy-pool.algo.ts:35",
+    "pc": [
+      208,
+      209
+    ]
   },
   {
     "teal": 76,
-    "source": "contracts/privacy-pool.algo.ts:32"
+    "source": "contracts/privacy-pool.algo.ts:35",
+    "pc": [
+      210
+    ]
   },
   {
     "teal": 80,
-    "source": "contracts/privacy-pool.algo.ts:33"
+    "source": "contracts/privacy-pool.algo.ts:36",
+    "pc": [
+      211,
+      212
+    ]
   },
   {
     "teal": 81,
-    "source": "contracts/privacy-pool.algo.ts:33"
+    "source": "contracts/privacy-pool.algo.ts:36",
+    "pc": [
+      213,
+      214
+    ]
   },
   {
     "teal": 82,
-    "source": "contracts/privacy-pool.algo.ts:33"
+    "source": "contracts/privacy-pool.algo.ts:36",
+    "pc": [
+      215
+    ]
   },
   {
     "teal": 86,
-    "source": "contracts/privacy-pool.algo.ts:34"
+    "source": "contracts/privacy-pool.algo.ts:37",
+    "pc": [
+      216,
+      217
+    ]
   },
   {
     "teal": 87,
-    "source": "contracts/privacy-pool.algo.ts:34"
+    "source": "contracts/privacy-pool.algo.ts:37",
+    "pc": [
+      218,
+      219
+    ]
   },
   {
     "teal": 88,
-    "source": "contracts/privacy-pool.algo.ts:34"
+    "source": "contracts/privacy-pool.algo.ts:37",
+    "pc": [
+      220
+    ]
   },
   {
     "teal": 92,
-    "source": "contracts/privacy-pool.algo.ts:35"
+    "source": "contracts/privacy-pool.algo.ts:38",
+    "pc": [
+      221,
+      222
+    ]
   },
   {
     "teal": 93,
-    "source": "contracts/privacy-pool.algo.ts:35"
+    "source": "contracts/privacy-pool.algo.ts:38",
+    "pc": [
+      223
+    ]
   },
   {
     "teal": 94,
-    "source": "contracts/privacy-pool.algo.ts:35"
+    "source": "contracts/privacy-pool.algo.ts:38",
+    "pc": [
+      224
+    ]
   },
   {
     "teal": 98,
-    "source": "contracts/privacy-pool.algo.ts:36"
+    "source": "contracts/privacy-pool.algo.ts:39",
+    "pc": [
+      225,
+      226
+    ]
   },
   {
     "teal": 99,
-    "source": "contracts/privacy-pool.algo.ts:36"
+    "source": "contracts/privacy-pool.algo.ts:39",
+    "pc": [
+      227
+    ]
   },
   {
     "teal": 100,
-    "source": "contracts/privacy-pool.algo.ts:36"
+    "source": "contracts/privacy-pool.algo.ts:39",
+    "pc": [
+      228
+    ]
   },
   {
     "teal": 104,
-    "source": "contracts/privacy-pool.algo.ts:39"
+    "source": "contracts/privacy-pool.algo.ts:42",
+    "pc": [
+      229
+    ]
   },
   {
     "teal": 105,
-    "source": "contracts/privacy-pool.algo.ts:39"
+    "source": "contracts/privacy-pool.algo.ts:42",
+    "pc": [
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245,
+      246,
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260,
+      261,
+      262,
+      263
+    ]
   },
   {
     "teal": 106,
-    "source": "contracts/privacy-pool.algo.ts:39"
+    "source": "contracts/privacy-pool.algo.ts:42",
+    "pc": [
+      264
+    ]
   },
   {
-    "teal": 107,
-    "source": "contracts/privacy-pool.algo.ts:29"
+    "teal": 110,
+    "source": "contracts/privacy-pool.algo.ts:45",
+    "pc": [
+      265,
+      266
+    ]
+  },
+  {
+    "teal": 111,
+    "source": "contracts/privacy-pool.algo.ts:45",
+    "pc": [
+      267,
+      268
+    ]
   },
   {
     "teal": 112,
-    "source": "contracts/privacy-pool.algo.ts:51"
-  },
-  {
-    "teal": 113,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:45",
+    "pc": [
+      269
+    ]
   },
   {
     "teal": 116,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:46",
+    "pc": [
+      270,
+      271
+    ]
   },
   {
     "teal": 117,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:46",
+    "pc": [
+      272,
+      273
+    ]
   },
   {
-    "teal": 120,
-    "source": "contracts/privacy-pool.algo.ts:51"
-  },
-  {
-    "teal": 121,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "teal": 118,
+    "source": "contracts/privacy-pool.algo.ts:46",
+    "pc": [
+      274
+    ]
   },
   {
     "teal": 122,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:47",
+    "pc": [
+      275,
+      276
+    ]
+  },
+  {
+    "teal": 123,
+    "source": "contracts/privacy-pool.algo.ts:47",
+    "pc": [
+      277,
+      278
+    ]
+  },
+  {
+    "teal": 124,
+    "source": "contracts/privacy-pool.algo.ts:47",
+    "pc": [
+      279
+    ]
+  },
+  {
+    "teal": 125,
+    "source": "contracts/privacy-pool.algo.ts:32",
+    "pc": [
+      280
+    ]
+  },
+  {
+    "teal": 130,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      281,
+      282,
+      283
+    ]
   },
   {
     "teal": 131,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      284
+    ]
+  },
+  {
+    "teal": 132,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      285
+    ]
+  },
+  {
+    "teal": 133,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      286
+    ]
   },
   {
     "teal": 134,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      287
+    ]
   },
   {
-    "teal": 135,
-    "source": "contracts/privacy-pool.algo.ts:51"
-  },
-  {
-    "teal": 139,
-    "source": "contracts/privacy-pool.algo.ts:52"
+    "teal": 137,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "errorMessage": "argument 0 (privateSendAddr) for setPlonkVerifiers must be a address",
+    "pc": [
+      288
+    ]
   },
   {
     "teal": 140,
-    "source": "contracts/privacy-pool.algo.ts:52"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      289,
+      290,
+      291
+    ]
   },
   {
     "teal": 141,
-    "source": "contracts/privacy-pool.algo.ts:52"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      292
+    ]
   },
   {
     "teal": 142,
-    "source": "contracts/privacy-pool.algo.ts:52"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      293
+    ]
   },
   {
     "teal": 143,
-    "source": "contracts/privacy-pool.algo.ts:52"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      294
+    ]
+  },
+  {
+    "teal": 144,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      295
+    ]
   },
   {
     "teal": 147,
-    "source": "contracts/privacy-pool.algo.ts:53"
-  },
-  {
-    "teal": 148,
-    "source": "contracts/privacy-pool.algo.ts:53"
-  },
-  {
-    "teal": 149,
-    "source": "contracts/privacy-pool.algo.ts:53"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "errorMessage": "argument 1 (depositAddr) for setPlonkVerifiers must be a address",
+    "pc": [
+      296
+    ]
   },
   {
     "teal": 150,
-    "source": "contracts/privacy-pool.algo.ts:53"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      297,
+      298,
+      299
+    ]
   },
   {
     "teal": 151,
-    "source": "contracts/privacy-pool.algo.ts:53"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      300
+    ]
   },
   {
-    "teal": 155,
-    "source": "contracts/privacy-pool.algo.ts:56"
+    "teal": 152,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      301
+    ]
   },
   {
-    "teal": 156,
-    "source": "contracts/privacy-pool.algo.ts:56"
+    "teal": 153,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      302
+    ]
+  },
+  {
+    "teal": 154,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      303
+    ]
   },
   {
     "teal": 157,
-    "source": "contracts/privacy-pool.algo.ts:56"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "errorMessage": "argument 2 (withdrawAddr) for setPlonkVerifiers must be a address",
+    "pc": [
+      304
+    ]
   },
   {
-    "teal": 158,
-    "source": "contracts/privacy-pool.algo.ts:56"
+    "teal": 160,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      305,
+      306,
+      307
+    ]
+  },
+  {
+    "teal": 161,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      308
+    ]
   },
   {
     "teal": 162,
-    "source": "contracts/privacy-pool.algo.ts:57"
-  },
-  {
-    "teal": 163,
-    "source": "contracts/privacy-pool.algo.ts:57"
-  },
-  {
-    "teal": 164,
-    "source": "contracts/privacy-pool.algo.ts:57"
-  },
-  {
-    "teal": 165,
-    "source": "contracts/privacy-pool.algo.ts:57"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      309
+    ]
   },
   {
     "teal": 169,
-    "source": "contracts/privacy-pool.algo.ts:58"
-  },
-  {
-    "teal": 170,
-    "source": "contracts/privacy-pool.algo.ts:58"
-  },
-  {
-    "teal": 171,
-    "source": "contracts/privacy-pool.algo.ts:58"
-  },
-  {
-    "teal": 172,
-    "source": "contracts/privacy-pool.algo.ts:58"
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      310,
+      311,
+      312
+    ]
   },
   {
     "teal": 173,
-    "source": "contracts/privacy-pool.algo.ts:58"
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      313,
+      314
+    ]
+  },
+  {
+    "teal": 174,
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      315,
+      316,
+      317
+    ]
+  },
+  {
+    "teal": 175,
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      318,
+      319
+    ]
+  },
+  {
+    "teal": 176,
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      320
+    ]
   },
   {
     "teal": 177,
-    "source": "contracts/privacy-pool.algo.ts:59"
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      321
+    ]
   },
   {
     "teal": 178,
-    "source": "contracts/privacy-pool.algo.ts:59"
-  },
-  {
-    "teal": 179,
-    "source": "contracts/privacy-pool.algo.ts:59"
-  },
-  {
-    "teal": 180,
-    "source": "contracts/privacy-pool.algo.ts:59"
-  },
-  {
-    "teal": 181,
-    "source": "contracts/privacy-pool.algo.ts:59"
+    "source": "contracts/privacy-pool.algo.ts:55",
+    "pc": [
+      322
+    ]
   },
   {
     "teal": 182,
-    "source": "contracts/privacy-pool.algo.ts:59"
+    "source": "contracts/privacy-pool.algo.ts:56",
+    "pc": [
+      323,
+      324
+    ]
   },
   {
-    "teal": 186,
-    "source": "contracts/privacy-pool.algo.ts:60"
+    "teal": 183,
+    "source": "contracts/privacy-pool.algo.ts:56",
+    "pc": [
+      325,
+      326
+    ]
   },
   {
-    "teal": 187,
-    "source": "contracts/privacy-pool.algo.ts:60"
+    "teal": 184,
+    "source": "contracts/privacy-pool.algo.ts:56",
+    "pc": [
+      327
+    ]
   },
   {
     "teal": 188,
-    "source": "contracts/privacy-pool.algo.ts:60"
+    "source": "contracts/privacy-pool.algo.ts:57",
+    "pc": [
+      328,
+      329
+    ]
   },
   {
     "teal": 189,
-    "source": "contracts/privacy-pool.algo.ts:60"
+    "source": "contracts/privacy-pool.algo.ts:57",
+    "pc": [
+      330,
+      331
+    ]
   },
   {
     "teal": 190,
-    "source": "contracts/privacy-pool.algo.ts:60"
+    "source": "contracts/privacy-pool.algo.ts:57",
+    "pc": [
+      332
+    ]
   },
   {
     "teal": 194,
-    "source": "contracts/privacy-pool.algo.ts:64"
+    "source": "contracts/privacy-pool.algo.ts:58",
+    "pc": [
+      333,
+      334
+    ]
   },
   {
     "teal": 195,
-    "source": "contracts/privacy-pool.algo.ts:64"
+    "source": "contracts/privacy-pool.algo.ts:58",
+    "pc": [
+      335,
+      336
+    ]
   },
   {
     "teal": 196,
-    "source": "contracts/privacy-pool.algo.ts:64"
+    "source": "contracts/privacy-pool.algo.ts:58",
+    "pc": [
+      337
+    ]
   },
   {
-    "teal": 200,
-    "source": "contracts/privacy-pool.algo.ts:65"
-  },
-  {
-    "teal": 201,
-    "source": "contracts/privacy-pool.algo.ts:65"
+    "teal": 197,
+    "source": "contracts/privacy-pool.algo.ts:54",
+    "pc": [
+      338
+    ]
   },
   {
     "teal": 202,
-    "source": "contracts/privacy-pool.algo.ts:65"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      339,
+      340,
+      341
+    ]
   },
   {
     "teal": 203,
-    "source": "contracts/privacy-pool.algo.ts:65"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      342,
+      343,
+      344
+    ]
   },
   {
-    "teal": 204,
-    "source": "contracts/privacy-pool.algo.ts:65"
+    "teal": 206,
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      345,
+      346,
+      347
+    ]
   },
   {
-    "teal": 205,
-    "source": "contracts/privacy-pool.algo.ts:65"
-  },
-  {
-    "teal": 209,
-    "source": "contracts/privacy-pool.algo.ts:66"
+    "teal": 207,
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      348,
+      349,
+      350
+    ]
   },
   {
     "teal": 210,
-    "source": "contracts/privacy-pool.algo.ts:66"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      351,
+      352,
+      353
+    ]
   },
   {
     "teal": 211,
-    "source": "contracts/privacy-pool.algo.ts:66"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      354
+    ]
   },
   {
     "teal": 212,
-    "source": "contracts/privacy-pool.algo.ts:66"
-  },
-  {
-    "teal": 213,
-    "source": "contracts/privacy-pool.algo.ts:66"
-  },
-  {
-    "teal": 217,
-    "source": "contracts/privacy-pool.algo.ts:67"
-  },
-  {
-    "teal": 218,
-    "source": "contracts/privacy-pool.algo.ts:67"
-  },
-  {
-    "teal": 219,
-    "source": "contracts/privacy-pool.algo.ts:67"
-  },
-  {
-    "teal": 220,
-    "source": "contracts/privacy-pool.algo.ts:67"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      355
+    ]
   },
   {
     "teal": 221,
-    "source": "contracts/privacy-pool.algo.ts:67"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      356,
+      357,
+      358
+    ]
+  },
+  {
+    "teal": 224,
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      359
+    ]
   },
   {
     "teal": 225,
-    "source": "contracts/privacy-pool.algo.ts:68"
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      360,
+      361
+    ]
   },
   {
-    "teal": 226,
-    "source": "contracts/privacy-pool.algo.ts:68"
+    "teal": 229,
+    "source": "contracts/privacy-pool.algo.ts:68",
+    "pc": [
+      362,
+      363
+    ]
   },
   {
-    "teal": 227,
-    "source": "contracts/privacy-pool.algo.ts:68"
+    "teal": 230,
+    "source": "contracts/privacy-pool.algo.ts:68",
+    "pc": [
+      364
+    ]
   },
   {
     "teal": 231,
-    "source": "contracts/privacy-pool.algo.ts:69"
+    "source": "contracts/privacy-pool.algo.ts:68",
+    "pc": [
+      365
+    ]
   },
   {
     "teal": 232,
-    "source": "contracts/privacy-pool.algo.ts:69"
+    "source": "contracts/privacy-pool.algo.ts:68",
+    "pc": [
+      366
+    ]
   },
   {
     "teal": 233,
-    "source": "contracts/privacy-pool.algo.ts:69"
-  },
-  {
-    "teal": 234,
-    "source": "contracts/privacy-pool.algo.ts:69"
-  },
-  {
-    "teal": 235,
-    "source": "contracts/privacy-pool.algo.ts:69"
-  },
-  {
-    "teal": 236,
-    "source": "contracts/privacy-pool.algo.ts:69"
+    "source": "contracts/privacy-pool.algo.ts:68",
+    "pc": [
+      367
+    ]
   },
   {
     "teal": 237,
-    "source": "contracts/privacy-pool.algo.ts:69"
+    "source": "contracts/privacy-pool.algo.ts:69",
+    "pc": [
+      368,
+      369
+    ]
   },
   {
     "teal": 238,
-    "source": "contracts/privacy-pool.algo.ts:69"
+    "source": "contracts/privacy-pool.algo.ts:69",
+    "pc": [
+      370
+    ]
   },
   {
-    "teal": 242,
-    "source": "contracts/privacy-pool.algo.ts:72"
+    "teal": 239,
+    "source": "contracts/privacy-pool.algo.ts:69",
+    "pc": [
+      371
+    ]
   },
   {
-    "teal": 243,
-    "source": "contracts/privacy-pool.algo.ts:72"
+    "teal": 240,
+    "source": "contracts/privacy-pool.algo.ts:69",
+    "pc": [
+      372
+    ]
   },
   {
-    "teal": 244,
-    "source": "contracts/privacy-pool.algo.ts:72"
+    "teal": 241,
+    "source": "contracts/privacy-pool.algo.ts:69",
+    "pc": [
+      373
+    ]
   },
   {
     "teal": 245,
-    "source": "contracts/privacy-pool.algo.ts:72"
+    "source": "contracts/privacy-pool.algo.ts:75",
+    "pc": [
+      374,
+      375
+    ]
   },
   {
-    "teal": 249,
-    "source": "contracts/privacy-pool.algo.ts:73"
+    "teal": 246,
+    "source": "contracts/privacy-pool.algo.ts:75",
+    "pc": [
+      376
+    ]
   },
   {
-    "teal": 250,
-    "source": "contracts/privacy-pool.algo.ts:73"
+    "teal": 247,
+    "source": "contracts/privacy-pool.algo.ts:75",
+    "pc": [
+      377
+    ]
   },
   {
-    "teal": 251,
-    "source": "contracts/privacy-pool.algo.ts:73"
+    "teal": 248,
+    "source": "contracts/privacy-pool.algo.ts:75",
+    "pc": [
+      378
+    ]
   },
   {
     "teal": 252,
-    "source": "contracts/privacy-pool.algo.ts:73"
+    "source": "contracts/privacy-pool.algo.ts:76",
+    "pc": [
+      379,
+      380
+    ]
   },
   {
     "teal": 253,
-    "source": "contracts/privacy-pool.algo.ts:73"
+    "source": "contracts/privacy-pool.algo.ts:76",
+    "pc": [
+      381,
+      382
+    ]
   },
   {
-    "teal": 258,
-    "source": "contracts/privacy-pool.algo.ts:74"
+    "teal": 254,
+    "source": "contracts/privacy-pool.algo.ts:76",
+    "pc": [
+      383
+    ]
   },
   {
-    "teal": 259,
-    "source": "contracts/privacy-pool.algo.ts:74"
-  },
-  {
-    "teal": 260,
-    "source": "contracts/privacy-pool.algo.ts:74"
-  },
-  {
-    "teal": 261,
-    "source": "contracts/privacy-pool.algo.ts:74"
+    "teal": 255,
+    "source": "contracts/privacy-pool.algo.ts:76",
+    "pc": [
+      384,
+      385
+    ]
   },
   {
     "teal": 262,
-    "source": "contracts/privacy-pool.algo.ts:74"
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      386,
+      387
+    ]
+  },
+  {
+    "teal": 263,
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      388
+    ]
+  },
+  {
+    "teal": 264,
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      389,
+      390
+    ]
+  },
+  {
+    "teal": 265,
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      391
+    ]
+  },
+  {
+    "teal": 266,
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      392
+    ]
+  },
+  {
+    "teal": 267,
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      393,
+      394,
+      395
+    ]
+  },
+  {
+    "teal": 268,
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      396,
+      397
+    ]
+  },
+  {
+    "teal": 269,
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      398,
+      399
+    ]
   },
   {
     "teal": 270,
-    "source": "contracts/privacy-pool.algo.ts:75"
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      400
+    ]
   },
   {
     "teal": 271,
-    "source": "contracts/privacy-pool.algo.ts:75"
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      401
+    ]
   },
   {
     "teal": 272,
-    "source": "contracts/privacy-pool.algo.ts:75"
+    "source": "contracts/privacy-pool.algo.ts:79",
+    "pc": [
+      402
+    ]
   },
   {
-    "teal": 273,
-    "source": "contracts/privacy-pool.algo.ts:75"
+    "teal": 275,
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      403
+    ]
   },
   {
     "teal": 276,
-    "source": "contracts/privacy-pool.algo.ts:75",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}"
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      404,
+      405,
+      406
+    ]
+  },
+  {
+    "teal": 277,
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      407,
+      408
+    ]
+  },
+  {
+    "teal": 278,
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      409,
+      410
+    ]
   },
   {
     "teal": 279,
-    "source": "contracts/privacy-pool.algo.ts:75"
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      411,
+      412
+    ]
   },
   {
     "teal": 280,
-    "source": "contracts/privacy-pool.algo.ts:76"
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      413
+    ]
   },
   {
     "teal": 281,
-    "source": "contracts/privacy-pool.algo.ts:76"
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      414
+    ]
   },
   {
     "teal": 282,
-    "source": "contracts/privacy-pool.algo.ts:76"
+    "source": "contracts/privacy-pool.algo.ts:80",
+    "pc": [
+      415
+    ]
   },
   {
     "teal": 285,
-    "source": "contracts/privacy-pool.algo.ts:76",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}"
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      416,
+      417,
+      418
+    ]
   },
   {
-    "teal": 289,
-    "source": "contracts/privacy-pool.algo.ts:78"
-  },
-  {
-    "teal": 290,
-    "source": "contracts/privacy-pool.algo.ts:78"
-  },
-  {
-    "teal": 291,
-    "source": "contracts/privacy-pool.algo.ts:78"
-  },
-  {
-    "teal": 292,
-    "source": "contracts/privacy-pool.algo.ts:78"
+    "teal": 288,
+    "source": "contracts/privacy-pool.algo.ts:78",
+    "pc": [
+      419,
+      420,
+      421
+    ]
   },
   {
     "teal": 293,
-    "source": "contracts/privacy-pool.algo.ts:78"
+    "source": "contracts/privacy-pool.algo.ts:84",
+    "pc": [
+      422,
+      423
+    ]
   },
   {
     "teal": 294,
-    "source": "contracts/privacy-pool.algo.ts:78"
+    "source": "contracts/privacy-pool.algo.ts:84",
+    "pc": [
+      424,
+      425
+    ]
   },
   {
     "teal": 295,
-    "source": "contracts/privacy-pool.algo.ts:74"
+    "source": "contracts/privacy-pool.algo.ts:84",
+    "pc": [
+      426,
+      427
+    ]
+  },
+  {
+    "teal": 296,
+    "source": "contracts/privacy-pool.algo.ts:84",
+    "pc": [
+      428
+    ]
+  },
+  {
+    "teal": 297,
+    "source": "contracts/privacy-pool.algo.ts:84",
+    "pc": [
+      429
+    ]
+  },
+  {
+    "teal": 301,
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      430,
+      431
+    ]
+  },
+  {
+    "teal": 302,
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      432,
+      433
+    ]
+  },
+  {
+    "teal": 303,
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      434,
+      435
+    ]
   },
   {
     "teal": 304,
-    "source": "contracts/privacy-pool.algo.ts:80"
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      436
+    ]
   },
   {
     "teal": 305,
-    "source": "contracts/privacy-pool.algo.ts:80"
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      437
+    ]
   },
   {
     "teal": 306,
-    "source": "contracts/privacy-pool.algo.ts:80"
-  },
-  {
-    "teal": 307,
-    "source": "contracts/privacy-pool.algo.ts:80"
+    "source": "contracts/privacy-pool.algo.ts:85",
+    "pc": [
+      438
+    ]
   },
   {
     "teal": 310,
-    "source": "contracts/privacy-pool.algo.ts:80",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}"
+    "source": "contracts/privacy-pool.algo.ts:86",
+    "pc": [
+      439,
+      440
+    ]
+  },
+  {
+    "teal": 311,
+    "source": "contracts/privacy-pool.algo.ts:86",
+    "pc": [
+      441,
+      442
+    ]
+  },
+  {
+    "teal": 312,
+    "source": "contracts/privacy-pool.algo.ts:86",
+    "pc": [
+      443,
+      444
+    ]
   },
   {
     "teal": 313,
-    "source": "contracts/privacy-pool.algo.ts:80"
+    "source": "contracts/privacy-pool.algo.ts:86",
+    "pc": [
+      445
+    ]
   },
   {
     "teal": 314,
-    "source": "contracts/privacy-pool.algo.ts:81"
+    "source": "contracts/privacy-pool.algo.ts:86",
+    "pc": [
+      446
+    ]
   },
   {
-    "teal": 315,
-    "source": "contracts/privacy-pool.algo.ts:81"
-  },
-  {
-    "teal": 316,
-    "source": "contracts/privacy-pool.algo.ts:81"
-  },
-  {
-    "teal": 319,
-    "source": "contracts/privacy-pool.algo.ts:81",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}"
+    "teal": 321,
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      447,
+      448
+    ]
   },
   {
     "teal": 322,
-    "source": "contracts/privacy-pool.algo.ts:80"
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      449,
+      450
+    ]
   },
   {
     "teal": 323,
-    "source": "contracts/privacy-pool.algo.ts:82"
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      451
+    ]
   },
   {
     "teal": 324,
-    "source": "contracts/privacy-pool.algo.ts:82"
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      452
+    ]
   },
   {
     "teal": 325,
-    "source": "contracts/privacy-pool.algo.ts:82"
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      453,
+      454,
+      455
+    ]
   },
   {
     "teal": 326,
-    "source": "contracts/privacy-pool.algo.ts:82"
+    "source": "contracts/privacy-pool.algo.ts:93",
+    "pc": [
+      456,
+      457
+    ]
   },
   {
-    "teal": 329,
-    "source": "contracts/privacy-pool.algo.ts:82",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}"
+    "teal": 327,
+    "source": "contracts/privacy-pool.algo.ts:93",
+    "pc": [
+      458,
+      459
+    ]
   },
   {
-    "teal": 333,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "teal": 328,
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      460,
+      461,
+      462
+    ]
   },
   {
-    "teal": 334,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "teal": 331,
+    "source": "contracts/privacy-pool.algo.ts:94",
+    "pc": [
+      463,
+      464
+    ]
+  },
+  {
+    "teal": 332,
+    "source": "contracts/privacy-pool.algo.ts:94",
+    "pc": [
+      465,
+      466,
+      467
+    ]
   },
   {
     "teal": 335,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "source": "contracts/privacy-pool.algo.ts:92",
+    "pc": [
+      468,
+      469
+    ]
   },
   {
-    "teal": 336,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "teal": 339,
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      470,
+      471
+    ]
   },
   {
-    "teal": 337,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "teal": 340,
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      472,
+      473,
+      474
+    ]
   },
   {
-    "teal": 338,
-    "source": "contracts/privacy-pool.algo.ts:84"
+    "teal": 341,
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      475
+    ]
+  },
+  {
+    "teal": 342,
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      476
+    ]
   },
   {
     "teal": 343,
-    "source": "contracts/privacy-pool.algo.ts:88"
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      477
+    ]
   },
   {
     "teal": 344,
-    "source": "contracts/privacy-pool.algo.ts:88"
-  },
-  {
-    "teal": 345,
-    "source": "contracts/privacy-pool.algo.ts:88"
-  },
-  {
-    "teal": 346,
-    "source": "contracts/privacy-pool.algo.ts:88"
-  },
-  {
-    "teal": 347,
-    "source": "contracts/privacy-pool.algo.ts:88"
+    "source": "contracts/privacy-pool.algo.ts:95",
+    "pc": [
+      478
+    ]
   },
   {
     "teal": 348,
-    "source": "contracts/privacy-pool.algo.ts:88"
+    "source": "contracts/privacy-pool.algo.ts:96",
+    "pc": [
+      479,
+      480
+    ]
+  },
+  {
+    "teal": 349,
+    "source": "contracts/privacy-pool.algo.ts:96",
+    "pc": [
+      481,
+      482,
+      483
+    ]
+  },
+  {
+    "teal": 350,
+    "source": "contracts/privacy-pool.algo.ts:96",
+    "pc": [
+      484,
+      485
+    ]
+  },
+  {
+    "teal": 351,
+    "source": "contracts/privacy-pool.algo.ts:96",
+    "pc": [
+      486
+    ]
   },
   {
     "teal": 352,
-    "source": "contracts/privacy-pool.algo.ts:89"
-  },
-  {
-    "teal": 353,
-    "source": "contracts/privacy-pool.algo.ts:89"
-  },
-  {
-    "teal": 354,
-    "source": "contracts/privacy-pool.algo.ts:89"
-  },
-  {
-    "teal": 355,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:96",
+    "pc": [
+      487
+    ]
   },
   {
     "teal": 356,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:97",
+    "pc": [
+      488,
+      489
+    ]
   },
   {
     "teal": 357,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:97",
+    "pc": [
+      490,
+      491,
+      492
+    ]
   },
   {
     "teal": 358,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:97",
+    "pc": [
+      493,
+      494
+    ]
   },
   {
     "teal": 359,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:97",
+    "pc": [
+      495
+    ]
   },
   {
     "teal": 360,
-    "source": "contracts/privacy-pool.algo.ts:89"
+    "source": "contracts/privacy-pool.algo.ts:97",
+    "pc": [
+      496
+    ]
   },
   {
     "teal": 364,
-    "source": "contracts/privacy-pool.algo.ts:92"
+    "source": "contracts/privacy-pool.algo.ts:98",
+    "pc": [
+      497,
+      498
+    ]
   },
   {
     "teal": 365,
-    "source": "contracts/privacy-pool.algo.ts:92"
+    "source": "contracts/privacy-pool.algo.ts:98",
+    "pc": [
+      499
+    ]
   },
   {
     "teal": 366,
-    "source": "contracts/privacy-pool.algo.ts:92"
-  },
-  {
-    "teal": 367,
-    "source": "contracts/privacy-pool.algo.ts:92"
-  },
-  {
-    "teal": 368,
-    "source": "contracts/privacy-pool.algo.ts:92"
-  },
-  {
-    "teal": 369,
-    "source": "contracts/privacy-pool.algo.ts:92"
+    "source": "contracts/privacy-pool.algo.ts:98",
+    "pc": [
+      500,
+      501
+    ]
   },
   {
     "teal": 370,
-    "source": "contracts/privacy-pool.algo.ts:92"
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      502,
+      503
+    ]
   },
   {
     "teal": 371,
-    "source": "contracts/privacy-pool.algo.ts:92"
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      504,
+      505,
+      506
+    ]
+  },
+  {
+    "teal": 372,
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      507,
+      508
+    ]
+  },
+  {
+    "teal": 373,
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      509,
+      510
+    ]
+  },
+  {
+    "teal": 374,
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      511
+    ]
   },
   {
     "teal": 375,
-    "source": "contracts/privacy-pool.algo.ts:95"
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      512
+    ]
   },
   {
     "teal": 376,
-    "source": "contracts/privacy-pool.algo.ts:95"
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      513
+    ]
   },
   {
     "teal": 377,
-    "source": "contracts/privacy-pool.algo.ts:95"
+    "source": "contracts/privacy-pool.algo.ts:99",
+    "pc": [
+      514
+    ]
   },
   {
     "teal": 381,
-    "source": "contracts/privacy-pool.algo.ts:98"
+    "source": "contracts/privacy-pool.algo.ts:102",
+    "pc": [
+      515,
+      516
+    ]
   },
   {
     "teal": 382,
-    "source": "contracts/privacy-pool.algo.ts:98"
+    "source": "contracts/privacy-pool.algo.ts:102",
+    "pc": [
+      517
+    ]
   },
   {
     "teal": 383,
-    "source": "contracts/privacy-pool.algo.ts:98"
+    "source": "contracts/privacy-pool.algo.ts:102",
+    "pc": [
+      518
+    ]
   },
   {
     "teal": 384,
-    "source": "contracts/privacy-pool.algo.ts:98"
+    "source": "contracts/privacy-pool.algo.ts:102",
+    "pc": [
+      519,
+      520
+    ]
   },
   {
-    "teal": 385,
-    "source": "contracts/privacy-pool.algo.ts:98"
+    "teal": 388,
+    "source": "contracts/privacy-pool.algo.ts:103",
+    "pc": [
+      521,
+      522
+    ]
   },
   {
     "teal": 389,
-    "source": "contracts/privacy-pool.algo.ts:102"
+    "source": "contracts/privacy-pool.algo.ts:103",
+    "pc": [
+      523,
+      524
+    ]
   },
   {
     "teal": 390,
-    "source": "contracts/privacy-pool.algo.ts:102"
+    "source": "contracts/privacy-pool.algo.ts:103",
+    "pc": [
+      525,
+      526
+    ]
   },
   {
     "teal": 391,
-    "source": "contracts/privacy-pool.algo.ts:102"
+    "source": "contracts/privacy-pool.algo.ts:103",
+    "pc": [
+      527
+    ]
   },
   {
-    "teal": 395,
-    "source": "contracts/privacy-pool.algo.ts:103"
-  },
-  {
-    "teal": 396,
-    "source": "contracts/privacy-pool.algo.ts:103"
+    "teal": 392,
+    "source": "contracts/privacy-pool.algo.ts:103",
+    "pc": [
+      528
+    ]
   },
   {
     "teal": 397,
-    "source": "contracts/privacy-pool.algo.ts:103"
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      529
+    ]
   },
   {
     "teal": 398,
-    "source": "contracts/privacy-pool.algo.ts:103"
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      530
+    ]
   },
   {
-    "teal": 403,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "teal": 399,
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      531
+    ]
   },
   {
-    "teal": 404,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "teal": 400,
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      532
+    ]
   },
   {
-    "teal": 405,
-    "source": "contracts/privacy-pool.algo.ts:104"
-  },
-  {
-    "teal": 406,
-    "source": "contracts/privacy-pool.algo.ts:104"
-  },
-  {
-    "teal": 407,
-    "source": "contracts/privacy-pool.algo.ts:104"
-  },
-  {
-    "teal": 408,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "teal": 401,
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      533,
+      534,
+      535
+    ]
   },
   {
     "teal": 409,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "pc": [
+      536,
+      537
+    ]
   },
   {
     "teal": 410,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "pc": [
+      538,
+      539
+    ]
   },
   {
     "teal": 411,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "pc": [
+      540
+    ]
   },
   {
     "teal": 412,
-    "source": "contracts/privacy-pool.algo.ts:104"
-  },
-  {
-    "teal": 413,
-    "source": "contracts/privacy-pool.algo.ts:104"
-  },
-  {
-    "teal": 414,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "pc": [
+      541
+    ]
   },
   {
     "teal": 415,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}",
+    "pc": [
+      542
+    ]
   },
   {
     "teal": 418,
-    "source": "contracts/privacy-pool.algo.ts:104"
+    "source": "contracts/privacy-pool.algo.ts:105",
+    "pc": [
+      543,
+      544
+    ]
   },
   {
-    "teal": 423,
-    "source": "contracts/privacy-pool.algo.ts:105"
+    "teal": 419,
+    "source": "contracts/privacy-pool.algo.ts:106",
+    "pc": [
+      545,
+      546
+    ]
+  },
+  {
+    "teal": 420,
+    "source": "contracts/privacy-pool.algo.ts:106",
+    "pc": [
+      547,
+      548
+    ]
+  },
+  {
+    "teal": 421,
+    "source": "contracts/privacy-pool.algo.ts:106",
+    "pc": [
+      549
+    ]
   },
   {
     "teal": 424,
-    "source": "contracts/privacy-pool.algo.ts:105"
+    "source": "contracts/privacy-pool.algo.ts:106",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}",
+    "pc": [
+      550
+    ]
   },
   {
-    "teal": 425,
-    "source": "contracts/privacy-pool.algo.ts:105"
+    "teal": 428,
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      551,
+      552
+    ]
   },
   {
-    "teal": 426,
-    "source": "contracts/privacy-pool.algo.ts:105"
-  },
-  {
-    "teal": 427,
-    "source": "contracts/privacy-pool.algo.ts:105"
+    "teal": 429,
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      553,
+      554
+    ]
   },
   {
     "teal": 430,
-    "source": "contracts/privacy-pool.algo.ts:105",
-    "errorMessage": "box value does not exist: this.rootHistory(slot).value"
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      555
+    ]
   },
   {
     "teal": 431,
-    "source": "contracts/privacy-pool.algo.ts:105"
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      556
+    ]
   },
   {
-    "teal": 436,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 432,
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      557
+    ]
   },
   {
-    "teal": 437,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 433,
+    "source": "contracts/privacy-pool.algo.ts:108",
+    "pc": [
+      558
+    ]
   },
   {
-    "teal": 438,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 434,
+    "source": "contracts/privacy-pool.algo.ts:104",
+    "pc": [
+      559,
+      560,
+      561
+    ]
   },
   {
-    "teal": 439,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 443,
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      562,
+      563
+    ]
   },
   {
-    "teal": 440,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 444,
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      564,
+      565
+    ]
   },
   {
-    "teal": 441,
-    "source": "contracts/privacy-pool.algo.ts:106"
+    "teal": 445,
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      566
+    ]
   },
   {
-    "teal": 442,
-    "source": "contracts/privacy-pool.algo.ts:106"
-  },
-  {
-    "teal": 447,
-    "source": "contracts/privacy-pool.algo.ts:107"
-  },
-  {
-    "teal": 448,
-    "source": "contracts/privacy-pool.algo.ts:107"
+    "teal": 446,
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      567
+    ]
   },
   {
     "teal": 449,
-    "source": "contracts/privacy-pool.algo.ts:107"
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}",
+    "pc": [
+      568
+    ]
   },
   {
-    "teal": 450,
-    "source": "contracts/privacy-pool.algo.ts:107"
+    "teal": 452,
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      569,
+      570
+    ]
   },
   {
-    "teal": 457,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "teal": 453,
+    "source": "contracts/privacy-pool.algo.ts:111",
+    "pc": [
+      571,
+      572
+    ]
+  },
+  {
+    "teal": 454,
+    "source": "contracts/privacy-pool.algo.ts:111",
+    "pc": [
+      573,
+      574
+    ]
+  },
+  {
+    "teal": 455,
+    "source": "contracts/privacy-pool.algo.ts:111",
+    "pc": [
+      575
+    ]
   },
   {
     "teal": 458,
-    "source": "contracts/privacy-pool.algo.ts:110"
-  },
-  {
-    "teal": 459,
-    "source": "contracts/privacy-pool.algo.ts:110"
-  },
-  {
-    "teal": 460,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:111",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}",
+    "pc": [
+      576
+    ]
   },
   {
     "teal": 461,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:110",
+    "pc": [
+      577,
+      578
+    ]
   },
   {
     "teal": 462,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:112",
+    "pc": [
+      579,
+      580
+    ]
   },
   {
     "teal": 463,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:112",
+    "pc": [
+      581
+    ]
   },
   {
     "teal": 464,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:112",
+    "pc": [
+      582
+    ]
   },
   {
     "teal": 465,
-    "source": "contracts/privacy-pool.algo.ts:110"
+    "source": "contracts/privacy-pool.algo.ts:112",
+    "pc": [
+      583
+    ]
   },
   {
-    "teal": 469,
-    "source": "contracts/privacy-pool.algo.ts:111"
-  },
-  {
-    "teal": 470,
-    "source": "contracts/privacy-pool.algo.ts:111"
-  },
-  {
-    "teal": 471,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "teal": 468,
+    "source": "contracts/privacy-pool.algo.ts:112",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}",
+    "pc": [
+      584
+    ]
   },
   {
     "teal": 472,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      585,
+      586
+    ]
   },
   {
     "teal": 473,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      587,
+      588
+    ]
   },
   {
     "teal": 474,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      589
+    ]
   },
   {
     "teal": 475,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      590
+    ]
   },
   {
     "teal": 476,
-    "source": "contracts/privacy-pool.algo.ts:111"
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      591
+    ]
   },
   {
-    "teal": 480,
-    "source": "contracts/privacy-pool.algo.ts:112"
-  },
-  {
-    "teal": 481,
-    "source": "contracts/privacy-pool.algo.ts:112"
+    "teal": 477,
+    "source": "contracts/privacy-pool.algo.ts:114",
+    "pc": [
+      592
+    ]
   },
   {
     "teal": 482,
-    "source": "contracts/privacy-pool.algo.ts:112"
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      593,
+      594
+    ]
   },
   {
     "teal": 483,
-    "source": "contracts/privacy-pool.algo.ts:112"
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      595
+    ]
   },
   {
     "teal": 484,
-    "source": "contracts/privacy-pool.algo.ts:112"
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      596,
+      597
+    ]
   },
   {
-    "teal": 488,
-    "source": "contracts/privacy-pool.algo.ts:115"
+    "teal": 485,
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      598
+    ]
   },
   {
-    "teal": 489,
-    "source": "contracts/privacy-pool.algo.ts:115"
+    "teal": 486,
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      599
+    ]
   },
   {
-    "teal": 490,
-    "source": "contracts/privacy-pool.algo.ts:115"
+    "teal": 487,
+    "source": "contracts/privacy-pool.algo.ts:118",
+    "pc": [
+      600
+    ]
   },
   {
     "teal": 491,
-    "source": "contracts/privacy-pool.algo.ts:115"
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      601,
+      602
+    ]
   },
   {
     "teal": 492,
-    "source": "contracts/privacy-pool.algo.ts:51"
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      603,
+      604
+    ]
+  },
+  {
+    "teal": 493,
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      605
+    ]
+  },
+  {
+    "teal": 494,
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      606
+    ]
+  },
+  {
+    "teal": 495,
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      607
+    ]
+  },
+  {
+    "teal": 496,
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      608
+    ]
   },
   {
     "teal": 497,
-    "source": "contracts/privacy-pool.algo.ts:130"
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      609
+    ]
   },
   {
     "teal": 498,
-    "source": "contracts/privacy-pool.algo.ts:130"
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      610,
+      611
+    ]
   },
   {
-    "teal": 501,
-    "source": "contracts/privacy-pool.algo.ts:129"
+    "teal": 499,
+    "source": "contracts/privacy-pool.algo.ts:119",
+    "pc": [
+      612
+    ]
   },
   {
-    "teal": 502,
-    "source": "contracts/privacy-pool.algo.ts:129"
+    "teal": 503,
+    "source": "contracts/privacy-pool.algo.ts:122",
+    "pc": [
+      613
+    ]
+  },
+  {
+    "teal": 504,
+    "source": "contracts/privacy-pool.algo.ts:122",
+    "pc": [
+      614,
+      615
+    ]
   },
   {
     "teal": 505,
-    "source": "contracts/privacy-pool.algo.ts:128"
-  },
-  {
-    "teal": 506,
-    "source": "contracts/privacy-pool.algo.ts:128"
+    "source": "contracts/privacy-pool.algo.ts:122",
+    "pc": [
+      616
+    ]
   },
   {
     "teal": 509,
-    "source": "contracts/privacy-pool.algo.ts:127"
+    "source": "contracts/privacy-pool.algo.ts:125",
+    "pc": [
+      617,
+      618
+    ]
   },
   {
     "teal": 510,
-    "source": "contracts/privacy-pool.algo.ts:127"
+    "source": "contracts/privacy-pool.algo.ts:125",
+    "pc": [
+      619,
+      620
+    ]
+  },
+  {
+    "teal": 511,
+    "source": "contracts/privacy-pool.algo.ts:125",
+    "pc": [
+      621
+    ]
+  },
+  {
+    "teal": 512,
+    "source": "contracts/privacy-pool.algo.ts:125",
+    "pc": [
+      622
+    ]
   },
   {
     "teal": 513,
-    "source": "contracts/privacy-pool.algo.ts:126"
-  },
-  {
-    "teal": 514,
-    "source": "contracts/privacy-pool.algo.ts:126"
-  },
-  {
-    "teal": 515,
-    "source": "contracts/privacy-pool.algo.ts:126"
-  },
-  {
-    "teal": 516,
-    "source": "contracts/privacy-pool.algo.ts:126"
+    "source": "contracts/privacy-pool.algo.ts:125",
+    "pc": [
+      623
+    ]
   },
   {
     "teal": 517,
-    "source": "contracts/privacy-pool.algo.ts:126"
+    "source": "contracts/privacy-pool.algo.ts:129",
+    "pc": [
+      624,
+      625
+    ]
   },
   {
-    "teal": 520,
-    "source": "contracts/privacy-pool.algo.ts:126",
-    "errorMessage": "argument 4 (relayer) for withdraw must be a address"
+    "teal": 518,
+    "source": "contracts/privacy-pool.algo.ts:129",
+    "pc": [
+      626
+    ]
+  },
+  {
+    "teal": 519,
+    "source": "contracts/privacy-pool.algo.ts:129",
+    "pc": [
+      627,
+      628
+    ]
   },
   {
     "teal": 523,
-    "source": "contracts/privacy-pool.algo.ts:125"
+    "source": "contracts/privacy-pool.algo.ts:130",
+    "pc": [
+      629,
+      630
+    ]
   },
   {
     "teal": 524,
-    "source": "contracts/privacy-pool.algo.ts:125"
+    "source": "contracts/privacy-pool.algo.ts:130",
+    "pc": [
+      631,
+      632
+    ]
   },
   {
     "teal": 525,
-    "source": "contracts/privacy-pool.algo.ts:125"
+    "source": "contracts/privacy-pool.algo.ts:130",
+    "pc": [
+      633
+    ]
   },
   {
     "teal": 526,
-    "source": "contracts/privacy-pool.algo.ts:125"
+    "source": "contracts/privacy-pool.algo.ts:130",
+    "pc": [
+      634,
+      635
+    ]
   },
   {
-    "teal": 527,
-    "source": "contracts/privacy-pool.algo.ts:125"
+    "teal": 531,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      636,
+      637
+    ]
   },
   {
-    "teal": 530,
-    "source": "contracts/privacy-pool.algo.ts:125",
-    "errorMessage": "argument 5 (recipient) for withdraw must be a address"
+    "teal": 532,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      638,
+      639
+    ]
   },
   {
     "teal": 533,
-    "source": "contracts/privacy-pool.algo.ts:124"
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      640
+    ]
   },
   {
     "teal": 534,
-    "source": "contracts/privacy-pool.algo.ts:124"
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      641
+    ]
+  },
+  {
+    "teal": 535,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      642,
+      643,
+      644
+    ]
+  },
+  {
+    "teal": 536,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      645
+    ]
   },
   {
     "teal": 537,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      646,
+      647
+    ]
   },
   {
     "teal": 538,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      648
+    ]
   },
   {
     "teal": 539,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      649
+    ]
   },
   {
-    "teal": 547,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "teal": 540,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      650
+    ]
   },
   {
-    "teal": 550,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "teal": 541,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      651
+    ]
+  },
+  {
+    "teal": 542,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      652
+    ]
+  },
+  {
+    "teal": 543,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      653
+    ]
+  },
+  {
+    "teal": 546,
+    "source": "contracts/privacy-pool.algo.ts:131",
+    "pc": [
+      654,
+      655,
+      656
+    ]
   },
   {
     "teal": 551,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      657
+    ]
+  },
+  {
+    "teal": 552,
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      658,
+      659
+    ]
+  },
+  {
+    "teal": 553,
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      660
+    ]
+  },
+  {
+    "teal": 554,
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      661
+    ]
   },
   {
     "teal": 555,
-    "source": "contracts/privacy-pool.algo.ts:133"
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      662
+    ]
   },
   {
-    "teal": 556,
-    "source": "contracts/privacy-pool.algo.ts:133"
+    "teal": 558,
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "errorMessage": "box value does not exist: this.rootHistory(slot).value",
+    "pc": [
+      663
+    ]
   },
   {
-    "teal": 557,
-    "source": "contracts/privacy-pool.algo.ts:133"
-  },
-  {
-    "teal": 561,
-    "source": "contracts/privacy-pool.algo.ts:136"
-  },
-  {
-    "teal": 562,
-    "source": "contracts/privacy-pool.algo.ts:136"
-  },
-  {
-    "teal": 563,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "teal": 559,
+    "source": "contracts/privacy-pool.algo.ts:132",
+    "pc": [
+      664,
+      665
+    ]
   },
   {
     "teal": 564,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      666,
+      667
+    ]
   },
   {
     "teal": 565,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      668,
+      669
+    ]
   },
   {
     "teal": 566,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      670
+    ]
   },
   {
     "teal": 567,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      671
+    ]
   },
   {
     "teal": 568,
-    "source": "contracts/privacy-pool.algo.ts:136"
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      672
+    ]
   },
   {
-    "teal": 572,
-    "source": "contracts/privacy-pool.algo.ts:139"
+    "teal": 569,
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      673
+    ]
   },
   {
-    "teal": 573,
-    "source": "contracts/privacy-pool.algo.ts:139"
-  },
-  {
-    "teal": 574,
-    "source": "contracts/privacy-pool.algo.ts:139"
+    "teal": 570,
+    "source": "contracts/privacy-pool.algo.ts:133",
+    "pc": [
+      674,
+      675,
+      676
+    ]
   },
   {
     "teal": 575,
-    "source": "contracts/privacy-pool.algo.ts:139"
+    "source": "contracts/privacy-pool.algo.ts:134",
+    "pc": [
+      677,
+      678
+    ]
   },
   {
     "teal": 576,
-    "source": "contracts/privacy-pool.algo.ts:139"
+    "source": "contracts/privacy-pool.algo.ts:134",
+    "pc": [
+      679,
+      680
+    ]
   },
   {
     "teal": 577,
-    "source": "contracts/privacy-pool.algo.ts:139"
+    "source": "contracts/privacy-pool.algo.ts:134",
+    "pc": [
+      681
+    ]
   },
   {
     "teal": 578,
-    "source": "contracts/privacy-pool.algo.ts:139"
-  },
-  {
-    "teal": 579,
-    "source": "contracts/privacy-pool.algo.ts:139"
-  },
-  {
-    "teal": 583,
-    "source": "contracts/privacy-pool.algo.ts:142"
-  },
-  {
-    "teal": 584,
-    "source": "contracts/privacy-pool.algo.ts:142"
+    "source": "contracts/privacy-pool.algo.ts:134",
+    "pc": [
+      682
+    ]
   },
   {
     "teal": 585,
-    "source": "contracts/privacy-pool.algo.ts:142"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      683
+    ]
   },
   {
     "teal": 586,
-    "source": "contracts/privacy-pool.algo.ts:142"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      684,
+      685
+    ]
+  },
+  {
+    "teal": 587,
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      686
+    ]
+  },
+  {
+    "teal": 588,
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      687
+    ]
+  },
+  {
+    "teal": 589,
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      688
+    ]
   },
   {
     "teal": 590,
-    "source": "contracts/privacy-pool.algo.ts:143"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      689
+    ]
   },
   {
     "teal": 591,
-    "source": "contracts/privacy-pool.algo.ts:143"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      690
+    ]
   },
   {
     "teal": 592,
-    "source": "contracts/privacy-pool.algo.ts:143"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      691,
+      692
+    ]
   },
   {
     "teal": 593,
-    "source": "contracts/privacy-pool.algo.ts:143"
+    "source": "contracts/privacy-pool.algo.ts:137",
+    "pc": [
+      693
+    ]
   },
   {
     "teal": 597,
-    "source": "contracts/privacy-pool.algo.ts:144"
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      694,
+      695
+    ]
   },
   {
     "teal": 598,
-    "source": "contracts/privacy-pool.algo.ts:144"
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      696,
+      697
+    ]
   },
   {
     "teal": 599,
-    "source": "contracts/privacy-pool.algo.ts:144"
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      698
+    ]
   },
   {
     "teal": 600,
-    "source": "contracts/privacy-pool.algo.ts:144"
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      699
+    ]
   },
   {
     "teal": 601,
-    "source": "contracts/privacy-pool.algo.ts:144"
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      700
+    ]
   },
   {
-    "teal": 605,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "teal": 602,
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      701
+    ]
   },
   {
-    "teal": 606,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "teal": 603,
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      702,
+      703
+    ]
   },
   {
-    "teal": 607,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "teal": 604,
+    "source": "contracts/privacy-pool.algo.ts:138",
+    "pc": [
+      704
+    ]
   },
   {
     "teal": 608,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "source": "contracts/privacy-pool.algo.ts:139",
+    "pc": [
+      705,
+      706
+    ]
   },
   {
     "teal": 609,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "source": "contracts/privacy-pool.algo.ts:139",
+    "pc": [
+      707,
+      708
+    ]
   },
   {
     "teal": 610,
-    "source": "contracts/privacy-pool.algo.ts:145"
+    "source": "contracts/privacy-pool.algo.ts:139",
+    "pc": [
+      709
+    ]
   },
   {
-    "teal": 614,
-    "source": "contracts/privacy-pool.algo.ts:146"
+    "teal": 611,
+    "source": "contracts/privacy-pool.algo.ts:139",
+    "pc": [
+      710
+    ]
   },
   {
-    "teal": 615,
-    "source": "contracts/privacy-pool.algo.ts:146"
+    "teal": 612,
+    "source": "contracts/privacy-pool.algo.ts:139",
+    "pc": [
+      711
+    ]
   },
   {
-    "teal": 616,
-    "source": "contracts/privacy-pool.algo.ts:146"
-  },
-  {
-    "teal": 617,
-    "source": "contracts/privacy-pool.algo.ts:146"
+    "teal": 613,
+    "source": "contracts/privacy-pool.algo.ts:67",
+    "pc": [
+      712
+    ]
   },
   {
     "teal": 618,
-    "source": "contracts/privacy-pool.algo.ts:146"
+    "source": "contracts/privacy-pool.algo.ts:155",
+    "pc": [
+      713,
+      714,
+      715
+    ]
+  },
+  {
+    "teal": 619,
+    "source": "contracts/privacy-pool.algo.ts:155",
+    "pc": [
+      716,
+      717,
+      718
+    ]
   },
   {
     "teal": 622,
-    "source": "contracts/privacy-pool.algo.ts:150"
+    "source": "contracts/privacy-pool.algo.ts:154",
+    "pc": [
+      719,
+      720,
+      721
+    ]
   },
   {
     "teal": 623,
-    "source": "contracts/privacy-pool.algo.ts:150"
+    "source": "contracts/privacy-pool.algo.ts:154",
+    "pc": [
+      722,
+      723,
+      724
+    ]
   },
   {
-    "teal": 624,
-    "source": "contracts/privacy-pool.algo.ts:150"
+    "teal": 626,
+    "source": "contracts/privacy-pool.algo.ts:153",
+    "pc": [
+      725,
+      726,
+      727
+    ]
   },
   {
-    "teal": 628,
-    "source": "contracts/privacy-pool.algo.ts:151"
-  },
-  {
-    "teal": 629,
-    "source": "contracts/privacy-pool.algo.ts:151"
+    "teal": 627,
+    "source": "contracts/privacy-pool.algo.ts:153",
+    "pc": [
+      728,
+      729,
+      730
+    ]
   },
   {
     "teal": 630,
-    "source": "contracts/privacy-pool.algo.ts:151"
+    "source": "contracts/privacy-pool.algo.ts:152",
+    "pc": [
+      731,
+      732,
+      733
+    ]
   },
   {
     "teal": 631,
-    "source": "contracts/privacy-pool.algo.ts:151"
+    "source": "contracts/privacy-pool.algo.ts:152",
+    "pc": [
+      734
+    ]
   },
   {
-    "teal": 632,
-    "source": "contracts/privacy-pool.algo.ts:151"
+    "teal": 634,
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "pc": [
+      735,
+      736,
+      737
+    ]
+  },
+  {
+    "teal": 635,
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "pc": [
+      738
+    ]
   },
   {
     "teal": 636,
-    "source": "contracts/privacy-pool.algo.ts:152"
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "pc": [
+      739
+    ]
   },
   {
     "teal": 637,
-    "source": "contracts/privacy-pool.algo.ts:152"
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "pc": [
+      740
+    ]
   },
   {
     "teal": 638,
-    "source": "contracts/privacy-pool.algo.ts:152"
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "pc": [
+      741
+    ]
   },
   {
-    "teal": 639,
-    "source": "contracts/privacy-pool.algo.ts:152"
-  },
-  {
-    "teal": 640,
-    "source": "contracts/privacy-pool.algo.ts:152"
+    "teal": 641,
+    "source": "contracts/privacy-pool.algo.ts:151",
+    "errorMessage": "argument 4 (relayer) for withdraw must be a address",
+    "pc": [
+      742
+    ]
   },
   {
     "teal": 644,
-    "source": "contracts/privacy-pool.algo.ts:153"
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "pc": [
+      743,
+      744,
+      745
+    ]
   },
   {
     "teal": 645,
-    "source": "contracts/privacy-pool.algo.ts:153"
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "pc": [
+      746
+    ]
   },
   {
     "teal": 646,
-    "source": "contracts/privacy-pool.algo.ts:153"
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "pc": [
+      747
+    ]
   },
   {
     "teal": 647,
-    "source": "contracts/privacy-pool.algo.ts:153"
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "pc": [
+      748
+    ]
   },
   {
     "teal": 648,
-    "source": "contracts/privacy-pool.algo.ts:153"
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "pc": [
+      749
+    ]
   },
   {
-    "teal": 652,
-    "source": "contracts/privacy-pool.algo.ts:154"
-  },
-  {
-    "teal": 653,
-    "source": "contracts/privacy-pool.algo.ts:154"
+    "teal": 651,
+    "source": "contracts/privacy-pool.algo.ts:150",
+    "errorMessage": "argument 5 (recipient) for withdraw must be a address",
+    "pc": [
+      750
+    ]
   },
   {
     "teal": 654,
-    "source": "contracts/privacy-pool.algo.ts:154"
+    "source": "contracts/privacy-pool.algo.ts:149",
+    "pc": [
+      751,
+      752,
+      753
+    ]
   },
   {
     "teal": 655,
-    "source": "contracts/privacy-pool.algo.ts:154"
+    "source": "contracts/privacy-pool.algo.ts:149",
+    "pc": [
+      754,
+      755,
+      756
+    ]
   },
   {
-    "teal": 656,
-    "source": "contracts/privacy-pool.algo.ts:154"
+    "teal": 658,
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      757,
+      758,
+      759
+    ]
+  },
+  {
+    "teal": 659,
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      760
+    ]
   },
   {
     "teal": 660,
-    "source": "contracts/privacy-pool.algo.ts:155"
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      761
+    ]
   },
   {
-    "teal": 661,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 662,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 663,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 664,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 665,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 666,
-    "source": "contracts/privacy-pool.algo.ts:155"
-  },
-  {
-    "teal": 667,
-    "source": "contracts/privacy-pool.algo.ts:155"
+    "teal": 668,
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      762,
+      763,
+      764
+    ]
   },
   {
     "teal": 671,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      765
+    ]
   },
   {
     "teal": 672,
-    "source": "contracts/privacy-pool.algo.ts:156"
-  },
-  {
-    "teal": 673,
-    "source": "contracts/privacy-pool.algo.ts:156"
-  },
-  {
-    "teal": 674,
-    "source": "contracts/privacy-pool.algo.ts:156"
-  },
-  {
-    "teal": 675,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      766,
+      767
+    ]
   },
   {
     "teal": 676,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "source": "contracts/privacy-pool.algo.ts:158",
+    "pc": [
+      768,
+      769
+    ]
   },
   {
     "teal": 677,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "source": "contracts/privacy-pool.algo.ts:158",
+    "pc": [
+      770,
+      771,
+      772
+    ]
   },
   {
     "teal": 678,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "source": "contracts/privacy-pool.algo.ts:158",
+    "pc": [
+      773
+    ]
   },
   {
-    "teal": 679,
-    "source": "contracts/privacy-pool.algo.ts:156"
+    "teal": 682,
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      774,
+      775
+    ]
   },
   {
     "teal": 683,
-    "source": "contracts/privacy-pool.algo.ts:159"
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      776,
+      777
+    ]
   },
   {
     "teal": 684,
-    "source": "contracts/privacy-pool.algo.ts:159"
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      778
+    ]
   },
   {
     "teal": 685,
-    "source": "contracts/privacy-pool.algo.ts:159"
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      779
+    ]
+  },
+  {
+    "teal": 686,
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      780
+    ]
+  },
+  {
+    "teal": 687,
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      781
+    ]
+  },
+  {
+    "teal": 688,
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      782
+    ]
   },
   {
     "teal": 689,
-    "source": "contracts/privacy-pool.algo.ts:160"
+    "source": "contracts/privacy-pool.algo.ts:161",
+    "pc": [
+      783
+    ]
   },
   {
-    "teal": 690,
-    "source": "contracts/privacy-pool.algo.ts:160"
+    "teal": 693,
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      784,
+      785
+    ]
   },
   {
-    "teal": 691,
-    "source": "contracts/privacy-pool.algo.ts:160"
+    "teal": 694,
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      786,
+      787
+    ]
   },
   {
-    "teal": 692,
-    "source": "contracts/privacy-pool.algo.ts:160"
+    "teal": 695,
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      788
+    ]
   },
   {
     "teal": 696,
-    "source": "contracts/privacy-pool.algo.ts:161"
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      789
+    ]
   },
   {
     "teal": 697,
-    "source": "contracts/privacy-pool.algo.ts:161"
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      790
+    ]
   },
   {
     "teal": 698,
-    "source": "contracts/privacy-pool.algo.ts:161"
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      791
+    ]
   },
   {
     "teal": 699,
-    "source": "contracts/privacy-pool.algo.ts:161"
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      792,
+      793
+    ]
+  },
+  {
+    "teal": 700,
+    "source": "contracts/privacy-pool.algo.ts:164",
+    "pc": [
+      794
+    ]
   },
   {
     "teal": 704,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "source": "contracts/privacy-pool.algo.ts:170",
+    "pc": [
+      795,
+      796
+    ]
   },
   {
     "teal": 705,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "source": "contracts/privacy-pool.algo.ts:170",
+    "pc": [
+      797
+    ]
   },
   {
     "teal": 706,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "source": "contracts/privacy-pool.algo.ts:170",
+    "pc": [
+      798
+    ]
   },
   {
     "teal": 707,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "source": "contracts/privacy-pool.algo.ts:170",
+    "pc": [
+      799
+    ]
   },
   {
-    "teal": 708,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "teal": 711,
+    "source": "contracts/privacy-pool.algo.ts:171",
+    "pc": [
+      800,
+      801
+    ]
   },
   {
-    "teal": 717,
-    "source": "contracts/privacy-pool.algo.ts:164"
+    "teal": 712,
+    "source": "contracts/privacy-pool.algo.ts:171",
+    "pc": [
+      802
+    ]
   },
   {
-    "teal": 718,
-    "source": "contracts/privacy-pool.algo.ts:164"
+    "teal": 713,
+    "source": "contracts/privacy-pool.algo.ts:171",
+    "pc": [
+      803
+    ]
   },
   {
-    "teal": 719,
-    "source": "contracts/privacy-pool.algo.ts:164"
+    "teal": 714,
+    "source": "contracts/privacy-pool.algo.ts:171",
+    "pc": [
+      804,
+      805
+    ]
+  },
+  {
+    "teal": 721,
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      806,
+      807
+    ]
+  },
+  {
+    "teal": 722,
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      808
+    ]
   },
   {
     "teal": 723,
-    "source": "contracts/privacy-pool.algo.ts:165"
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      809,
+      810
+    ]
   },
   {
     "teal": 724,
-    "source": "contracts/privacy-pool.algo.ts:165"
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      811
+    ]
+  },
+  {
+    "teal": 725,
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      812
+    ]
+  },
+  {
+    "teal": 726,
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      813,
+      814,
+      815
+    ]
+  },
+  {
+    "teal": 727,
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      816,
+      817
+    ]
   },
   {
     "teal": 728,
-    "source": "contracts/privacy-pool.algo.ts:166"
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      818,
+      819
+    ]
   },
   {
     "teal": 729,
-    "source": "contracts/privacy-pool.algo.ts:166"
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      820
+    ]
   },
   {
-    "teal": 733,
-    "source": "contracts/privacy-pool.algo.ts:167"
+    "teal": 730,
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      821
+    ]
+  },
+  {
+    "teal": 731,
+    "source": "contracts/privacy-pool.algo.ts:174",
+    "pc": [
+      822
+    ]
   },
   {
     "teal": 734,
-    "source": "contracts/privacy-pool.algo.ts:167"
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      823
+    ]
+  },
+  {
+    "teal": 735,
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      824,
+      825,
+      826
+    ]
+  },
+  {
+    "teal": 736,
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      827,
+      828
+    ]
   },
   {
     "teal": 737,
-    "source": "contracts/privacy-pool.algo.ts:164"
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      829,
+      830
+    ]
   },
   {
     "teal": 738,
-    "source": "contracts/privacy-pool.algo.ts:163"
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      831,
+      832
+    ]
   },
   {
-    "teal": 748,
-    "source": "contracts/privacy-pool.algo.ts:170"
+    "teal": 739,
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      833
+    ]
   },
   {
-    "teal": 749,
-    "source": "contracts/privacy-pool.algo.ts:170"
+    "teal": 740,
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      834
+    ]
   },
   {
-    "teal": 750,
-    "source": "contracts/privacy-pool.algo.ts:170"
+    "teal": 741,
+    "source": "contracts/privacy-pool.algo.ts:175",
+    "pc": [
+      835
+    ]
+  },
+  {
+    "teal": 744,
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      836,
+      837,
+      838
+    ]
+  },
+  {
+    "teal": 747,
+    "source": "contracts/privacy-pool.algo.ts:173",
+    "pc": [
+      839,
+      840,
+      841
+    ]
+  },
+  {
+    "teal": 752,
+    "source": "contracts/privacy-pool.algo.ts:179",
+    "pc": [
+      842,
+      843
+    ]
+  },
+  {
+    "teal": 753,
+    "source": "contracts/privacy-pool.algo.ts:179",
+    "pc": [
+      844,
+      845
+    ]
   },
   {
     "teal": 754,
-    "source": "contracts/privacy-pool.algo.ts:171"
+    "source": "contracts/privacy-pool.algo.ts:179",
+    "pc": [
+      846,
+      847
+    ]
   },
   {
     "teal": 755,
-    "source": "contracts/privacy-pool.algo.ts:171"
+    "source": "contracts/privacy-pool.algo.ts:179",
+    "pc": [
+      848
+    ]
   },
   {
-    "teal": 759,
-    "source": "contracts/privacy-pool.algo.ts:172"
+    "teal": 756,
+    "source": "contracts/privacy-pool.algo.ts:179",
+    "pc": [
+      849
+    ]
   },
   {
     "teal": 760,
-    "source": "contracts/privacy-pool.algo.ts:172"
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      850,
+      851
+    ]
+  },
+  {
+    "teal": 761,
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      852,
+      853
+    ]
+  },
+  {
+    "teal": 762,
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      854,
+      855
+    ]
+  },
+  {
+    "teal": 763,
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      856
+    ]
   },
   {
     "teal": 764,
-    "source": "contracts/privacy-pool.algo.ts:173"
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      857
+    ]
   },
   {
     "teal": 765,
-    "source": "contracts/privacy-pool.algo.ts:173"
+    "source": "contracts/privacy-pool.algo.ts:180",
+    "pc": [
+      858
+    ]
   },
   {
-    "teal": 766,
-    "source": "contracts/privacy-pool.algo.ts:173"
+    "teal": 769,
+    "source": "contracts/privacy-pool.algo.ts:181",
+    "pc": [
+      859,
+      860
+    ]
   },
   {
     "teal": 770,
-    "source": "contracts/privacy-pool.algo.ts:174"
+    "source": "contracts/privacy-pool.algo.ts:181",
+    "pc": [
+      861,
+      862
+    ]
   },
   {
     "teal": 771,
-    "source": "contracts/privacy-pool.algo.ts:174"
+    "source": "contracts/privacy-pool.algo.ts:181",
+    "pc": [
+      863,
+      864
+    ]
   },
   {
-    "teal": 774,
-    "source": "contracts/privacy-pool.algo.ts:170"
+    "teal": 772,
+    "source": "contracts/privacy-pool.algo.ts:181",
+    "pc": [
+      865
+    ]
+  },
+  {
+    "teal": 773,
+    "source": "contracts/privacy-pool.algo.ts:181",
+    "pc": [
+      866
+    ]
   },
   {
     "teal": 780,
-    "source": "contracts/privacy-pool.algo.ts:179"
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      867,
+      868
+    ]
   },
   {
     "teal": 781,
-    "source": "contracts/privacy-pool.algo.ts:179"
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      869,
+      870
+    ]
   },
   {
     "teal": 782,
-    "source": "contracts/privacy-pool.algo.ts:179"
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      871
+    ]
   },
   {
     "teal": 783,
-    "source": "contracts/privacy-pool.algo.ts:179"
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      872
+    ]
   },
   {
-    "teal": 789,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "teal": 784,
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      873,
+      874,
+      875
+    ]
+  },
+  {
+    "teal": 785,
+    "source": "contracts/privacy-pool.algo.ts:188",
+    "pc": [
+      876,
+      877
+    ]
+  },
+  {
+    "teal": 786,
+    "source": "contracts/privacy-pool.algo.ts:188",
+    "pc": [
+      878,
+      879
+    ]
+  },
+  {
+    "teal": 787,
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      880,
+      881,
+      882
+    ]
   },
   {
     "teal": 790,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "source": "contracts/privacy-pool.algo.ts:189",
+    "pc": [
+      883,
+      884
+    ]
   },
   {
     "teal": 791,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "source": "contracts/privacy-pool.algo.ts:189",
+    "pc": [
+      885,
+      886,
+      887
+    ]
   },
   {
-    "teal": 792,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "teal": 794,
+    "source": "contracts/privacy-pool.algo.ts:187",
+    "pc": [
+      888,
+      889
+    ]
   },
   {
-    "teal": 793,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "teal": 798,
+    "source": "contracts/privacy-pool.algo.ts:190",
+    "pc": [
+      890,
+      891
+    ]
+  },
+  {
+    "teal": 799,
+    "source": "contracts/privacy-pool.algo.ts:190",
+    "pc": [
+      892,
+      893,
+      894
+    ]
+  },
+  {
+    "teal": 800,
+    "source": "contracts/privacy-pool.algo.ts:190",
+    "pc": [
+      895,
+      896
+    ]
+  },
+  {
+    "teal": 801,
+    "source": "contracts/privacy-pool.algo.ts:190",
+    "pc": [
+      897
+    ]
   },
   {
     "teal": 802,
-    "source": "contracts/privacy-pool.algo.ts:181"
+    "source": "contracts/privacy-pool.algo.ts:190",
+    "pc": [
+      898
+    ]
   },
   {
-    "teal": 803,
-    "source": "contracts/privacy-pool.algo.ts:181"
+    "teal": 806,
+    "source": "contracts/privacy-pool.algo.ts:191",
+    "pc": [
+      899,
+      900
+    ]
   },
   {
-    "teal": 804,
-    "source": "contracts/privacy-pool.algo.ts:181"
+    "teal": 807,
+    "source": "contracts/privacy-pool.algo.ts:191",
+    "pc": [
+      901,
+      902,
+      903
+    ]
   },
   {
     "teal": 808,
-    "source": "contracts/privacy-pool.algo.ts:182"
+    "source": "contracts/privacy-pool.algo.ts:191",
+    "pc": [
+      904,
+      905
+    ]
   },
   {
     "teal": 809,
-    "source": "contracts/privacy-pool.algo.ts:182"
+    "source": "contracts/privacy-pool.algo.ts:191",
+    "pc": [
+      906
+    ]
   },
   {
-    "teal": 813,
-    "source": "contracts/privacy-pool.algo.ts:183"
+    "teal": 810,
+    "source": "contracts/privacy-pool.algo.ts:191",
+    "pc": [
+      907
+    ]
   },
   {
     "teal": 814,
-    "source": "contracts/privacy-pool.algo.ts:183"
+    "source": "contracts/privacy-pool.algo.ts:192",
+    "pc": [
+      908,
+      909
+    ]
+  },
+  {
+    "teal": 815,
+    "source": "contracts/privacy-pool.algo.ts:192",
+    "pc": [
+      910,
+      911,
+      912
+    ]
+  },
+  {
+    "teal": 816,
+    "source": "contracts/privacy-pool.algo.ts:192",
+    "pc": [
+      913,
+      914
+    ]
+  },
+  {
+    "teal": 817,
+    "source": "contracts/privacy-pool.algo.ts:192",
+    "pc": [
+      915
+    ]
   },
   {
     "teal": 818,
-    "source": "contracts/privacy-pool.algo.ts:184"
-  },
-  {
-    "teal": 819,
-    "source": "contracts/privacy-pool.algo.ts:184"
+    "source": "contracts/privacy-pool.algo.ts:192",
+    "pc": [
+      916
+    ]
   },
   {
     "teal": 822,
-    "source": "contracts/privacy-pool.algo.ts:181"
+    "source": "contracts/privacy-pool.algo.ts:193",
+    "pc": [
+      917,
+      918
+    ]
   },
   {
     "teal": 823,
-    "source": "contracts/privacy-pool.algo.ts:180"
+    "source": "contracts/privacy-pool.algo.ts:193",
+    "pc": [
+      919,
+      920,
+      921
+    ]
+  },
+  {
+    "teal": 824,
+    "source": "contracts/privacy-pool.algo.ts:193",
+    "pc": [
+      922,
+      923
+    ]
+  },
+  {
+    "teal": 825,
+    "source": "contracts/privacy-pool.algo.ts:193",
+    "pc": [
+      924
+    ]
+  },
+  {
+    "teal": 826,
+    "source": "contracts/privacy-pool.algo.ts:193",
+    "pc": [
+      925
+    ]
+  },
+  {
+    "teal": 830,
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      926,
+      927
+    ]
+  },
+  {
+    "teal": 831,
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      928,
+      929,
+      930
+    ]
+  },
+  {
+    "teal": 832,
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      931,
+      932
+    ]
   },
   {
     "teal": 833,
-    "source": "contracts/privacy-pool.algo.ts:187"
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      933,
+      934
+    ]
   },
   {
     "teal": 834,
-    "source": "contracts/privacy-pool.algo.ts:187"
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      935
+    ]
   },
   {
     "teal": 835,
-    "source": "contracts/privacy-pool.algo.ts:187"
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      936
+    ]
   },
   {
-    "teal": 839,
-    "source": "contracts/privacy-pool.algo.ts:188"
+    "teal": 836,
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      937
+    ]
   },
   {
-    "teal": 840,
-    "source": "contracts/privacy-pool.algo.ts:188"
+    "teal": 837,
+    "source": "contracts/privacy-pool.algo.ts:194",
+    "pc": [
+      938
+    ]
+  },
+  {
+    "teal": 841,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      939,
+      940
+    ]
+  },
+  {
+    "teal": 842,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      941,
+      942,
+      943
+    ]
+  },
+  {
+    "teal": 843,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      944,
+      945
+    ]
   },
   {
     "teal": 844,
-    "source": "contracts/privacy-pool.algo.ts:189"
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      946
+    ]
   },
   {
     "teal": 845,
-    "source": "contracts/privacy-pool.algo.ts:189"
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      947
+    ]
+  },
+  {
+    "teal": 846,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      948
+    ]
+  },
+  {
+    "teal": 847,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      949
+    ]
+  },
+  {
+    "teal": 848,
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      950
+    ]
   },
   {
     "teal": 849,
-    "source": "contracts/privacy-pool.algo.ts:190"
+    "source": "contracts/privacy-pool.algo.ts:195",
+    "pc": [
+      951
+    ]
   },
   {
-    "teal": 850,
-    "source": "contracts/privacy-pool.algo.ts:190"
+    "teal": 853,
+    "source": "contracts/privacy-pool.algo.ts:198",
+    "pc": [
+      952
+    ]
   },
   {
-    "teal": 851,
-    "source": "contracts/privacy-pool.algo.ts:190"
+    "teal": 854,
+    "source": "contracts/privacy-pool.algo.ts:198",
+    "pc": [
+      953
+    ]
   },
   {
     "teal": 855,
-    "source": "contracts/privacy-pool.algo.ts:191"
-  },
-  {
-    "teal": 856,
-    "source": "contracts/privacy-pool.algo.ts:191"
+    "source": "contracts/privacy-pool.algo.ts:198",
+    "pc": [
+      954,
+      955
+    ]
   },
   {
     "teal": 859,
-    "source": "contracts/privacy-pool.algo.ts:187"
+    "source": "contracts/privacy-pool.algo.ts:199",
+    "pc": [
+      956,
+      957
+    ]
+  },
+  {
+    "teal": 860,
+    "source": "contracts/privacy-pool.algo.ts:199",
+    "pc": [
+      958,
+      959
+    ]
+  },
+  {
+    "teal": 861,
+    "source": "contracts/privacy-pool.algo.ts:199",
+    "pc": [
+      960
+    ]
+  },
+  {
+    "teal": 862,
+    "source": "contracts/privacy-pool.algo.ts:199",
+    "pc": [
+      961
+    ]
   },
   {
     "teal": 866,
-    "source": "contracts/privacy-pool.algo.ts:196"
+    "source": "contracts/privacy-pool.algo.ts:200",
+    "pc": [
+      962,
+      963
+    ]
   },
   {
     "teal": 867,
-    "source": "contracts/privacy-pool.algo.ts:196"
+    "source": "contracts/privacy-pool.algo.ts:200",
+    "pc": [
+      964,
+      965
+    ]
   },
   {
     "teal": 868,
-    "source": "contracts/privacy-pool.algo.ts:196"
+    "source": "contracts/privacy-pool.algo.ts:200",
+    "pc": [
+      966
+    ]
   },
   {
     "teal": 869,
-    "source": "contracts/privacy-pool.algo.ts:196"
+    "source": "contracts/privacy-pool.algo.ts:200",
+    "pc": [
+      967,
+      968
+    ]
   },
   {
-    "teal": 870,
-    "source": "contracts/privacy-pool.algo.ts:123"
+    "teal": 874,
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      969
+    ]
   },
   {
     "teal": 875,
-    "source": "contracts/privacy-pool.algo.ts:212"
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      970
+    ]
   },
   {
     "teal": 876,
-    "source": "contracts/privacy-pool.algo.ts:212"
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      971
+    ]
   },
   {
-    "teal": 879,
-    "source": "contracts/privacy-pool.algo.ts:211"
+    "teal": 877,
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      972
+    ]
   },
   {
-    "teal": 880,
-    "source": "contracts/privacy-pool.algo.ts:211"
-  },
-  {
-    "teal": 883,
-    "source": "contracts/privacy-pool.algo.ts:210"
-  },
-  {
-    "teal": 884,
-    "source": "contracts/privacy-pool.algo.ts:210"
+    "teal": 878,
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      973,
+      974,
+      975
+    ]
   },
   {
     "teal": 887,
-    "source": "contracts/privacy-pool.algo.ts:209"
+    "source": "contracts/privacy-pool.algo.ts:203",
+    "pc": [
+      976
+    ]
   },
   {
     "teal": 888,
-    "source": "contracts/privacy-pool.algo.ts:209"
+    "source": "contracts/privacy-pool.algo.ts:203",
+    "pc": [
+      977
+    ]
   },
   {
     "teal": 889,
-    "source": "contracts/privacy-pool.algo.ts:209"
+    "source": "contracts/privacy-pool.algo.ts:203",
+    "pc": [
+      978,
+      979
+    ]
   },
   {
-    "teal": 890,
-    "source": "contracts/privacy-pool.algo.ts:209"
-  },
-  {
-    "teal": 891,
-    "source": "contracts/privacy-pool.algo.ts:209"
+    "teal": 893,
+    "source": "contracts/privacy-pool.algo.ts:204",
+    "pc": [
+      980,
+      981
+    ]
   },
   {
     "teal": 894,
-    "source": "contracts/privacy-pool.algo.ts:209",
-    "errorMessage": "argument 3 (relayer) for privateSend must be a address"
-  },
-  {
-    "teal": 897,
-    "source": "contracts/privacy-pool.algo.ts:208"
+    "source": "contracts/privacy-pool.algo.ts:204",
+    "pc": [
+      982,
+      983
+    ]
   },
   {
     "teal": 898,
-    "source": "contracts/privacy-pool.algo.ts:208"
+    "source": "contracts/privacy-pool.algo.ts:205",
+    "pc": [
+      984,
+      985
+    ]
   },
   {
     "teal": 899,
-    "source": "contracts/privacy-pool.algo.ts:208"
+    "source": "contracts/privacy-pool.algo.ts:205",
+    "pc": [
+      986,
+      987
+    ]
   },
   {
-    "teal": 900,
-    "source": "contracts/privacy-pool.algo.ts:208"
-  },
-  {
-    "teal": 901,
-    "source": "contracts/privacy-pool.algo.ts:208"
+    "teal": 903,
+    "source": "contracts/privacy-pool.algo.ts:206",
+    "pc": [
+      988
+    ]
   },
   {
     "teal": 904,
-    "source": "contracts/privacy-pool.algo.ts:208",
-    "errorMessage": "argument 4 (recipient) for privateSend must be a address"
+    "source": "contracts/privacy-pool.algo.ts:206",
+    "pc": [
+      989,
+      990
+    ]
   },
   {
     "teal": 907,
-    "source": "contracts/privacy-pool.algo.ts:207"
+    "source": "contracts/privacy-pool.algo.ts:203",
+    "pc": [
+      991
+    ]
   },
   {
     "teal": 908,
-    "source": "contracts/privacy-pool.algo.ts:207"
+    "source": "contracts/privacy-pool.algo.ts:202",
+    "pc": [
+      992,
+      993,
+      994
+    ]
   },
   {
-    "teal": 911,
-    "source": "contracts/privacy-pool.algo.ts:206"
-  },
-  {
-    "teal": 912,
-    "source": "contracts/privacy-pool.algo.ts:206"
-  },
-  {
-    "teal": 915,
-    "source": "contracts/privacy-pool.algo.ts:205"
-  },
-  {
-    "teal": 916,
-    "source": "contracts/privacy-pool.algo.ts:205"
+    "teal": 918,
+    "source": "contracts/privacy-pool.algo.ts:209",
+    "pc": [
+      995
+    ]
   },
   {
     "teal": 919,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "source": "contracts/privacy-pool.algo.ts:209",
+    "pc": [
+      996
+    ]
   },
   {
     "teal": 920,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "source": "contracts/privacy-pool.algo.ts:209",
+    "pc": [
+      997,
+      998
+    ]
   },
   {
-    "teal": 921,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "teal": 924,
+    "source": "contracts/privacy-pool.algo.ts:210",
+    "pc": [
+      999,
+      1000
+    ]
+  },
+  {
+    "teal": 925,
+    "source": "contracts/privacy-pool.algo.ts:210",
+    "pc": [
+      1001,
+      1002
+    ]
   },
   {
     "teal": 929,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "source": "contracts/privacy-pool.algo.ts:211",
+    "pc": [
+      1003,
+      1004
+    ]
   },
   {
-    "teal": 932,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "teal": 930,
+    "source": "contracts/privacy-pool.algo.ts:211",
+    "pc": [
+      1005,
+      1006
+    ]
   },
   {
-    "teal": 933,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "teal": 934,
+    "source": "contracts/privacy-pool.algo.ts:212",
+    "pc": [
+      1007
+    ]
   },
   {
-    "teal": 937,
-    "source": "contracts/privacy-pool.algo.ts:214"
+    "teal": 935,
+    "source": "contracts/privacy-pool.algo.ts:212",
+    "pc": [
+      1008
+    ]
   },
   {
-    "teal": 938,
-    "source": "contracts/privacy-pool.algo.ts:214"
-  },
-  {
-    "teal": 939,
-    "source": "contracts/privacy-pool.algo.ts:214"
+    "teal": 936,
+    "source": "contracts/privacy-pool.algo.ts:212",
+    "pc": [
+      1009,
+      1010
+    ]
   },
   {
     "teal": 940,
-    "source": "contracts/privacy-pool.algo.ts:214"
+    "source": "contracts/privacy-pool.algo.ts:213",
+    "pc": [
+      1011
+    ]
   },
   {
     "teal": 941,
-    "source": "contracts/privacy-pool.algo.ts:214"
+    "source": "contracts/privacy-pool.algo.ts:213",
+    "pc": [
+      1012,
+      1013
+    ]
   },
   {
-    "teal": 945,
-    "source": "contracts/privacy-pool.algo.ts:215"
+    "teal": 944,
+    "source": "contracts/privacy-pool.algo.ts:209",
+    "pc": [
+      1014
+    ]
   },
   {
-    "teal": 946,
-    "source": "contracts/privacy-pool.algo.ts:215"
+    "teal": 950,
+    "source": "contracts/privacy-pool.algo.ts:218",
+    "pc": [
+      1015,
+      1016
+    ]
   },
   {
-    "teal": 947,
-    "source": "contracts/privacy-pool.algo.ts:215"
+    "teal": 951,
+    "source": "contracts/privacy-pool.algo.ts:218",
+    "pc": [
+      1017
+    ]
   },
   {
-    "teal": 948,
-    "source": "contracts/privacy-pool.algo.ts:215"
-  },
-  {
-    "teal": 949,
-    "source": "contracts/privacy-pool.algo.ts:215"
+    "teal": 952,
+    "source": "contracts/privacy-pool.algo.ts:218",
+    "pc": [
+      1018
+    ]
   },
   {
     "teal": 953,
-    "source": "contracts/privacy-pool.algo.ts:216"
+    "source": "contracts/privacy-pool.algo.ts:218",
+    "pc": [
+      1019,
+      1020,
+      1021
+    ]
   },
   {
-    "teal": 954,
-    "source": "contracts/privacy-pool.algo.ts:216"
+    "teal": 959,
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1022
+    ]
   },
   {
-    "teal": 955,
-    "source": "contracts/privacy-pool.algo.ts:216"
-  },
-  {
-    "teal": 956,
-    "source": "contracts/privacy-pool.algo.ts:216"
-  },
-  {
-    "teal": 957,
-    "source": "contracts/privacy-pool.algo.ts:216"
+    "teal": 960,
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1023
+    ]
   },
   {
     "teal": 961,
-    "source": "contracts/privacy-pool.algo.ts:219"
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1024
+    ]
   },
   {
     "teal": 962,
-    "source": "contracts/privacy-pool.algo.ts:219"
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1025
+    ]
   },
   {
     "teal": 963,
-    "source": "contracts/privacy-pool.algo.ts:219"
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1026,
+      1027,
+      1028
+    ]
   },
   {
-    "teal": 964,
-    "source": "contracts/privacy-pool.algo.ts:219"
+    "teal": 972,
+    "source": "contracts/privacy-pool.algo.ts:220",
+    "pc": [
+      1029
+    ]
   },
   {
-    "teal": 968,
-    "source": "contracts/privacy-pool.algo.ts:220"
+    "teal": 973,
+    "source": "contracts/privacy-pool.algo.ts:220",
+    "pc": [
+      1030
+    ]
   },
   {
-    "teal": 969,
-    "source": "contracts/privacy-pool.algo.ts:220"
-  },
-  {
-    "teal": 970,
-    "source": "contracts/privacy-pool.algo.ts:220"
-  },
-  {
-    "teal": 971,
-    "source": "contracts/privacy-pool.algo.ts:220"
-  },
-  {
-    "teal": 975,
-    "source": "contracts/privacy-pool.algo.ts:221"
-  },
-  {
-    "teal": 976,
-    "source": "contracts/privacy-pool.algo.ts:221"
-  },
-  {
-    "teal": 977,
-    "source": "contracts/privacy-pool.algo.ts:221"
+    "teal": 974,
+    "source": "contracts/privacy-pool.algo.ts:220",
+    "pc": [
+      1031,
+      1032
+    ]
   },
   {
     "teal": 978,
-    "source": "contracts/privacy-pool.algo.ts:221"
+    "source": "contracts/privacy-pool.algo.ts:221",
+    "pc": [
+      1033,
+      1034
+    ]
   },
   {
     "teal": 979,
-    "source": "contracts/privacy-pool.algo.ts:221"
+    "source": "contracts/privacy-pool.algo.ts:221",
+    "pc": [
+      1035,
+      1036
+    ]
   },
   {
     "teal": 983,
-    "source": "contracts/privacy-pool.algo.ts:222"
+    "source": "contracts/privacy-pool.algo.ts:222",
+    "pc": [
+      1037,
+      1038
+    ]
   },
   {
     "teal": 984,
-    "source": "contracts/privacy-pool.algo.ts:222"
-  },
-  {
-    "teal": 985,
-    "source": "contracts/privacy-pool.algo.ts:222"
-  },
-  {
-    "teal": 986,
-    "source": "contracts/privacy-pool.algo.ts:222"
-  },
-  {
-    "teal": 987,
-    "source": "contracts/privacy-pool.algo.ts:222"
+    "source": "contracts/privacy-pool.algo.ts:222",
+    "pc": [
+      1039,
+      1040
+    ]
   },
   {
     "teal": 988,
-    "source": "contracts/privacy-pool.algo.ts:222"
+    "source": "contracts/privacy-pool.algo.ts:223",
+    "pc": [
+      1041
+    ]
+  },
+  {
+    "teal": 989,
+    "source": "contracts/privacy-pool.algo.ts:223",
+    "pc": [
+      1042,
+      1043
+    ]
   },
   {
     "teal": 992,
-    "source": "contracts/privacy-pool.algo.ts:223"
+    "source": "contracts/privacy-pool.algo.ts:220",
+    "pc": [
+      1044
+    ]
   },
   {
     "teal": 993,
-    "source": "contracts/privacy-pool.algo.ts:223"
+    "source": "contracts/privacy-pool.algo.ts:219",
+    "pc": [
+      1045,
+      1046,
+      1047
+    ]
   },
   {
-    "teal": 994,
-    "source": "contracts/privacy-pool.algo.ts:223"
+    "teal": 1003,
+    "source": "contracts/privacy-pool.algo.ts:226",
+    "pc": [
+      1048
+    ]
   },
   {
-    "teal": 995,
-    "source": "contracts/privacy-pool.algo.ts:223"
+    "teal": 1004,
+    "source": "contracts/privacy-pool.algo.ts:226",
+    "pc": [
+      1049
+    ]
   },
   {
-    "teal": 996,
-    "source": "contracts/privacy-pool.algo.ts:223"
-  },
-  {
-    "teal": 1000,
-    "source": "contracts/privacy-pool.algo.ts:228"
-  },
-  {
-    "teal": 1001,
-    "source": "contracts/privacy-pool.algo.ts:228"
-  },
-  {
-    "teal": 1002,
-    "source": "contracts/privacy-pool.algo.ts:228"
-  },
-  {
-    "teal": 1006,
-    "source": "contracts/privacy-pool.algo.ts:229"
-  },
-  {
-    "teal": 1007,
-    "source": "contracts/privacy-pool.algo.ts:229"
-  },
-  {
-    "teal": 1008,
-    "source": "contracts/privacy-pool.algo.ts:229"
+    "teal": 1005,
+    "source": "contracts/privacy-pool.algo.ts:226",
+    "pc": [
+      1050,
+      1051
+    ]
   },
   {
     "teal": 1009,
-    "source": "contracts/privacy-pool.algo.ts:229"
+    "source": "contracts/privacy-pool.algo.ts:227",
+    "pc": [
+      1052,
+      1053
+    ]
   },
   {
     "teal": 1010,
-    "source": "contracts/privacy-pool.algo.ts:229"
+    "source": "contracts/privacy-pool.algo.ts:227",
+    "pc": [
+      1054,
+      1055
+    ]
   },
   {
-    "teal": 1011,
-    "source": "contracts/privacy-pool.algo.ts:229"
+    "teal": 1014,
+    "source": "contracts/privacy-pool.algo.ts:228",
+    "pc": [
+      1056,
+      1057
+    ]
   },
   {
     "teal": 1015,
-    "source": "contracts/privacy-pool.algo.ts:230"
-  },
-  {
-    "teal": 1016,
-    "source": "contracts/privacy-pool.algo.ts:230"
-  },
-  {
-    "teal": 1017,
-    "source": "contracts/privacy-pool.algo.ts:230"
-  },
-  {
-    "teal": 1018,
-    "source": "contracts/privacy-pool.algo.ts:230"
+    "source": "contracts/privacy-pool.algo.ts:228",
+    "pc": [
+      1058,
+      1059
+    ]
   },
   {
     "teal": 1019,
-    "source": "contracts/privacy-pool.algo.ts:230"
+    "source": "contracts/privacy-pool.algo.ts:229",
+    "pc": [
+      1060
+    ]
   },
   {
-    "teal": 1023,
-    "source": "contracts/privacy-pool.algo.ts:231"
+    "teal": 1020,
+    "source": "contracts/privacy-pool.algo.ts:229",
+    "pc": [
+      1061
+    ]
   },
   {
-    "teal": 1024,
-    "source": "contracts/privacy-pool.algo.ts:231"
+    "teal": 1021,
+    "source": "contracts/privacy-pool.algo.ts:229",
+    "pc": [
+      1062,
+      1063
+    ]
   },
   {
     "teal": 1025,
-    "source": "contracts/privacy-pool.algo.ts:231"
+    "source": "contracts/privacy-pool.algo.ts:230",
+    "pc": [
+      1064
+    ]
   },
   {
     "teal": 1026,
-    "source": "contracts/privacy-pool.algo.ts:231"
+    "source": "contracts/privacy-pool.algo.ts:230",
+    "pc": [
+      1065,
+      1066
+    ]
   },
   {
-    "teal": 1027,
-    "source": "contracts/privacy-pool.algo.ts:231"
+    "teal": 1029,
+    "source": "contracts/privacy-pool.algo.ts:226",
+    "pc": [
+      1067
+    ]
   },
   {
-    "teal": 1031,
-    "source": "contracts/privacy-pool.algo.ts:232"
-  },
-  {
-    "teal": 1032,
-    "source": "contracts/privacy-pool.algo.ts:232"
-  },
-  {
-    "teal": 1033,
-    "source": "contracts/privacy-pool.algo.ts:232"
-  },
-  {
-    "teal": 1037,
-    "source": "contracts/privacy-pool.algo.ts:233"
-  },
-  {
-    "teal": 1038,
-    "source": "contracts/privacy-pool.algo.ts:233"
+    "teal": 1034,
+    "source": "contracts/privacy-pool.algo.ts:148",
+    "pc": [
+      1068
+    ]
   },
   {
     "teal": 1039,
-    "source": "contracts/privacy-pool.algo.ts:233"
+    "source": "contracts/privacy-pool.algo.ts:250",
+    "pc": [
+      1069,
+      1070,
+      1071
+    ]
   },
   {
     "teal": 1040,
-    "source": "contracts/privacy-pool.algo.ts:233"
-  },
-  {
-    "teal": 1041,
-    "source": "contracts/privacy-pool.algo.ts:233"
-  },
-  {
-    "teal": 1042,
-    "source": "contracts/privacy-pool.algo.ts:233"
+    "source": "contracts/privacy-pool.algo.ts:250",
+    "pc": [
+      1072,
+      1073,
+      1074
+    ]
   },
   {
     "teal": 1043,
-    "source": "contracts/privacy-pool.algo.ts:233"
+    "source": "contracts/privacy-pool.algo.ts:249",
+    "pc": [
+      1075,
+      1076,
+      1077
+    ]
   },
   {
     "teal": 1044,
-    "source": "contracts/privacy-pool.algo.ts:233"
+    "source": "contracts/privacy-pool.algo.ts:249",
+    "pc": [
+      1078,
+      1079,
+      1080
+    ]
+  },
+  {
+    "teal": 1047,
+    "source": "contracts/privacy-pool.algo.ts:248",
+    "pc": [
+      1081,
+      1082,
+      1083
+    ]
   },
   {
     "teal": 1048,
-    "source": "contracts/privacy-pool.algo.ts:234"
-  },
-  {
-    "teal": 1049,
-    "source": "contracts/privacy-pool.algo.ts:234"
-  },
-  {
-    "teal": 1050,
-    "source": "contracts/privacy-pool.algo.ts:234"
+    "source": "contracts/privacy-pool.algo.ts:248",
+    "pc": [
+      1084
+    ]
   },
   {
     "teal": 1051,
-    "source": "contracts/privacy-pool.algo.ts:234"
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "pc": [
+      1085,
+      1086,
+      1087
+    ]
   },
   {
     "teal": 1052,
-    "source": "contracts/privacy-pool.algo.ts:234"
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "pc": [
+      1088
+    ]
   },
   {
-    "teal": 1056,
-    "source": "contracts/privacy-pool.algo.ts:235"
+    "teal": 1053,
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "pc": [
+      1089
+    ]
   },
   {
-    "teal": 1057,
-    "source": "contracts/privacy-pool.algo.ts:235"
+    "teal": 1054,
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "pc": [
+      1090
+    ]
+  },
+  {
+    "teal": 1055,
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "pc": [
+      1091
+    ]
   },
   {
     "teal": 1058,
-    "source": "contracts/privacy-pool.algo.ts:235"
+    "source": "contracts/privacy-pool.algo.ts:247",
+    "errorMessage": "argument 3 (relayer) for privateSend must be a address",
+    "pc": [
+      1092
+    ]
   },
   {
-    "teal": 1059,
-    "source": "contracts/privacy-pool.algo.ts:235"
+    "teal": 1061,
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "pc": [
+      1093,
+      1094,
+      1095
+    ]
   },
   {
-    "teal": 1060,
-    "source": "contracts/privacy-pool.algo.ts:235"
+    "teal": 1062,
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "pc": [
+      1096
+    ]
+  },
+  {
+    "teal": 1063,
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "pc": [
+      1097
+    ]
   },
   {
     "teal": 1064,
-    "source": "contracts/privacy-pool.algo.ts:236"
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "pc": [
+      1098
+    ]
   },
   {
     "teal": 1065,
-    "source": "contracts/privacy-pool.algo.ts:236"
-  },
-  {
-    "teal": 1066,
-    "source": "contracts/privacy-pool.algo.ts:236"
-  },
-  {
-    "teal": 1067,
-    "source": "contracts/privacy-pool.algo.ts:236"
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "pc": [
+      1099
+    ]
   },
   {
     "teal": 1068,
-    "source": "contracts/privacy-pool.algo.ts:236"
+    "source": "contracts/privacy-pool.algo.ts:246",
+    "errorMessage": "argument 4 (recipient) for privateSend must be a address",
+    "pc": [
+      1100
+    ]
+  },
+  {
+    "teal": 1071,
+    "source": "contracts/privacy-pool.algo.ts:245",
+    "pc": [
+      1101,
+      1102,
+      1103
+    ]
   },
   {
     "teal": 1072,
-    "source": "contracts/privacy-pool.algo.ts:237"
-  },
-  {
-    "teal": 1073,
-    "source": "contracts/privacy-pool.algo.ts:237"
-  },
-  {
-    "teal": 1074,
-    "source": "contracts/privacy-pool.algo.ts:237"
+    "source": "contracts/privacy-pool.algo.ts:245",
+    "pc": [
+      1104,
+      1105,
+      1106
+    ]
   },
   {
     "teal": 1075,
-    "source": "contracts/privacy-pool.algo.ts:237"
+    "source": "contracts/privacy-pool.algo.ts:244",
+    "pc": [
+      1107,
+      1108,
+      1109
+    ]
   },
   {
     "teal": 1076,
-    "source": "contracts/privacy-pool.algo.ts:237"
-  },
-  {
-    "teal": 1077,
-    "source": "contracts/privacy-pool.algo.ts:237"
-  },
-  {
-    "teal": 1078,
-    "source": "contracts/privacy-pool.algo.ts:237"
+    "source": "contracts/privacy-pool.algo.ts:244",
+    "pc": [
+      1110,
+      1111,
+      1112
+    ]
   },
   {
     "teal": 1079,
-    "source": "contracts/privacy-pool.algo.ts:237"
+    "source": "contracts/privacy-pool.algo.ts:243",
+    "pc": [
+      1113,
+      1114,
+      1115
+    ]
+  },
+  {
+    "teal": 1080,
+    "source": "contracts/privacy-pool.algo.ts:243",
+    "pc": [
+      1116,
+      1117,
+      1118
+    ]
   },
   {
     "teal": 1083,
-    "source": "contracts/privacy-pool.algo.ts:238"
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1119,
+      1120,
+      1121
+    ]
   },
   {
     "teal": 1084,
-    "source": "contracts/privacy-pool.algo.ts:238"
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1122
+    ]
   },
   {
     "teal": 1085,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1086,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1087,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1088,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1089,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1090,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1091,
-    "source": "contracts/privacy-pool.algo.ts:238"
-  },
-  {
-    "teal": 1092,
-    "source": "contracts/privacy-pool.algo.ts:238"
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1123
+    ]
   },
   {
     "teal": 1093,
-    "source": "contracts/privacy-pool.algo.ts:238"
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1124,
+      1125,
+      1126
+    ]
+  },
+  {
+    "teal": 1096,
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1127
+    ]
   },
   {
     "teal": 1097,
-    "source": "contracts/privacy-pool.algo.ts:241"
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1128,
+      1129
+    ]
   },
   {
-    "teal": 1098,
-    "source": "contracts/privacy-pool.algo.ts:241"
+    "teal": 1101,
+    "source": "contracts/privacy-pool.algo.ts:252",
+    "pc": [
+      1130,
+      1131
+    ]
   },
   {
-    "teal": 1099,
-    "source": "contracts/privacy-pool.algo.ts:241"
+    "teal": 1102,
+    "source": "contracts/privacy-pool.algo.ts:252",
+    "pc": [
+      1132
+    ]
   },
   {
-    "teal": 1100,
-    "source": "contracts/privacy-pool.algo.ts:241"
+    "teal": 1103,
+    "source": "contracts/privacy-pool.algo.ts:252",
+    "pc": [
+      1133
+    ]
   },
   {
     "teal": 1104,
-    "source": "contracts/privacy-pool.algo.ts:242"
+    "source": "contracts/privacy-pool.algo.ts:252",
+    "pc": [
+      1134
+    ]
   },
   {
     "teal": 1105,
-    "source": "contracts/privacy-pool.algo.ts:242"
+    "source": "contracts/privacy-pool.algo.ts:252",
+    "pc": [
+      1135
+    ]
   },
   {
-    "teal": 1106,
-    "source": "contracts/privacy-pool.algo.ts:242"
+    "teal": 1109,
+    "source": "contracts/privacy-pool.algo.ts:253",
+    "pc": [
+      1136,
+      1137
+    ]
   },
   {
-    "teal": 1107,
-    "source": "contracts/privacy-pool.algo.ts:242"
+    "teal": 1110,
+    "source": "contracts/privacy-pool.algo.ts:253",
+    "pc": [
+      1138
+    ]
   },
   {
-    "teal": 1108,
-    "source": "contracts/privacy-pool.algo.ts:242"
+    "teal": 1111,
+    "source": "contracts/privacy-pool.algo.ts:253",
+    "pc": [
+      1139
+    ]
+  },
+  {
+    "teal": 1112,
+    "source": "contracts/privacy-pool.algo.ts:253",
+    "pc": [
+      1140
+    ]
   },
   {
     "teal": 1113,
-    "source": "contracts/privacy-pool.algo.ts:243"
-  },
-  {
-    "teal": 1114,
-    "source": "contracts/privacy-pool.algo.ts:243"
-  },
-  {
-    "teal": 1115,
-    "source": "contracts/privacy-pool.algo.ts:243"
-  },
-  {
-    "teal": 1116,
-    "source": "contracts/privacy-pool.algo.ts:243"
+    "source": "contracts/privacy-pool.algo.ts:253",
+    "pc": [
+      1141
+    ]
   },
   {
     "teal": 1117,
-    "source": "contracts/privacy-pool.algo.ts:243"
+    "source": "contracts/privacy-pool.algo.ts:254",
+    "pc": [
+      1142,
+      1143
+    ]
+  },
+  {
+    "teal": 1118,
+    "source": "contracts/privacy-pool.algo.ts:254",
+    "pc": [
+      1144
+    ]
+  },
+  {
+    "teal": 1119,
+    "source": "contracts/privacy-pool.algo.ts:254",
+    "pc": [
+      1145
+    ]
+  },
+  {
+    "teal": 1120,
+    "source": "contracts/privacy-pool.algo.ts:254",
+    "pc": [
+      1146
+    ]
+  },
+  {
+    "teal": 1121,
+    "source": "contracts/privacy-pool.algo.ts:254",
+    "pc": [
+      1147
+    ]
   },
   {
     "teal": 1125,
-    "source": "contracts/privacy-pool.algo.ts:244"
+    "source": "contracts/privacy-pool.algo.ts:258",
+    "pc": [
+      1148,
+      1149
+    ]
   },
   {
     "teal": 1126,
-    "source": "contracts/privacy-pool.algo.ts:244"
+    "source": "contracts/privacy-pool.algo.ts:258",
+    "pc": [
+      1150
+    ]
   },
   {
     "teal": 1127,
-    "source": "contracts/privacy-pool.algo.ts:244"
+    "source": "contracts/privacy-pool.algo.ts:258",
+    "pc": [
+      1151
+    ]
   },
   {
     "teal": 1128,
-    "source": "contracts/privacy-pool.algo.ts:244"
+    "source": "contracts/privacy-pool.algo.ts:258",
+    "pc": [
+      1152
+    ]
   },
   {
-    "teal": 1131,
-    "source": "contracts/privacy-pool.algo.ts:244",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}"
+    "teal": 1132,
+    "source": "contracts/privacy-pool.algo.ts:259",
+    "pc": [
+      1153,
+      1154
+    ]
+  },
+  {
+    "teal": 1133,
+    "source": "contracts/privacy-pool.algo.ts:259",
+    "pc": [
+      1155,
+      1156
+    ]
   },
   {
     "teal": 1134,
-    "source": "contracts/privacy-pool.algo.ts:244"
+    "source": "contracts/privacy-pool.algo.ts:259",
+    "pc": [
+      1157
+    ]
   },
   {
     "teal": 1135,
-    "source": "contracts/privacy-pool.algo.ts:245"
+    "source": "contracts/privacy-pool.algo.ts:259",
+    "pc": [
+      1158,
+      1159
+    ]
   },
   {
-    "teal": 1136,
-    "source": "contracts/privacy-pool.algo.ts:245"
+    "teal": 1142,
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1160,
+      1161
+    ]
   },
   {
-    "teal": 1137,
-    "source": "contracts/privacy-pool.algo.ts:245"
-  },
-  {
-    "teal": 1140,
-    "source": "contracts/privacy-pool.algo.ts:245",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}"
+    "teal": 1143,
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1162
+    ]
   },
   {
     "teal": 1144,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1163,
+      1164
+    ]
   },
   {
     "teal": 1145,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1165
+    ]
   },
   {
     "teal": 1146,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1166
+    ]
   },
   {
     "teal": 1147,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1167,
+      1168,
+      1169
+    ]
   },
   {
     "teal": 1148,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1170,
+      1171
+    ]
   },
   {
     "teal": 1149,
-    "source": "contracts/privacy-pool.algo.ts:247"
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1172,
+      1173
+    ]
   },
   {
     "teal": 1150,
-    "source": "contracts/privacy-pool.algo.ts:243"
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1174
+    ]
+  },
+  {
+    "teal": 1151,
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1175
+    ]
+  },
+  {
+    "teal": 1152,
+    "source": "contracts/privacy-pool.algo.ts:262",
+    "pc": [
+      1176
+    ]
+  },
+  {
+    "teal": 1155,
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1177
+    ]
+  },
+  {
+    "teal": 1156,
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1178,
+      1179,
+      1180
+    ]
+  },
+  {
+    "teal": 1157,
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1181,
+      1182
+    ]
+  },
+  {
+    "teal": 1158,
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1183,
+      1184
+    ]
   },
   {
     "teal": 1159,
-    "source": "contracts/privacy-pool.algo.ts:249"
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1185,
+      1186
+    ]
   },
   {
     "teal": 1160,
-    "source": "contracts/privacy-pool.algo.ts:249"
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1187
+    ]
   },
   {
     "teal": 1161,
-    "source": "contracts/privacy-pool.algo.ts:249"
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1188
+    ]
   },
   {
     "teal": 1162,
-    "source": "contracts/privacy-pool.algo.ts:249"
+    "source": "contracts/privacy-pool.algo.ts:263",
+    "pc": [
+      1189
+    ]
   },
   {
     "teal": 1165,
-    "source": "contracts/privacy-pool.algo.ts:249",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}"
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1190,
+      1191,
+      1192
+    ]
   },
   {
     "teal": 1168,
-    "source": "contracts/privacy-pool.algo.ts:249"
+    "source": "contracts/privacy-pool.algo.ts:261",
+    "pc": [
+      1193,
+      1194,
+      1195
+    ]
   },
   {
-    "teal": 1169,
-    "source": "contracts/privacy-pool.algo.ts:250"
-  },
-  {
-    "teal": 1170,
-    "source": "contracts/privacy-pool.algo.ts:250"
-  },
-  {
-    "teal": 1171,
-    "source": "contracts/privacy-pool.algo.ts:250"
+    "teal": 1173,
+    "source": "contracts/privacy-pool.algo.ts:267",
+    "pc": [
+      1196,
+      1197
+    ]
   },
   {
     "teal": 1174,
-    "source": "contracts/privacy-pool.algo.ts:250",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}"
+    "source": "contracts/privacy-pool.algo.ts:267",
+    "pc": [
+      1198,
+      1199
+    ]
+  },
+  {
+    "teal": 1175,
+    "source": "contracts/privacy-pool.algo.ts:267",
+    "pc": [
+      1200,
+      1201
+    ]
+  },
+  {
+    "teal": 1176,
+    "source": "contracts/privacy-pool.algo.ts:267",
+    "pc": [
+      1202
+    ]
   },
   {
     "teal": 1177,
-    "source": "contracts/privacy-pool.algo.ts:249"
-  },
-  {
-    "teal": 1178,
-    "source": "contracts/privacy-pool.algo.ts:251"
-  },
-  {
-    "teal": 1179,
-    "source": "contracts/privacy-pool.algo.ts:251"
-  },
-  {
-    "teal": 1180,
-    "source": "contracts/privacy-pool.algo.ts:251"
+    "source": "contracts/privacy-pool.algo.ts:267",
+    "pc": [
+      1203
+    ]
   },
   {
     "teal": 1181,
-    "source": "contracts/privacy-pool.algo.ts:251"
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1204,
+      1205
+    ]
+  },
+  {
+    "teal": 1182,
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1206,
+      1207
+    ]
+  },
+  {
+    "teal": 1183,
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1208,
+      1209
+    ]
   },
   {
     "teal": 1184,
-    "source": "contracts/privacy-pool.algo.ts:251",
-    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}"
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1210
+    ]
   },
   {
-    "teal": 1188,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "teal": 1185,
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1211
+    ]
   },
   {
-    "teal": 1189,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "teal": 1186,
+    "source": "contracts/privacy-pool.algo.ts:268",
+    "pc": [
+      1212
+    ]
   },
   {
     "teal": 1190,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "source": "contracts/privacy-pool.algo.ts:269",
+    "pc": [
+      1213,
+      1214
+    ]
   },
   {
     "teal": 1191,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "source": "contracts/privacy-pool.algo.ts:269",
+    "pc": [
+      1215,
+      1216
+    ]
   },
   {
     "teal": 1192,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "source": "contracts/privacy-pool.algo.ts:269",
+    "pc": [
+      1217,
+      1218
+    ]
   },
   {
     "teal": 1193,
-    "source": "contracts/privacy-pool.algo.ts:253"
+    "source": "contracts/privacy-pool.algo.ts:269",
+    "pc": [
+      1219
+    ]
   },
   {
-    "teal": 1198,
-    "source": "contracts/privacy-pool.algo.ts:257"
-  },
-  {
-    "teal": 1199,
-    "source": "contracts/privacy-pool.algo.ts:257"
-  },
-  {
-    "teal": 1200,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "teal": 1194,
+    "source": "contracts/privacy-pool.algo.ts:269",
+    "pc": [
+      1220
+    ]
   },
   {
     "teal": 1201,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1221,
+      1222
+    ]
   },
   {
     "teal": 1202,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1223,
+      1224
+    ]
   },
   {
     "teal": 1203,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1225
+    ]
   },
   {
     "teal": 1204,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1226
+    ]
   },
   {
     "teal": 1205,
-    "source": "contracts/privacy-pool.algo.ts:257"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1227,
+      1228,
+      1229
+    ]
   },
   {
-    "teal": 1209,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "teal": 1206,
+    "source": "contracts/privacy-pool.algo.ts:276",
+    "pc": [
+      1230,
+      1231
+    ]
   },
   {
-    "teal": 1210,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "teal": 1207,
+    "source": "contracts/privacy-pool.algo.ts:276",
+    "pc": [
+      1232,
+      1233
+    ]
+  },
+  {
+    "teal": 1208,
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1234,
+      1235,
+      1236
+    ]
   },
   {
     "teal": 1211,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "source": "contracts/privacy-pool.algo.ts:277",
+    "pc": [
+      1237,
+      1238
+    ]
   },
   {
     "teal": 1212,
-    "source": "contracts/privacy-pool.algo.ts:258"
-  },
-  {
-    "teal": 1213,
-    "source": "contracts/privacy-pool.algo.ts:258"
-  },
-  {
-    "teal": 1214,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "source": "contracts/privacy-pool.algo.ts:277",
+    "pc": [
+      1239,
+      1240,
+      1241
+    ]
   },
   {
     "teal": 1215,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "source": "contracts/privacy-pool.algo.ts:275",
+    "pc": [
+      1242,
+      1243
+    ]
   },
   {
-    "teal": 1216,
-    "source": "contracts/privacy-pool.algo.ts:258"
+    "teal": 1219,
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1244,
+      1245
+    ]
   },
   {
     "teal": 1220,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1246,
+      1247,
+      1248
+    ]
   },
   {
     "teal": 1221,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1249
+    ]
   },
   {
     "teal": 1222,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1250
+    ]
   },
   {
     "teal": 1223,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1251
+    ]
   },
   {
     "teal": 1224,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "source": "contracts/privacy-pool.algo.ts:278",
+    "pc": [
+      1252
+    ]
   },
   {
-    "teal": 1225,
-    "source": "contracts/privacy-pool.algo.ts:261"
+    "teal": 1228,
+    "source": "contracts/privacy-pool.algo.ts:279",
+    "pc": [
+      1253,
+      1254
+    ]
   },
   {
     "teal": 1229,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:279",
+    "pc": [
+      1255,
+      1256,
+      1257
+    ]
   },
   {
     "teal": 1230,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:279",
+    "pc": [
+      1258,
+      1259
+    ]
   },
   {
     "teal": 1231,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:279",
+    "pc": [
+      1260
+    ]
   },
   {
     "teal": 1232,
-    "source": "contracts/privacy-pool.algo.ts:262"
-  },
-  {
-    "teal": 1233,
-    "source": "contracts/privacy-pool.algo.ts:262"
-  },
-  {
-    "teal": 1234,
-    "source": "contracts/privacy-pool.algo.ts:262"
-  },
-  {
-    "teal": 1235,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:279",
+    "pc": [
+      1261
+    ]
   },
   {
     "teal": 1236,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:280",
+    "pc": [
+      1262,
+      1263
+    ]
   },
   {
     "teal": 1237,
-    "source": "contracts/privacy-pool.algo.ts:262"
+    "source": "contracts/privacy-pool.algo.ts:280",
+    "pc": [
+      1264,
+      1265,
+      1266
+    ]
   },
   {
-    "teal": 1241,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "teal": 1238,
+    "source": "contracts/privacy-pool.algo.ts:280",
+    "pc": [
+      1267,
+      1268
+    ]
   },
   {
-    "teal": 1242,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "teal": 1239,
+    "source": "contracts/privacy-pool.algo.ts:280",
+    "pc": [
+      1269
+    ]
   },
   {
-    "teal": 1243,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "teal": 1240,
+    "source": "contracts/privacy-pool.algo.ts:280",
+    "pc": [
+      1270
+    ]
   },
   {
     "teal": 1244,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "source": "contracts/privacy-pool.algo.ts:281",
+    "pc": [
+      1271,
+      1272
+    ]
   },
   {
     "teal": 1245,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "source": "contracts/privacy-pool.algo.ts:281",
+    "pc": [
+      1273
+    ]
   },
   {
     "teal": 1246,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "source": "contracts/privacy-pool.algo.ts:281",
+    "pc": [
+      1274,
+      1275
+    ]
   },
   {
-    "teal": 1247,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "teal": 1250,
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1276,
+      1277
+    ]
   },
   {
-    "teal": 1248,
-    "source": "contracts/privacy-pool.algo.ts:263"
+    "teal": 1251,
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1278,
+      1279,
+      1280
+    ]
   },
   {
     "teal": 1252,
-    "source": "contracts/privacy-pool.algo.ts:264"
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1281,
+      1282
+    ]
   },
   {
     "teal": 1253,
-    "source": "contracts/privacy-pool.algo.ts:264"
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1283,
+      1284
+    ]
   },
   {
     "teal": 1254,
-    "source": "contracts/privacy-pool.algo.ts:264"
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1285
+    ]
   },
   {
-    "teal": 1258,
-    "source": "contracts/privacy-pool.algo.ts:265"
+    "teal": 1255,
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1286
+    ]
   },
   {
-    "teal": 1259,
-    "source": "contracts/privacy-pool.algo.ts:265"
+    "teal": 1256,
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1287
+    ]
   },
   {
-    "teal": 1260,
-    "source": "contracts/privacy-pool.algo.ts:265"
+    "teal": 1257,
+    "source": "contracts/privacy-pool.algo.ts:282",
+    "pc": [
+      1288
+    ]
   },
   {
     "teal": 1261,
-    "source": "contracts/privacy-pool.algo.ts:265"
+    "source": "contracts/privacy-pool.algo.ts:283",
+    "pc": [
+      1289,
+      1290
+    ]
   },
   {
     "teal": 1262,
-    "source": "contracts/privacy-pool.algo.ts:265"
+    "source": "contracts/privacy-pool.algo.ts:283",
+    "pc": [
+      1291,
+      1292,
+      1293
+    ]
   },
   {
-    "teal": 1266,
-    "source": "contracts/privacy-pool.algo.ts:269"
+    "teal": 1263,
+    "source": "contracts/privacy-pool.algo.ts:283",
+    "pc": [
+      1294,
+      1295
+    ]
   },
   {
-    "teal": 1267,
-    "source": "contracts/privacy-pool.algo.ts:269"
+    "teal": 1264,
+    "source": "contracts/privacy-pool.algo.ts:283",
+    "pc": [
+      1296
+    ]
   },
   {
-    "teal": 1268,
-    "source": "contracts/privacy-pool.algo.ts:269"
+    "teal": 1265,
+    "source": "contracts/privacy-pool.algo.ts:283",
+    "pc": [
+      1297
+    ]
+  },
+  {
+    "teal": 1269,
+    "source": "contracts/privacy-pool.algo.ts:284",
+    "pc": [
+      1298,
+      1299
+    ]
+  },
+  {
+    "teal": 1270,
+    "source": "contracts/privacy-pool.algo.ts:284",
+    "pc": [
+      1300,
+      1301,
+      1302
+    ]
+  },
+  {
+    "teal": 1271,
+    "source": "contracts/privacy-pool.algo.ts:284",
+    "pc": [
+      1303,
+      1304
+    ]
   },
   {
     "teal": 1272,
-    "source": "contracts/privacy-pool.algo.ts:270"
+    "source": "contracts/privacy-pool.algo.ts:284",
+    "pc": [
+      1305
+    ]
   },
   {
     "teal": 1273,
-    "source": "contracts/privacy-pool.algo.ts:270"
+    "source": "contracts/privacy-pool.algo.ts:284",
+    "pc": [
+      1306
+    ]
   },
   {
-    "teal": 1274,
-    "source": "contracts/privacy-pool.algo.ts:270"
+    "teal": 1277,
+    "source": "contracts/privacy-pool.algo.ts:285",
+    "pc": [
+      1307,
+      1308
+    ]
   },
   {
-    "teal": 1275,
-    "source": "contracts/privacy-pool.algo.ts:270"
+    "teal": 1278,
+    "source": "contracts/privacy-pool.algo.ts:285",
+    "pc": [
+      1309,
+      1310,
+      1311
+    ]
+  },
+  {
+    "teal": 1279,
+    "source": "contracts/privacy-pool.algo.ts:285",
+    "pc": [
+      1312,
+      1313
+    ]
   },
   {
     "teal": 1280,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:285",
+    "pc": [
+      1314
+    ]
   },
   {
     "teal": 1281,
-    "source": "contracts/privacy-pool.algo.ts:271"
-  },
-  {
-    "teal": 1282,
-    "source": "contracts/privacy-pool.algo.ts:271"
-  },
-  {
-    "teal": 1283,
-    "source": "contracts/privacy-pool.algo.ts:271"
-  },
-  {
-    "teal": 1284,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:285",
+    "pc": [
+      1315
+    ]
   },
   {
     "teal": 1285,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1316,
+      1317
+    ]
   },
   {
     "teal": 1286,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1318,
+      1319,
+      1320
+    ]
   },
   {
     "teal": 1287,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1321,
+      1322
+    ]
   },
   {
     "teal": 1288,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1323,
+      1324
+    ]
   },
   {
     "teal": 1289,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1325
+    ]
   },
   {
     "teal": 1290,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1326
+    ]
   },
   {
     "teal": 1291,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1327
+    ]
   },
   {
     "teal": 1292,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "source": "contracts/privacy-pool.algo.ts:286",
+    "pc": [
+      1328
+    ]
   },
   {
-    "teal": 1295,
-    "source": "contracts/privacy-pool.algo.ts:271"
+    "teal": 1296,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1329,
+      1330
+    ]
+  },
+  {
+    "teal": 1297,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1331,
+      1332,
+      1333
+    ]
+  },
+  {
+    "teal": 1298,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1334
+    ]
+  },
+  {
+    "teal": 1299,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1335
+    ]
   },
   {
     "teal": 1300,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1336,
+      1337
+    ]
   },
   {
     "teal": 1301,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1338
+    ]
   },
   {
     "teal": 1302,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1339
+    ]
   },
   {
     "teal": 1303,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1340
+    ]
   },
   {
     "teal": 1304,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1341
+    ]
   },
   {
-    "teal": 1307,
-    "source": "contracts/privacy-pool.algo.ts:272",
-    "errorMessage": "box value does not exist: this.rootHistory(slot).value"
+    "teal": 1305,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1342
+    ]
   },
   {
-    "teal": 1308,
-    "source": "contracts/privacy-pool.algo.ts:272"
+    "teal": 1306,
+    "source": "contracts/privacy-pool.algo.ts:287",
+    "pc": [
+      1343
+    ]
+  },
+  {
+    "teal": 1310,
+    "source": "contracts/privacy-pool.algo.ts:290",
+    "pc": [
+      1344,
+      1345
+    ]
+  },
+  {
+    "teal": 1311,
+    "source": "contracts/privacy-pool.algo.ts:290",
+    "pc": [
+      1346
+    ]
+  },
+  {
+    "teal": 1312,
+    "source": "contracts/privacy-pool.algo.ts:290",
+    "pc": [
+      1347
+    ]
   },
   {
     "teal": 1313,
-    "source": "contracts/privacy-pool.algo.ts:273"
-  },
-  {
-    "teal": 1314,
-    "source": "contracts/privacy-pool.algo.ts:273"
-  },
-  {
-    "teal": 1315,
-    "source": "contracts/privacy-pool.algo.ts:273"
-  },
-  {
-    "teal": 1316,
-    "source": "contracts/privacy-pool.algo.ts:273"
+    "source": "contracts/privacy-pool.algo.ts:290",
+    "pc": [
+      1348,
+      1349
+    ]
   },
   {
     "teal": 1317,
-    "source": "contracts/privacy-pool.algo.ts:273"
+    "source": "contracts/privacy-pool.algo.ts:291",
+    "pc": [
+      1350,
+      1351
+    ]
   },
   {
     "teal": 1318,
-    "source": "contracts/privacy-pool.algo.ts:273"
+    "source": "contracts/privacy-pool.algo.ts:291",
+    "pc": [
+      1352,
+      1353
+    ]
   },
   {
     "teal": 1319,
-    "source": "contracts/privacy-pool.algo.ts:273"
+    "source": "contracts/privacy-pool.algo.ts:291",
+    "pc": [
+      1354,
+      1355
+    ]
   },
   {
-    "teal": 1324,
-    "source": "contracts/privacy-pool.algo.ts:274"
+    "teal": 1320,
+    "source": "contracts/privacy-pool.algo.ts:291",
+    "pc": [
+      1356
+    ]
   },
   {
-    "teal": 1325,
-    "source": "contracts/privacy-pool.algo.ts:274"
+    "teal": 1321,
+    "source": "contracts/privacy-pool.algo.ts:291",
+    "pc": [
+      1357
+    ]
   },
   {
     "teal": 1326,
-    "source": "contracts/privacy-pool.algo.ts:274"
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1358
+    ]
   },
   {
     "teal": 1327,
-    "source": "contracts/privacy-pool.algo.ts:274"
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1359
+    ]
   },
   {
-    "teal": 1334,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "teal": 1328,
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1360
+    ]
   },
   {
-    "teal": 1335,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "teal": 1329,
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1361
+    ]
   },
   {
-    "teal": 1336,
-    "source": "contracts/privacy-pool.algo.ts:277"
-  },
-  {
-    "teal": 1337,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "teal": 1330,
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1362,
+      1363,
+      1364
+    ]
   },
   {
     "teal": 1338,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "pc": [
+      1365,
+      1366
+    ]
   },
   {
     "teal": 1339,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "pc": [
+      1367,
+      1368
+    ]
   },
   {
     "teal": 1340,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "pc": [
+      1369
+    ]
   },
   {
     "teal": 1341,
-    "source": "contracts/privacy-pool.algo.ts:277"
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "pc": [
+      1370
+    ]
   },
   {
-    "teal": 1342,
-    "source": "contracts/privacy-pool.algo.ts:277"
-  },
-  {
-    "teal": 1346,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "teal": 1344,
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"pay\"}",
+    "pc": [
+      1371
+    ]
   },
   {
     "teal": 1347,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "source": "contracts/privacy-pool.algo.ts:293",
+    "pc": [
+      1372,
+      1373
+    ]
   },
   {
     "teal": 1348,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "source": "contracts/privacy-pool.algo.ts:294",
+    "pc": [
+      1374,
+      1375
+    ]
   },
   {
     "teal": 1349,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "source": "contracts/privacy-pool.algo.ts:294",
+    "pc": [
+      1376,
+      1377
+    ]
   },
   {
     "teal": 1350,
-    "source": "contracts/privacy-pool.algo.ts:278"
-  },
-  {
-    "teal": 1351,
-    "source": "contracts/privacy-pool.algo.ts:278"
-  },
-  {
-    "teal": 1352,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "source": "contracts/privacy-pool.algo.ts:294",
+    "pc": [
+      1378
+    ]
   },
   {
     "teal": 1353,
-    "source": "contracts/privacy-pool.algo.ts:278"
+    "source": "contracts/privacy-pool.algo.ts:294",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"receiver\",\"expected\":\"this.app.address\"}",
+    "pc": [
+      1379
+    ]
   },
   {
     "teal": 1357,
-    "source": "contracts/privacy-pool.algo.ts:279"
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1380,
+      1381
+    ]
   },
   {
     "teal": 1358,
-    "source": "contracts/privacy-pool.algo.ts:279"
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1382,
+      1383
+    ]
   },
   {
     "teal": 1359,
-    "source": "contracts/privacy-pool.algo.ts:279"
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1384
+    ]
   },
   {
     "teal": 1360,
-    "source": "contracts/privacy-pool.algo.ts:279"
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1385
+    ]
   },
   {
     "teal": 1361,
-    "source": "contracts/privacy-pool.algo.ts:279"
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1386
+    ]
   },
   {
-    "teal": 1365,
-    "source": "contracts/privacy-pool.algo.ts:282"
+    "teal": 1362,
+    "source": "contracts/privacy-pool.algo.ts:296",
+    "pc": [
+      1387
+    ]
   },
   {
-    "teal": 1366,
-    "source": "contracts/privacy-pool.algo.ts:282"
-  },
-  {
-    "teal": 1367,
-    "source": "contracts/privacy-pool.algo.ts:282"
-  },
-  {
-    "teal": 1371,
-    "source": "contracts/privacy-pool.algo.ts:283"
+    "teal": 1363,
+    "source": "contracts/privacy-pool.algo.ts:292",
+    "pc": [
+      1388,
+      1389,
+      1390
+    ]
   },
   {
     "teal": 1372,
-    "source": "contracts/privacy-pool.algo.ts:283"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1391,
+      1392
+    ]
   },
   {
     "teal": 1373,
-    "source": "contracts/privacy-pool.algo.ts:283"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1393,
+      1394
+    ]
   },
   {
     "teal": 1374,
-    "source": "contracts/privacy-pool.algo.ts:283"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1395
+    ]
+  },
+  {
+    "teal": 1375,
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1396
+    ]
   },
   {
     "teal": 1378,
-    "source": "contracts/privacy-pool.algo.ts:284"
-  },
-  {
-    "teal": 1379,
-    "source": "contracts/privacy-pool.algo.ts:284"
-  },
-  {
-    "teal": 1380,
-    "source": "contracts/privacy-pool.algo.ts:284"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"typeEnum\",\"expected\":\"axfer\"}",
+    "pc": [
+      1397
+    ]
   },
   {
     "teal": 1381,
-    "source": "contracts/privacy-pool.algo.ts:284"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1398,
+      1399
+    ]
   },
   {
-    "teal": 1386,
-    "source": "contracts/privacy-pool.algo.ts:286"
+    "teal": 1382,
+    "source": "contracts/privacy-pool.algo.ts:299",
+    "pc": [
+      1400,
+      1401
+    ]
+  },
+  {
+    "teal": 1383,
+    "source": "contracts/privacy-pool.algo.ts:299",
+    "pc": [
+      1402,
+      1403
+    ]
+  },
+  {
+    "teal": 1384,
+    "source": "contracts/privacy-pool.algo.ts:299",
+    "pc": [
+      1404
+    ]
   },
   {
     "teal": 1387,
-    "source": "contracts/privacy-pool.algo.ts:286"
-  },
-  {
-    "teal": 1388,
-    "source": "contracts/privacy-pool.algo.ts:286"
-  },
-  {
-    "teal": 1389,
-    "source": "contracts/privacy-pool.algo.ts:286"
+    "source": "contracts/privacy-pool.algo.ts:299",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"assetReceiver\",\"expected\":\"this.app.address\"}",
+    "pc": [
+      1405
+    ]
   },
   {
     "teal": 1390,
-    "source": "contracts/privacy-pool.algo.ts:286"
+    "source": "contracts/privacy-pool.algo.ts:298",
+    "pc": [
+      1406,
+      1407
+    ]
   },
   {
-    "teal": 1399,
-    "source": "contracts/privacy-pool.algo.ts:287"
+    "teal": 1391,
+    "source": "contracts/privacy-pool.algo.ts:300",
+    "pc": [
+      1408,
+      1409
+    ]
   },
   {
-    "teal": 1400,
-    "source": "contracts/privacy-pool.algo.ts:287"
+    "teal": 1392,
+    "source": "contracts/privacy-pool.algo.ts:300",
+    "pc": [
+      1410
+    ]
+  },
+  {
+    "teal": 1393,
+    "source": "contracts/privacy-pool.algo.ts:300",
+    "pc": [
+      1411
+    ]
+  },
+  {
+    "teal": 1394,
+    "source": "contracts/privacy-pool.algo.ts:300",
+    "pc": [
+      1412
+    ]
+  },
+  {
+    "teal": 1397,
+    "source": "contracts/privacy-pool.algo.ts:300",
+    "errorMessage": "transaction verification failed: {\"txn\":\"payTxn\",\"field\":\"xferAsset\",\"expected\":\"AssetID.fromUint64(this.assetId.value)\"}",
+    "pc": [
+      1413
+    ]
   },
   {
     "teal": 1401,
-    "source": "contracts/privacy-pool.algo.ts:287"
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1414,
+      1415
+    ]
+  },
+  {
+    "teal": 1402,
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1416,
+      1417
+    ]
+  },
+  {
+    "teal": 1403,
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1418
+    ]
+  },
+  {
+    "teal": 1404,
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1419
+    ]
   },
   {
     "teal": 1405,
-    "source": "contracts/privacy-pool.algo.ts:288"
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1420
+    ]
   },
   {
     "teal": 1406,
-    "source": "contracts/privacy-pool.algo.ts:288"
-  },
-  {
-    "teal": 1410,
-    "source": "contracts/privacy-pool.algo.ts:289"
+    "source": "contracts/privacy-pool.algo.ts:302",
+    "pc": [
+      1421
+    ]
   },
   {
     "teal": 1411,
-    "source": "contracts/privacy-pool.algo.ts:289"
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1422,
+      1423
+    ]
+  },
+  {
+    "teal": 1412,
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1424,
+      1425
+    ]
+  },
+  {
+    "teal": 1413,
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1426
+    ]
+  },
+  {
+    "teal": 1414,
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1427
+    ]
   },
   {
     "teal": 1415,
-    "source": "contracts/privacy-pool.algo.ts:290"
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1428
+    ]
   },
   {
     "teal": 1416,
-    "source": "contracts/privacy-pool.algo.ts:290"
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1429
+    ]
   },
   {
-    "teal": 1419,
-    "source": "contracts/privacy-pool.algo.ts:287"
+    "teal": 1417,
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1430
+    ]
   },
   {
-    "teal": 1420,
-    "source": "contracts/privacy-pool.algo.ts:286"
+    "teal": 1418,
+    "source": "contracts/privacy-pool.algo.ts:306",
+    "pc": [
+      1431
+    ]
   },
   {
-    "teal": 1430,
-    "source": "contracts/privacy-pool.algo.ts:293"
+    "teal": 1422,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1432,
+      1433
+    ]
   },
   {
-    "teal": 1431,
-    "source": "contracts/privacy-pool.algo.ts:293"
+    "teal": 1423,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1434,
+      1435
+    ]
   },
   {
-    "teal": 1432,
-    "source": "contracts/privacy-pool.algo.ts:293"
+    "teal": 1424,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1436
+    ]
+  },
+  {
+    "teal": 1425,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1437
+    ]
+  },
+  {
+    "teal": 1426,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1438
+    ]
+  },
+  {
+    "teal": 1427,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1439
+    ]
+  },
+  {
+    "teal": 1428,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1440,
+      1441
+    ]
+  },
+  {
+    "teal": 1429,
+    "source": "contracts/privacy-pool.algo.ts:307",
+    "pc": [
+      1442
+    ]
+  },
+  {
+    "teal": 1433,
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1443,
+      1444
+    ]
+  },
+  {
+    "teal": 1434,
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1445
+    ]
+  },
+  {
+    "teal": 1435,
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1446,
+      1447
+    ]
   },
   {
     "teal": 1436,
-    "source": "contracts/privacy-pool.algo.ts:294"
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1448
+    ]
   },
   {
     "teal": 1437,
-    "source": "contracts/privacy-pool.algo.ts:294"
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1449
+    ]
   },
   {
-    "teal": 1441,
-    "source": "contracts/privacy-pool.algo.ts:295"
+    "teal": 1438,
+    "source": "contracts/privacy-pool.algo.ts:310",
+    "pc": [
+      1450
+    ]
   },
   {
     "teal": 1442,
-    "source": "contracts/privacy-pool.algo.ts:295"
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1451,
+      1452
+    ]
+  },
+  {
+    "teal": 1443,
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1453,
+      1454
+    ]
+  },
+  {
+    "teal": 1444,
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1455
+    ]
+  },
+  {
+    "teal": 1445,
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1456
+    ]
   },
   {
     "teal": 1446,
-    "source": "contracts/privacy-pool.algo.ts:296"
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1457
+    ]
   },
   {
     "teal": 1447,
-    "source": "contracts/privacy-pool.algo.ts:296"
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1458
+    ]
   },
   {
     "teal": 1448,
-    "source": "contracts/privacy-pool.algo.ts:296"
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1459
+    ]
   },
   {
-    "teal": 1452,
-    "source": "contracts/privacy-pool.algo.ts:297"
+    "teal": 1449,
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1460,
+      1461
+    ]
   },
   {
-    "teal": 1453,
-    "source": "contracts/privacy-pool.algo.ts:297"
+    "teal": 1450,
+    "source": "contracts/privacy-pool.algo.ts:311",
+    "pc": [
+      1462
+    ]
+  },
+  {
+    "teal": 1454,
+    "source": "contracts/privacy-pool.algo.ts:312",
+    "pc": [
+      1463
+    ]
+  },
+  {
+    "teal": 1455,
+    "source": "contracts/privacy-pool.algo.ts:312",
+    "pc": [
+      1464,
+      1465
+    ]
   },
   {
     "teal": 1456,
-    "source": "contracts/privacy-pool.algo.ts:293"
+    "source": "contracts/privacy-pool.algo.ts:312",
+    "pc": [
+      1466
+    ]
+  },
+  {
+    "teal": 1460,
+    "source": "contracts/privacy-pool.algo.ts:313",
+    "pc": [
+      1467,
+      1468
+    ]
+  },
+  {
+    "teal": 1461,
+    "source": "contracts/privacy-pool.algo.ts:313",
+    "pc": [
+      1469,
+      1470
+    ]
   },
   {
     "teal": 1462,
-    "source": "contracts/privacy-pool.algo.ts:301"
+    "source": "contracts/privacy-pool.algo.ts:313",
+    "pc": [
+      1471
+    ]
   },
   {
     "teal": 1463,
-    "source": "contracts/privacy-pool.algo.ts:301"
+    "source": "contracts/privacy-pool.algo.ts:313",
+    "pc": [
+      1472
+    ]
   },
   {
     "teal": 1464,
-    "source": "contracts/privacy-pool.algo.ts:301"
+    "source": "contracts/privacy-pool.algo.ts:313",
+    "pc": [
+      1473
+    ]
   },
   {
-    "teal": 1465,
-    "source": "contracts/privacy-pool.algo.ts:301"
+    "teal": 1468,
+    "source": "contracts/privacy-pool.algo.ts:317",
+    "pc": [
+      1474,
+      1475
+    ]
   },
   {
-    "teal": 1471,
-    "source": "contracts/privacy-pool.algo.ts:302"
+    "teal": 1469,
+    "source": "contracts/privacy-pool.algo.ts:317",
+    "pc": [
+      1476
+    ]
   },
   {
-    "teal": 1472,
-    "source": "contracts/privacy-pool.algo.ts:302"
-  },
-  {
-    "teal": 1473,
-    "source": "contracts/privacy-pool.algo.ts:302"
+    "teal": 1470,
+    "source": "contracts/privacy-pool.algo.ts:317",
+    "pc": [
+      1477,
+      1478
+    ]
   },
   {
     "teal": 1474,
-    "source": "contracts/privacy-pool.algo.ts:302"
+    "source": "contracts/privacy-pool.algo.ts:318",
+    "pc": [
+      1479,
+      1480
+    ]
   },
   {
     "teal": 1475,
-    "source": "contracts/privacy-pool.algo.ts:302"
+    "source": "contracts/privacy-pool.algo.ts:318",
+    "pc": [
+      1481,
+      1482
+    ]
+  },
+  {
+    "teal": 1476,
+    "source": "contracts/privacy-pool.algo.ts:318",
+    "pc": [
+      1483
+    ]
+  },
+  {
+    "teal": 1477,
+    "source": "contracts/privacy-pool.algo.ts:318",
+    "pc": [
+      1484,
+      1485
+    ]
+  },
+  {
+    "teal": 1482,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1486,
+      1487
+    ]
+  },
+  {
+    "teal": 1483,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1488,
+      1489
+    ]
   },
   {
     "teal": 1484,
-    "source": "contracts/privacy-pool.algo.ts:303"
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1490
+    ]
   },
   {
     "teal": 1485,
-    "source": "contracts/privacy-pool.algo.ts:303"
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1491
+    ]
   },
   {
     "teal": 1486,
-    "source": "contracts/privacy-pool.algo.ts:303"
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1492,
+      1493,
+      1494
+    ]
+  },
+  {
+    "teal": 1487,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1495
+    ]
+  },
+  {
+    "teal": 1488,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1496,
+      1497
+    ]
+  },
+  {
+    "teal": 1489,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1498
+    ]
   },
   {
     "teal": 1490,
-    "source": "contracts/privacy-pool.algo.ts:304"
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1499
+    ]
   },
   {
     "teal": 1491,
-    "source": "contracts/privacy-pool.algo.ts:304"
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1500
+    ]
   },
   {
-    "teal": 1495,
-    "source": "contracts/privacy-pool.algo.ts:305"
+    "teal": 1492,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1501
+    ]
   },
   {
-    "teal": 1496,
-    "source": "contracts/privacy-pool.algo.ts:305"
+    "teal": 1493,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1502
+    ]
   },
   {
-    "teal": 1500,
-    "source": "contracts/privacy-pool.algo.ts:306"
+    "teal": 1494,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1503
+    ]
   },
   {
-    "teal": 1501,
-    "source": "contracts/privacy-pool.algo.ts:306"
+    "teal": 1497,
+    "source": "contracts/privacy-pool.algo.ts:319",
+    "pc": [
+      1504,
+      1505,
+      1506
+    ]
+  },
+  {
+    "teal": 1502,
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1507
+    ]
+  },
+  {
+    "teal": 1503,
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1508,
+      1509
+    ]
   },
   {
     "teal": 1504,
-    "source": "contracts/privacy-pool.algo.ts:303"
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1510
+    ]
   },
   {
     "teal": 1505,
-    "source": "contracts/privacy-pool.algo.ts:302"
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1511
+    ]
+  },
+  {
+    "teal": 1506,
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1512
+    ]
+  },
+  {
+    "teal": 1509,
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "errorMessage": "box value does not exist: this.rootHistory(slot).value",
+    "pc": [
+      1513
+    ]
+  },
+  {
+    "teal": 1510,
+    "source": "contracts/privacy-pool.algo.ts:320",
+    "pc": [
+      1514,
+      1515
+    ]
   },
   {
     "teal": 1515,
-    "source": "contracts/privacy-pool.algo.ts:309"
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1516,
+      1517
+    ]
   },
   {
     "teal": 1516,
-    "source": "contracts/privacy-pool.algo.ts:309"
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1518,
+      1519
+    ]
   },
   {
     "teal": 1517,
-    "source": "contracts/privacy-pool.algo.ts:309"
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1520
+    ]
+  },
+  {
+    "teal": 1518,
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1521
+    ]
+  },
+  {
+    "teal": 1519,
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1522
+    ]
+  },
+  {
+    "teal": 1520,
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1523
+    ]
   },
   {
     "teal": 1521,
-    "source": "contracts/privacy-pool.algo.ts:310"
-  },
-  {
-    "teal": 1522,
-    "source": "contracts/privacy-pool.algo.ts:310"
+    "source": "contracts/privacy-pool.algo.ts:321",
+    "pc": [
+      1524,
+      1525,
+      1526
+    ]
   },
   {
     "teal": 1526,
-    "source": "contracts/privacy-pool.algo.ts:311"
+    "source": "contracts/privacy-pool.algo.ts:322",
+    "pc": [
+      1527,
+      1528
+    ]
   },
   {
     "teal": 1527,
-    "source": "contracts/privacy-pool.algo.ts:311"
+    "source": "contracts/privacy-pool.algo.ts:322",
+    "pc": [
+      1529,
+      1530
+    ]
   },
   {
-    "teal": 1531,
-    "source": "contracts/privacy-pool.algo.ts:312"
+    "teal": 1528,
+    "source": "contracts/privacy-pool.algo.ts:322",
+    "pc": [
+      1531
+    ]
   },
   {
-    "teal": 1532,
-    "source": "contracts/privacy-pool.algo.ts:312"
+    "teal": 1529,
+    "source": "contracts/privacy-pool.algo.ts:322",
+    "pc": [
+      1532
+    ]
   },
   {
-    "teal": 1533,
-    "source": "contracts/privacy-pool.algo.ts:312"
+    "teal": 1536,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1533
+    ]
   },
   {
     "teal": 1537,
-    "source": "contracts/privacy-pool.algo.ts:313"
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1534,
+      1535
+    ]
   },
   {
     "teal": 1538,
-    "source": "contracts/privacy-pool.algo.ts:313"
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1536
+    ]
+  },
+  {
+    "teal": 1539,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1537
+    ]
+  },
+  {
+    "teal": 1540,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1538
+    ]
   },
   {
     "teal": 1541,
-    "source": "contracts/privacy-pool.algo.ts:309"
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1539
+    ]
+  },
+  {
+    "teal": 1542,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1540
+    ]
+  },
+  {
+    "teal": 1543,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1541,
+      1542
+    ]
+  },
+  {
+    "teal": 1544,
+    "source": "contracts/privacy-pool.algo.ts:325",
+    "pc": [
+      1543
+    ]
   },
   {
     "teal": 1548,
-    "source": "contracts/privacy-pool.algo.ts:318"
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1544,
+      1545
+    ]
   },
   {
     "teal": 1549,
-    "source": "contracts/privacy-pool.algo.ts:318"
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1546,
+      1547
+    ]
   },
   {
     "teal": 1550,
-    "source": "contracts/privacy-pool.algo.ts:318"
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1548
+    ]
   },
   {
     "teal": 1551,
-    "source": "contracts/privacy-pool.algo.ts:318"
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1549
+    ]
   },
   {
     "teal": 1552,
-    "source": "contracts/privacy-pool.algo.ts:204"
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1550
+    ]
   },
   {
-    "teal": 1558,
-    "source": "contracts/privacy-pool.algo.ts:324"
+    "teal": 1553,
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1551
+    ]
+  },
+  {
+    "teal": 1554,
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1552,
+      1553
+    ]
+  },
+  {
+    "teal": 1555,
+    "source": "contracts/privacy-pool.algo.ts:326",
+    "pc": [
+      1554
+    ]
+  },
+  {
+    "teal": 1559,
+    "source": "contracts/privacy-pool.algo.ts:327",
+    "pc": [
+      1555,
+      1556
+    ]
+  },
+  {
+    "teal": 1560,
+    "source": "contracts/privacy-pool.algo.ts:327",
+    "pc": [
+      1557,
+      1558
+    ]
+  },
+  {
+    "teal": 1561,
+    "source": "contracts/privacy-pool.algo.ts:327",
+    "pc": [
+      1559
+    ]
+  },
+  {
+    "teal": 1562,
+    "source": "contracts/privacy-pool.algo.ts:327",
+    "pc": [
+      1560
+    ]
   },
   {
     "teal": 1563,
-    "source": "contracts/privacy-pool.algo.ts:325"
-  },
-  {
-    "teal": 1564,
-    "source": "contracts/privacy-pool.algo.ts:325"
-  },
-  {
-    "teal": 1565,
-    "source": "contracts/privacy-pool.algo.ts:325"
-  },
-  {
-    "teal": 1566,
-    "source": "contracts/privacy-pool.algo.ts:325"
+    "source": "contracts/privacy-pool.algo.ts:327",
+    "pc": [
+      1561
+    ]
   },
   {
     "teal": 1567,
-    "source": "contracts/privacy-pool.algo.ts:325"
+    "source": "contracts/privacy-pool.algo.ts:330",
+    "pc": [
+      1562
+    ]
   },
   {
-    "teal": 1572,
-    "source": "contracts/privacy-pool.algo.ts:325"
+    "teal": 1568,
+    "source": "contracts/privacy-pool.algo.ts:330",
+    "pc": [
+      1563
+    ]
+  },
+  {
+    "teal": 1569,
+    "source": "contracts/privacy-pool.algo.ts:330",
+    "pc": [
+      1564,
+      1565
+    ]
   },
   {
     "teal": 1573,
-    "source": "contracts/privacy-pool.algo.ts:325"
+    "source": "contracts/privacy-pool.algo.ts:331",
+    "pc": [
+      1566,
+      1567
+    ]
   },
   {
-    "teal": 1578,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "teal": 1574,
+    "source": "contracts/privacy-pool.algo.ts:331",
+    "pc": [
+      1568,
+      1569
+    ]
   },
   {
-    "teal": 1579,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "teal": 1575,
+    "source": "contracts/privacy-pool.algo.ts:331",
+    "pc": [
+      1570
+    ]
+  },
+  {
+    "teal": 1576,
+    "source": "contracts/privacy-pool.algo.ts:331",
+    "pc": [
+      1571
+    ]
   },
   {
     "teal": 1580,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "source": "contracts/privacy-pool.algo.ts:332",
+    "pc": [
+      1572,
+      1573
+    ]
   },
   {
     "teal": 1581,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "source": "contracts/privacy-pool.algo.ts:332",
+    "pc": [
+      1574,
+      1575
+    ]
   },
   {
     "teal": 1582,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "source": "contracts/privacy-pool.algo.ts:332",
+    "pc": [
+      1576
+    ]
   },
   {
     "teal": 1583,
-    "source": "contracts/privacy-pool.algo.ts:326"
+    "source": "contracts/privacy-pool.algo.ts:332",
+    "pc": [
+      1577,
+      1578
+    ]
   },
   {
-    "teal": 1584,
-    "source": "contracts/privacy-pool.algo.ts:324"
+    "teal": 1588,
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1579
+    ]
   },
   {
     "teal": 1589,
-    "source": "contracts/privacy-pool.algo.ts:332"
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1580
+    ]
   },
   {
     "teal": 1590,
-    "source": "contracts/privacy-pool.algo.ts:332"
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1581
+    ]
   },
   {
     "teal": 1591,
-    "source": "contracts/privacy-pool.algo.ts:332"
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1582
+    ]
   },
   {
-    "teal": 1597,
-    "source": "contracts/privacy-pool.algo.ts:332"
+    "teal": 1592,
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1583,
+      1584,
+      1585
+    ]
   },
   {
     "teal": 1601,
-    "source": "contracts/privacy-pool.algo.ts:333"
+    "source": "contracts/privacy-pool.algo.ts:335",
+    "pc": [
+      1586
+    ]
   },
   {
     "teal": 1602,
-    "source": "contracts/privacy-pool.algo.ts:333"
+    "source": "contracts/privacy-pool.algo.ts:335",
+    "pc": [
+      1587
+    ]
   },
   {
     "teal": 1603,
-    "source": "contracts/privacy-pool.algo.ts:333"
+    "source": "contracts/privacy-pool.algo.ts:335",
+    "pc": [
+      1588,
+      1589
+    ]
   },
   {
-    "teal": 1604,
-    "source": "contracts/privacy-pool.algo.ts:333"
+    "teal": 1607,
+    "source": "contracts/privacy-pool.algo.ts:336",
+    "pc": [
+      1590,
+      1591
+    ]
   },
   {
-    "teal": 1605,
-    "source": "contracts/privacy-pool.algo.ts:333"
-  },
-  {
-    "teal": 1606,
-    "source": "contracts/privacy-pool.algo.ts:333"
-  },
-  {
-    "teal": 1610,
-    "source": "contracts/privacy-pool.algo.ts:334"
-  },
-  {
-    "teal": 1611,
-    "source": "contracts/privacy-pool.algo.ts:334"
+    "teal": 1608,
+    "source": "contracts/privacy-pool.algo.ts:336",
+    "pc": [
+      1592,
+      1593
+    ]
   },
   {
     "teal": 1612,
-    "source": "contracts/privacy-pool.algo.ts:334"
+    "source": "contracts/privacy-pool.algo.ts:337",
+    "pc": [
+      1594,
+      1595
+    ]
   },
   {
     "teal": 1613,
-    "source": "contracts/privacy-pool.algo.ts:334"
+    "source": "contracts/privacy-pool.algo.ts:337",
+    "pc": [
+      1596,
+      1597
+    ]
   },
   {
-    "teal": 1614,
-    "source": "contracts/privacy-pool.algo.ts:334"
+    "teal": 1617,
+    "source": "contracts/privacy-pool.algo.ts:338",
+    "pc": [
+      1598
+    ]
   },
   {
-    "teal": 1623,
-    "source": "contracts/privacy-pool.algo.ts:336"
+    "teal": 1618,
+    "source": "contracts/privacy-pool.algo.ts:338",
+    "pc": [
+      1599,
+      1600
+    ]
   },
   {
-    "teal": 1624,
-    "source": "contracts/privacy-pool.algo.ts:336"
+    "teal": 1621,
+    "source": "contracts/privacy-pool.algo.ts:335",
+    "pc": [
+      1601
+    ]
   },
   {
-    "teal": 1625,
-    "source": "contracts/privacy-pool.algo.ts:336"
+    "teal": 1622,
+    "source": "contracts/privacy-pool.algo.ts:334",
+    "pc": [
+      1602,
+      1603,
+      1604
+    ]
   },
   {
-    "teal": 1629,
-    "source": "contracts/privacy-pool.algo.ts:337"
+    "teal": 1632,
+    "source": "contracts/privacy-pool.algo.ts:341",
+    "pc": [
+      1605
+    ]
   },
   {
-    "teal": 1630,
-    "source": "contracts/privacy-pool.algo.ts:337"
+    "teal": 1633,
+    "source": "contracts/privacy-pool.algo.ts:341",
+    "pc": [
+      1606
+    ]
   },
   {
     "teal": 1634,
-    "source": "contracts/privacy-pool.algo.ts:338"
+    "source": "contracts/privacy-pool.algo.ts:341",
+    "pc": [
+      1607,
+      1608
+    ]
   },
   {
-    "teal": 1635,
-    "source": "contracts/privacy-pool.algo.ts:338"
+    "teal": 1638,
+    "source": "contracts/privacy-pool.algo.ts:342",
+    "pc": [
+      1609,
+      1610
+    ]
   },
   {
     "teal": 1639,
-    "source": "contracts/privacy-pool.algo.ts:339"
+    "source": "contracts/privacy-pool.algo.ts:342",
+    "pc": [
+      1611,
+      1612
+    ]
   },
   {
-    "teal": 1640,
-    "source": "contracts/privacy-pool.algo.ts:339"
+    "teal": 1643,
+    "source": "contracts/privacy-pool.algo.ts:343",
+    "pc": [
+      1613,
+      1614
+    ]
   },
   {
-    "teal": 1641,
-    "source": "contracts/privacy-pool.algo.ts:339"
+    "teal": 1644,
+    "source": "contracts/privacy-pool.algo.ts:343",
+    "pc": [
+      1615,
+      1616
+    ]
   },
   {
-    "teal": 1645,
-    "source": "contracts/privacy-pool.algo.ts:340"
-  },
-  {
-    "teal": 1646,
-    "source": "contracts/privacy-pool.algo.ts:340"
+    "teal": 1648,
+    "source": "contracts/privacy-pool.algo.ts:344",
+    "pc": [
+      1617
+    ]
   },
   {
     "teal": 1649,
-    "source": "contracts/privacy-pool.algo.ts:336"
+    "source": "contracts/privacy-pool.algo.ts:344",
+    "pc": [
+      1618
+    ]
   },
   {
     "teal": 1650,
-    "source": "contracts/privacy-pool.algo.ts:332"
+    "source": "contracts/privacy-pool.algo.ts:344",
+    "pc": [
+      1619,
+      1620
+    ]
+  },
+  {
+    "teal": 1654,
+    "source": "contracts/privacy-pool.algo.ts:345",
+    "pc": [
+      1621
+    ]
   },
   {
     "teal": 1655,
-    "source": "contracts/privacy-pool.algo.ts:347"
+    "source": "contracts/privacy-pool.algo.ts:345",
+    "pc": [
+      1622,
+      1623
+    ]
   },
   {
-    "teal": 1656,
-    "source": "contracts/privacy-pool.algo.ts:347"
+    "teal": 1658,
+    "source": "contracts/privacy-pool.algo.ts:341",
+    "pc": [
+      1624
+    ]
   },
   {
-    "teal": 1657,
-    "source": "contracts/privacy-pool.algo.ts:347"
+    "teal": 1664,
+    "source": "contracts/privacy-pool.algo.ts:349",
+    "pc": [
+      1625,
+      1626
+    ]
   },
   {
-    "teal": 1663,
-    "source": "contracts/privacy-pool.algo.ts:347"
+    "teal": 1665,
+    "source": "contracts/privacy-pool.algo.ts:349",
+    "pc": [
+      1627
+    ]
+  },
+  {
+    "teal": 1666,
+    "source": "contracts/privacy-pool.algo.ts:349",
+    "pc": [
+      1628
+    ]
   },
   {
     "teal": 1667,
-    "source": "contracts/privacy-pool.algo.ts:348"
+    "source": "contracts/privacy-pool.algo.ts:349",
+    "pc": [
+      1629,
+      1630,
+      1631
+    ]
   },
   {
-    "teal": 1668,
-    "source": "contracts/privacy-pool.algo.ts:348"
-  },
-  {
-    "teal": 1669,
-    "source": "contracts/privacy-pool.algo.ts:347"
+    "teal": 1673,
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1632
+    ]
   },
   {
     "teal": 1674,
-    "source": "contracts/privacy-pool.algo.ts:354"
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1633
+    ]
   },
   {
     "teal": 1675,
-    "source": "contracts/privacy-pool.algo.ts:354"
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1634
+    ]
   },
   {
     "teal": 1676,
-    "source": "contracts/privacy-pool.algo.ts:354"
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1635
+    ]
   },
   {
-    "teal": 1682,
-    "source": "contracts/privacy-pool.algo.ts:354"
+    "teal": 1677,
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1636,
+      1637,
+      1638
+    ]
   },
   {
     "teal": 1686,
-    "source": "contracts/privacy-pool.algo.ts:355"
+    "source": "contracts/privacy-pool.algo.ts:351",
+    "pc": [
+      1639
+    ]
   },
   {
     "teal": 1687,
-    "source": "contracts/privacy-pool.algo.ts:355"
+    "source": "contracts/privacy-pool.algo.ts:351",
+    "pc": [
+      1640
+    ]
   },
   {
     "teal": 1688,
-    "source": "contracts/privacy-pool.algo.ts:354"
-  },
-  {
-    "teal": 1691,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:351",
+    "pc": [
+      1641,
+      1642
+    ]
   },
   {
     "teal": 1692,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:352",
+    "pc": [
+      1643,
+      1644
+    ]
   },
   {
     "teal": 1693,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:352",
+    "pc": [
+      1645,
+      1646
+    ]
   },
   {
-    "teal": 1696,
-    "source": "contracts/privacy-pool.algo.ts:6",
-    "errorMessage": "this contract does not implement the given ABI method for create NoOp"
+    "teal": 1697,
+    "source": "contracts/privacy-pool.algo.ts:353",
+    "pc": [
+      1647,
+      1648
+    ]
   },
   {
-    "teal": 1699,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1700,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1701,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "teal": 1698,
+    "source": "contracts/privacy-pool.algo.ts:353",
+    "pc": [
+      1649,
+      1650
+    ]
   },
   {
     "teal": 1702,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:354",
+    "pc": [
+      1651
+    ]
   },
   {
     "teal": 1703,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:354",
+    "pc": [
+      1652,
+      1653
+    ]
   },
   {
-    "teal": 1704,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "teal": 1706,
+    "source": "contracts/privacy-pool.algo.ts:351",
+    "pc": [
+      1654
+    ]
   },
   {
     "teal": 1707,
-    "source": "contracts/privacy-pool.algo.ts:6",
-    "errorMessage": "this contract does not implement the given ABI method for call NoOp"
+    "source": "contracts/privacy-pool.algo.ts:350",
+    "pc": [
+      1655,
+      1656,
+      1657
+    ]
   },
   {
-    "teal": 1710,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1711,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1712,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1715,
-    "source": "contracts/privacy-pool.algo.ts:6",
-    "errorMessage": "this contract does not implement the given ABI method for call UpdateApplication"
+    "teal": 1717,
+    "source": "contracts/privacy-pool.algo.ts:357",
+    "pc": [
+      1658
+    ]
   },
   {
     "teal": 1718,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:357",
+    "pc": [
+      1659
+    ]
   },
   {
     "teal": 1719,
-    "source": "contracts/privacy-pool.algo.ts:6"
-  },
-  {
-    "teal": 1720,
-    "source": "contracts/privacy-pool.algo.ts:6"
+    "source": "contracts/privacy-pool.algo.ts:357",
+    "pc": [
+      1660,
+      1661
+    ]
   },
   {
     "teal": 1723,
+    "source": "contracts/privacy-pool.algo.ts:358",
+    "pc": [
+      1662,
+      1663
+    ]
+  },
+  {
+    "teal": 1724,
+    "source": "contracts/privacy-pool.algo.ts:358",
+    "pc": [
+      1664,
+      1665
+    ]
+  },
+  {
+    "teal": 1728,
+    "source": "contracts/privacy-pool.algo.ts:359",
+    "pc": [
+      1666,
+      1667
+    ]
+  },
+  {
+    "teal": 1729,
+    "source": "contracts/privacy-pool.algo.ts:359",
+    "pc": [
+      1668,
+      1669
+    ]
+  },
+  {
+    "teal": 1733,
+    "source": "contracts/privacy-pool.algo.ts:360",
+    "pc": [
+      1670
+    ]
+  },
+  {
+    "teal": 1734,
+    "source": "contracts/privacy-pool.algo.ts:360",
+    "pc": [
+      1671
+    ]
+  },
+  {
+    "teal": 1735,
+    "source": "contracts/privacy-pool.algo.ts:360",
+    "pc": [
+      1672,
+      1673
+    ]
+  },
+  {
+    "teal": 1739,
+    "source": "contracts/privacy-pool.algo.ts:361",
+    "pc": [
+      1674
+    ]
+  },
+  {
+    "teal": 1740,
+    "source": "contracts/privacy-pool.algo.ts:361",
+    "pc": [
+      1675,
+      1676
+    ]
+  },
+  {
+    "teal": 1743,
+    "source": "contracts/privacy-pool.algo.ts:357",
+    "pc": [
+      1677
+    ]
+  },
+  {
+    "teal": 1748,
+    "source": "contracts/privacy-pool.algo.ts:242",
+    "pc": [
+      1678
+    ]
+  },
+  {
+    "teal": 1754,
+    "source": "contracts/privacy-pool.algo.ts:371",
+    "pc": [
+      1679,
+      1680,
+      1681
+    ]
+  },
+  {
+    "teal": 1759,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1682,
+      1683
+    ]
+  },
+  {
+    "teal": 1760,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1684
+    ]
+  },
+  {
+    "teal": 1761,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1685
+    ]
+  },
+  {
+    "teal": 1762,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1686
+    ]
+  },
+  {
+    "teal": 1763,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1687,
+      1688,
+      1689
+    ]
+  },
+  {
+    "teal": 1768,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1690
+    ]
+  },
+  {
+    "teal": 1769,
+    "source": "contracts/privacy-pool.algo.ts:372",
+    "pc": [
+      1691
+    ]
+  },
+  {
+    "teal": 1774,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1692,
+      1693
+    ]
+  },
+  {
+    "teal": 1775,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1694,
+      1695
+    ]
+  },
+  {
+    "teal": 1776,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1696
+    ]
+  },
+  {
+    "teal": 1777,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1697
+    ]
+  },
+  {
+    "teal": 1778,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1698
+    ]
+  },
+  {
+    "teal": 1779,
+    "source": "contracts/privacy-pool.algo.ts:373",
+    "pc": [
+      1699
+    ]
+  },
+  {
+    "teal": 1780,
+    "source": "contracts/privacy-pool.algo.ts:371",
+    "pc": [
+      1700
+    ]
+  },
+  {
+    "teal": 1785,
+    "source": "contracts/privacy-pool.algo.ts:379",
+    "pc": [
+      1701,
+      1702,
+      1703
+    ]
+  },
+  {
+    "teal": 1786,
+    "source": "contracts/privacy-pool.algo.ts:379",
+    "pc": [
+      1704
+    ]
+  },
+  {
+    "teal": 1787,
+    "source": "contracts/privacy-pool.algo.ts:379",
+    "pc": [
+      1705
+    ]
+  },
+  {
+    "teal": 1793,
+    "source": "contracts/privacy-pool.algo.ts:379",
+    "pc": [
+      1706,
+      1707,
+      1708
+    ]
+  },
+  {
+    "teal": 1797,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1709,
+      1710
+    ]
+  },
+  {
+    "teal": 1798,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1711,
+      1712,
+      1713
+    ]
+  },
+  {
+    "teal": 1799,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1714,
+      1715
+    ]
+  },
+  {
+    "teal": 1800,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1716
+    ]
+  },
+  {
+    "teal": 1801,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1717
+    ]
+  },
+  {
+    "teal": 1802,
+    "source": "contracts/privacy-pool.algo.ts:380",
+    "pc": [
+      1718
+    ]
+  },
+  {
+    "teal": 1806,
+    "source": "contracts/privacy-pool.algo.ts:381",
+    "pc": [
+      1719
+    ]
+  },
+  {
+    "teal": 1807,
+    "source": "contracts/privacy-pool.algo.ts:381",
+    "pc": [
+      1720
+    ]
+  },
+  {
+    "teal": 1808,
+    "source": "contracts/privacy-pool.algo.ts:381",
+    "pc": [
+      1721
+    ]
+  },
+  {
+    "teal": 1809,
+    "source": "contracts/privacy-pool.algo.ts:381",
+    "pc": [
+      1722
+    ]
+  },
+  {
+    "teal": 1810,
+    "source": "contracts/privacy-pool.algo.ts:381",
+    "pc": [
+      1723
+    ]
+  },
+  {
+    "teal": 1819,
+    "source": "contracts/privacy-pool.algo.ts:383",
+    "pc": [
+      1724
+    ]
+  },
+  {
+    "teal": 1820,
+    "source": "contracts/privacy-pool.algo.ts:383",
+    "pc": [
+      1725
+    ]
+  },
+  {
+    "teal": 1821,
+    "source": "contracts/privacy-pool.algo.ts:383",
+    "pc": [
+      1726,
+      1727
+    ]
+  },
+  {
+    "teal": 1825,
+    "source": "contracts/privacy-pool.algo.ts:384",
+    "pc": [
+      1728,
+      1729
+    ]
+  },
+  {
+    "teal": 1826,
+    "source": "contracts/privacy-pool.algo.ts:384",
+    "pc": [
+      1730,
+      1731
+    ]
+  },
+  {
+    "teal": 1830,
+    "source": "contracts/privacy-pool.algo.ts:385",
+    "pc": [
+      1732
+    ]
+  },
+  {
+    "teal": 1831,
+    "source": "contracts/privacy-pool.algo.ts:385",
+    "pc": [
+      1733,
+      1734
+    ]
+  },
+  {
+    "teal": 1835,
+    "source": "contracts/privacy-pool.algo.ts:386",
+    "pc": [
+      1735
+    ]
+  },
+  {
+    "teal": 1836,
+    "source": "contracts/privacy-pool.algo.ts:386",
+    "pc": [
+      1736
+    ]
+  },
+  {
+    "teal": 1837,
+    "source": "contracts/privacy-pool.algo.ts:386",
+    "pc": [
+      1737,
+      1738
+    ]
+  },
+  {
+    "teal": 1841,
+    "source": "contracts/privacy-pool.algo.ts:387",
+    "pc": [
+      1739
+    ]
+  },
+  {
+    "teal": 1842,
+    "source": "contracts/privacy-pool.algo.ts:387",
+    "pc": [
+      1740,
+      1741
+    ]
+  },
+  {
+    "teal": 1845,
+    "source": "contracts/privacy-pool.algo.ts:383",
+    "pc": [
+      1742
+    ]
+  },
+  {
+    "teal": 1846,
+    "source": "contracts/privacy-pool.algo.ts:379",
+    "pc": [
+      1743
+    ]
+  },
+  {
+    "teal": 1851,
+    "source": "contracts/privacy-pool.algo.ts:394",
+    "pc": [
+      1744,
+      1745,
+      1746
+    ]
+  },
+  {
+    "teal": 1852,
+    "source": "contracts/privacy-pool.algo.ts:394",
+    "pc": [
+      1747
+    ]
+  },
+  {
+    "teal": 1853,
+    "source": "contracts/privacy-pool.algo.ts:394",
+    "pc": [
+      1748
+    ]
+  },
+  {
+    "teal": 1859,
+    "source": "contracts/privacy-pool.algo.ts:394",
+    "pc": [
+      1749,
+      1750,
+      1751
+    ]
+  },
+  {
+    "teal": 1863,
+    "source": "contracts/privacy-pool.algo.ts:395",
+    "pc": [
+      1752
+    ]
+  },
+  {
+    "teal": 1864,
+    "source": "contracts/privacy-pool.algo.ts:395",
+    "pc": [
+      1753
+    ]
+  },
+  {
+    "teal": 1865,
+    "source": "contracts/privacy-pool.algo.ts:394",
+    "pc": [
+      1754
+    ]
+  },
+  {
+    "teal": 1870,
+    "source": "contracts/privacy-pool.algo.ts:401",
+    "pc": [
+      1755,
+      1756,
+      1757
+    ]
+  },
+  {
+    "teal": 1871,
+    "source": "contracts/privacy-pool.algo.ts:401",
+    "pc": [
+      1758
+    ]
+  },
+  {
+    "teal": 1872,
+    "source": "contracts/privacy-pool.algo.ts:401",
+    "pc": [
+      1759
+    ]
+  },
+  {
+    "teal": 1878,
+    "source": "contracts/privacy-pool.algo.ts:401",
+    "pc": [
+      1760,
+      1761,
+      1762
+    ]
+  },
+  {
+    "teal": 1882,
+    "source": "contracts/privacy-pool.algo.ts:402",
+    "pc": [
+      1763
+    ]
+  },
+  {
+    "teal": 1883,
+    "source": "contracts/privacy-pool.algo.ts:402",
+    "pc": [
+      1764
+    ]
+  },
+  {
+    "teal": 1884,
+    "source": "contracts/privacy-pool.algo.ts:401",
+    "pc": [
+      1765
+    ]
+  },
+  {
+    "teal": 1887,
     "source": "contracts/privacy-pool.algo.ts:6",
-    "errorMessage": "this contract does not implement the given ABI method for call DeleteApplication"
+    "pc": [
+      1766,
+      1767,
+      1768,
+      1769,
+      1770,
+      1771
+    ]
+  },
+  {
+    "teal": 1888,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1772,
+      1773,
+      1774
+    ]
+  },
+  {
+    "teal": 1889,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1775,
+      1776,
+      1777,
+      1778
+    ]
+  },
+  {
+    "teal": 1892,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for create NoOp",
+    "pc": [
+      1779
+    ]
+  },
+  {
+    "teal": 1895,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1780,
+      1781,
+      1782,
+      1783,
+      1784,
+      1785
+    ]
+  },
+  {
+    "teal": 1896,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1786,
+      1787,
+      1788,
+      1789,
+      1790,
+      1791
+    ]
+  },
+  {
+    "teal": 1897,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1792,
+      1793,
+      1794,
+      1795,
+      1796,
+      1797
+    ]
+  },
+  {
+    "teal": 1898,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1798,
+      1799,
+      1800,
+      1801,
+      1802,
+      1803
+    ]
+  },
+  {
+    "teal": 1899,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1804,
+      1805,
+      1806,
+      1807,
+      1808,
+      1809
+    ]
+  },
+  {
+    "teal": 1900,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1810,
+      1811,
+      1812
+    ]
+  },
+  {
+    "teal": 1901,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1813,
+      1814,
+      1815,
+      1816,
+      1817,
+      1818,
+      1819,
+      1820,
+      1821,
+      1822,
+      1823,
+      1824
+    ]
+  },
+  {
+    "teal": 1904,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for call NoOp",
+    "pc": [
+      1825
+    ]
+  },
+  {
+    "teal": 1907,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1826,
+      1827,
+      1828,
+      1829,
+      1830,
+      1831
+    ]
+  },
+  {
+    "teal": 1908,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1832,
+      1833,
+      1834
+    ]
+  },
+  {
+    "teal": 1909,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1835,
+      1836,
+      1837,
+      1838
+    ]
+  },
+  {
+    "teal": 1912,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for call UpdateApplication",
+    "pc": [
+      1839
+    ]
+  },
+  {
+    "teal": 1915,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1840,
+      1841,
+      1842,
+      1843,
+      1844,
+      1845
+    ]
+  },
+  {
+    "teal": 1916,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1846,
+      1847,
+      1848
+    ]
+  },
+  {
+    "teal": 1917,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "pc": [
+      1849,
+      1850,
+      1851,
+      1852
+    ]
+  },
+  {
+    "teal": 1920,
+    "source": "contracts/privacy-pool.algo.ts:6",
+    "errorMessage": "this contract does not implement the given ABI method for call DeleteApplication",
+    "pc": [
+      1853
+    ]
   }
 ]

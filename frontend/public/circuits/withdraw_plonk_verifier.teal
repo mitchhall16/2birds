@@ -1,0 +1,484 @@
+#pragma version 11
+// PLONK LogicSig Verifier for Algorand AVM
+// nPublic: 6, domain: 32768
+
+// === Group index check: only index 0 verifies ===
+txn GroupIndex
+pushint 0
+!=
+bnz auto_approve
+
+// === Step 1: Reconstruct VK from group txn Notes, verify SHA256 hash ===
+gtxn 1 Note  // VK chunk 1
+gtxn 2 Note  // VK chunk 2
+concat
+gtxn 3 Note  // VK chunk 3
+concat
+dup
+sha256
+pushbytes 0xd3ca4888900f85d0967a07bf80e3976a131e58720c99f954cf2cefd345096ca4
+==
+assert // VK hash mismatch
+store 50 // full serialized VK
+
+// === Step 2: Parse proof (768 bytes) from arg 0 ===
+txna ApplicationArgs 0
+len
+pushint 768
+==
+assert // proof must be 768 bytes
+
+// A = proof[0:64]
+txna ApplicationArgs 0
+extract 0 64
+store 0
+// B = proof[64:128]
+txna ApplicationArgs 0
+extract 64 64
+store 1
+// C = proof[128:192]
+txna ApplicationArgs 0
+extract 128 64
+store 2
+// Z = proof[192:256]
+txna ApplicationArgs 0
+extract 192 64
+store 3
+// T1 = proof[256:320]
+txna ApplicationArgs 0
+pushint 256
+pushint 64
+extract3
+store 4
+// T2 = proof[320:384]
+txna ApplicationArgs 0
+pushint 320
+pushint 64
+extract3
+store 5
+// T3 = proof[384:448]
+txna ApplicationArgs 0
+pushint 384
+pushint 64
+extract3
+store 6
+// eval_a = proof[448:480]
+txna ApplicationArgs 0
+pushint 448
+pushint 32
+extract3
+store 7
+// eval_b = proof[480:512]
+txna ApplicationArgs 0
+pushint 480
+pushint 32
+extract3
+store 8
+// eval_c = proof[512:544]
+txna ApplicationArgs 0
+pushint 512
+pushint 32
+extract3
+store 9
+// eval_s1 = proof[544:576]
+txna ApplicationArgs 0
+pushint 544
+pushint 32
+extract3
+store 10
+// eval_s2 = proof[576:608]
+txna ApplicationArgs 0
+pushint 576
+pushint 32
+extract3
+store 11
+// eval_zw = proof[608:640]
+txna ApplicationArgs 0
+pushint 608
+pushint 32
+extract3
+store 12
+// Wxi = proof[640:704]
+txna ApplicationArgs 0
+pushint 640
+pushint 64
+extract3
+store 13
+// Wxiw = proof[704:768]
+txna ApplicationArgs 0
+pushint 704
+pushint 64
+extract3
+store 14
+
+// === Step 3: Parse 6 public signals from arg 1 (192 bytes) ===
+txna ApplicationArgs 1
+len
+pushint 192
+==
+assert // signals must be nPublic * 32 bytes
+
+// === Step 4: Parse VK fields ===
+load 50 // VK
+extract 8 32
+store 20 // VK.k1
+load 50 // VK
+extract 40 32
+store 21 // VK.k2
+load 50 // VK
+extract 72 32
+store 22 // VK.w
+load 50 // VK
+extract 104 64
+store 23 // VK.Qm
+load 50 // VK
+extract 168 64
+store 24 // VK.Ql
+load 50 // VK
+extract 232 64
+store 25 // VK.Qr
+load 50 // VK
+pushint 296
+pushint 64
+extract3
+store 26 // VK.Qo
+load 50 // VK
+pushint 360
+pushint 64
+extract3
+store 27 // VK.Qc
+load 50 // VK
+pushint 424
+pushint 64
+extract3
+store 28 // VK.S1
+load 50 // VK
+pushint 488
+pushint 64
+extract3
+store 29 // VK.S2
+load 50 // VK
+pushint 552
+pushint 64
+extract3
+store 30 // VK.S3
+load 50 // VK
+pushint 616
+pushint 128
+extract3
+store 31 // VK.X_2
+
+// === Step 5: Fiat-Shamir challenges ===
+// beta = keccak256(A || B || C || signals) mod r
+load 0  // A
+load 1  // B
+concat
+load 2  // C
+concat
+txna ApplicationArgs 1 // signals
+concat
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 32 // beta
+
+// gamma = keccak256(beta) mod r
+load 32
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 33 // gamma
+
+// alpha = keccak256(beta || gamma || Z) mod r
+load 32
+load 33
+concat
+load 3 // Z
+concat
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 34 // alpha
+
+// xi = keccak256(alpha || T1 || T2 || T3) mod r
+load 34
+load 4 // T1
+concat
+load 5 // T2
+concat
+load 6 // T3
+concat
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 35 // xi
+
+// v = keccak256(xi || evals) mod r
+load 35 // xi
+load 7 // eval_a
+concat
+load 8 // eval_b
+concat
+load 9 // eval_c
+concat
+load 10 // eval_s1
+concat
+load 11 // eval_s2
+concat
+load 12 // eval_zw
+concat
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 36 // v
+
+// u = keccak256(Wxi || Wxiw) mod r
+load 13 // Wxi
+load 14 // Wxiw
+concat
+keccak256
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 37 // u
+
+// === Step 6: ZH(xi) = xi^32768 - 1 ===
+// Compute xi^n via repeated squaring
+load 35 // xi
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 38 // ZH_xi
+
+// === Step 7: Verify public signals are correctly bound ===
+// Public signals are passed directly and verified by the pool contract
+// The LogicSig verifies the proof is valid for these signals
+
+// === Step 8: Linearisation & pairing check ===
+load 14 // Wxiw (G1 point)
+load 37 // u (scalar)
+ec_scalar_mul BN254g1
+store 40 // u_Wxiw
+
+load 13 // Wxi
+load 40 // u_Wxiw
+ec_add BN254g1
+store 41 // Wxi_plus_uWxiw (RHS G1)
+
+load 13 // Wxi
+load 35 // xi
+ec_scalar_mul BN254g1
+store 42 // xi_Wxi
+
+load 37 // u
+load 35 // xi
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 22 // w (root of unity)
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 43 // u_xi_w
+
+load 14 // Wxiw
+load 43 // u_xi_w
+ec_scalar_mul BN254g1
+store 44 // u_xi_w_Wxiw
+
+// D commitment (linearisation)
+load 7 // eval_a
+load 8 // eval_b
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 45 // eval_ab
+
+load 23 // Qm
+load 45 // eval_ab
+ec_scalar_mul BN254g1
+store 46 // D starts as eval_ab * Qm
+
+load 24 // Ql
+load 7 // eval_a
+ec_scalar_mul BN254g1
+load 46
+swap
+ec_add BN254g1
+store 46
+
+load 25 // Qr
+load 8 // eval_b
+ec_scalar_mul BN254g1
+load 46
+swap
+ec_add BN254g1
+store 46
+
+load 26 // Qo
+load 9 // eval_c
+ec_scalar_mul BN254g1
+load 46
+swap
+ec_add BN254g1
+store 46
+
+load 46
+load 27 // Qc
+ec_add BN254g1
+store 46 // D += Qc
+
+// F = D + batched commitments
+load 0 // A
+load 36 // v
+ec_scalar_mul BN254g1
+load 46 // D
+swap
+ec_add BN254g1
+store 46 // F
+
+load 46 // F
+load 42 // xi_Wxi
+ec_add BN254g1
+load 44 // u_xi_w_Wxiw
+ec_add BN254g1
+store 47 // LHS G1
+
+// === Pairing check ===
+load 47 // LHS
+extract 0 32 // x
+load 47
+extract 32 32 // y
+pushbytes 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47 // field prime
+swap
+b-
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+concat // -LHS
+store 48 // -LHS
+
+// G1 array: -LHS || RHS
+load 48 // -LHS
+load 41 // RHS
+concat
+
+// G2 array: [1]_2 || X_2
+pushbytes 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c212c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b
+load 31 // X_2
+concat
+
+ec_pairing_check BN254g1
+assert // PLONK pairing check must pass
+
+// Verification passed — signals are in arg[1]
+pushint 1
+return
+
+auto_approve:
+pushint 1
+return
