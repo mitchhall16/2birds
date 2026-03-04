@@ -1,7 +1,13 @@
 import algosdk from 'algosdk'
-import { INDEXER_CONFIG } from './config'
-import { checkViewTag, decryptNote, HPKE_ENVELOPE_LEN, type TxnMetadata } from './hpke'
-import { mimcHashTriple, initMimc, scalarToBytes, type DepositNote } from './privacy'
+import { ALGOD_CONFIG, INDEXER_CONFIG } from './config'
+import { checkViewTag, decryptNote, HPKE_ENVELOPE_LEN } from './hpke'
+import { mimcHashTriple, initMimc, scalarToBytes, uint64ToBytes, computeNullifierHash, type DepositNote } from './privacy'
+
+export interface ScanResult {
+  recovered: DepositNote[]
+  errors: string[]       // non-fatal errors encountered during scan
+  complete: boolean      // true if all pools were fully scanned without errors
+}
 
 /**
  * Scan confirmed transactions for HPKE-encrypted notes addressed to the given view key.
@@ -13,14 +19,15 @@ import { mimcHashTriple, initMimc, scalarToBytes, type DepositNote } from './pri
  *    b. Fast check: compute view tag, compare (skip if mismatch)
  *    c. Full decrypt: HPKE open, deserialize note
  *    d. Verify: recompute commitment from decrypted values
- * 3. Return all recovered notes
+ *    e. Verify: check commitment exists on-chain at claimed leafIndex
+ * 3. Return all recovered notes with error/completeness info
  */
 export async function scanChainForNotes(
   viewKeypair: { privateKey: Uint8Array; publicKey: Uint8Array },
   poolAppIds: number[],
   fromRound?: number,
   onProgress?: (round: number, found: number) => void,
-): Promise<DepositNote[]> {
+): Promise<ScanResult> {
   await initMimc()
 
   const indexer = new algosdk.Indexer(
@@ -28,9 +35,12 @@ export async function scanChainForNotes(
     INDEXER_CONFIG.baseServer,
     INDEXER_CONFIG.port,
   )
+  const algod = new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
 
   const recovered: DepositNote[] = []
+  const errors: string[] = []
   let lastRound = 0
+  let complete = true
 
   for (const appId of poolAppIds) {
     let nextToken: string | undefined
@@ -53,8 +63,10 @@ export async function scanChainForNotes(
       let response: any
       try {
         response = await query.do()
-      } catch {
-        break // Indexer error, skip this pool
+      } catch (err: any) {
+        errors.push(`Indexer error for pool ${appId}: ${err?.message || 'unknown'}`)
+        complete = false
+        break // Can't continue pagination for this pool
       }
 
       const txns = response.transactions || []
@@ -82,33 +94,13 @@ export async function scanChainForNotes(
 
         if (noteBytes.length < HPKE_ENVELOPE_LEN) continue
 
-        // Extract txn metadata for view tag verification
-        const appTxn = txn['application-transaction'] || txn.applicationTransaction || {}
-        const innerTxns = txn['inner-txns'] || txn.innerTxns || []
-        const sender = txn.sender || ''
-        let senderPubkey: Uint8Array
-        try {
-          senderPubkey = algosdk.decodeAddress(sender).publicKey
-        } catch {
-          continue
-        }
-
-        const firstValid = txn['first-valid'] || txn.firstValid || 0
-        const lastValid = txn['last-valid'] || txn.lastValid || 0
-
-        const txnMeta: TxnMetadata = {
-          senderPubkey,
-          firstValid,
-          lastValid,
-        }
-
         // Fast view tag check
-        if (!checkViewTag(noteBytes, viewKeypair.privateKey, txnMeta)) {
+        if (!checkViewTag(noteBytes, viewKeypair.privateKey)) {
           continue
         }
 
         // Full HPKE decrypt
-        const decrypted = await decryptNote(noteBytes, viewKeypair.privateKey, txnMeta)
+        const decrypted = await decryptNote(noteBytes, viewKeypair.privateKey)
         if (!decrypted) continue
 
         // Verify commitment: recompute from decrypted values
@@ -117,6 +109,39 @@ export async function scanChainForNotes(
           decrypted.nullifier,
           decrypted.denomination,
         )
+
+        // Verify commitment exists on-chain at the claimed leafIndex
+        const commitBytes = scalarToBytes(recomputedCommitment)
+        const cmtBoxName = new Uint8Array(11)
+        const TEXT_ENCODER = new TextEncoder()
+        cmtBoxName.set(TEXT_ENCODER.encode('cmt'), 0)
+        cmtBoxName.set(uint64ToBytes(BigInt(decrypted.leafIndex)), 3)
+        try {
+          const boxResult = await algod.getApplicationBoxByName(appId, cmtBoxName).do()
+          const onChainBytes = new Uint8Array(boxResult.value as ArrayLike<number>)
+          if (onChainBytes.length !== commitBytes.length) continue
+          let match = true
+          for (let j = 0; j < commitBytes.length; j++) {
+            if (onChainBytes[j] !== commitBytes[j]) { match = false; break }
+          }
+          if (!match) continue // On-chain commitment doesn't match — forged note
+        } catch {
+          continue // Box doesn't exist — commitment not on-chain
+        }
+
+        // Check if nullifier is already spent (e.g., privateSend burns nullifier on creation)
+        const nullHash = computeNullifierHash(decrypted.nullifier)
+        const nullBytes = scalarToBytes(nullHash)
+        const nullBoxName = new Uint8Array(4 + nullBytes.length)
+        const NULL_PREFIX = new TextEncoder().encode('null')
+        nullBoxName.set(NULL_PREFIX, 0)
+        nullBoxName.set(nullBytes, 4)
+        try {
+          await algod.getApplicationBoxByName(appId, nullBoxName).do()
+          continue // Nullifier already spent — skip this note
+        } catch {
+          // Not spent — note is recoverable
+        }
 
         const note: DepositNote = {
           secret: decrypted.secret,
@@ -141,5 +166,5 @@ export async function scanChainForNotes(
   }
 
   onProgress?.(lastRound, recovered.length)
-  return recovered
+  return { recovered, errors, complete }
 }

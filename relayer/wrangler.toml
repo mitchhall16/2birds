@@ -6,8 +6,11 @@ compatibility_date = "2024-05-01"
 ALGOD_URL = "https://testnet-api.algonode.cloud"
 VERIFIER_APP_ID = "756420114"
 BUDGET_HELPER_APP_ID = "756420102"
-ALLOWED_POOL_IDS = "756420118,756420130,756420132"
+ALLOWED_POOL_IDS = "756478534,756478549,756480627"
+PLONK_VERIFIER_ADDR = "Y5EGJIAMTCQJ5VYEPPNHUXLJ2QOAQRFION77ILEOFM63V5DOURIOSLE2XE"
 
 # Secrets (set via `wrangler secret put`):
 # RELAYER_MNEMONIC — 25-word Algorand mnemonic for the relayer account
 # ALLOWED_ORIGINS — comma-separated CORS origins (optional)
+# PLONK_VERIFIER_TEAL — base64-encoded compiled PLONK verifier program (set via `wrangler secret put`)
+# PLONK_VK_HEX — hex-encoded VK bytes for Note field (set via `wrangler secret put`)

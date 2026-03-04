@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import algosdk from 'algosdk'
-import { CONTRACTS, ALGOD_CONFIG, FEES, isValidTier, DENOMINATION_TIERS, getPoolForTier, POOL_CONTRACTS, RELAYER_URL, RELAYER_ADDRESS, RELAYER_FEE, BATCH_WINDOW_MINUTES, TREASURY_ADDRESS, PROTOCOL_FEE, STALE_NOTE_THRESHOLD, SUBSIDY_TIERS, USE_PLONK_LSIG } from '../lib/config'
+import { CONTRACTS, ALGOD_CONFIG, FEES, isValidTier, DENOMINATION_TIERS, getPoolForTier, POOL_CONTRACTS, RELAYERS, pickRelayer, BATCH_WINDOW_MINUTES, TREASURY_ADDRESS, PROTOCOL_FEE, STALE_NOTE_THRESHOLD, SUBSIDY_TIERS, USE_PLONK_LSIG, MIN_SOAK_DEPOSITS, OPERATION_COOLDOWN_MS, CLUSTER_WARNING_THRESHOLD, WITHDRAW_JITTER_MS } from '../lib/config'
 import { useToast } from '../contexts/ToastContext'
 import { humanizeError, withRetry } from '../lib/errorMessages'
 import {
@@ -40,6 +40,7 @@ import {
   setActiveWallet,
   generateProof,
   parseGroth16Proof,
+  clearMasterKey,
 } from '../lib/privacy'
 import {
   getOrCreateTree,
@@ -50,7 +51,7 @@ import {
   incrementalSyncTree,
   syncAllTreesFromChain,
 } from '../lib/tree'
-import { encryptNote, type TxnMetadata } from '../lib/hpke'
+import { encryptNote } from '../lib/hpke'
 import { isPrivacyAddress, decodePrivacyAddress, algoAddressFromPrivacyAddress } from '../lib/address'
 import { waitForBatchWindow, formatBatchCountdown, msUntilNextBatch } from '../lib/batchQueue'
 
@@ -126,15 +127,39 @@ async function loadPlonkVerifier(
   }
 }
 
+/**
+ * Compute precomputed modular inverses for the PLONK LogicSig verifier.
+ * These are passed as arg[1] so the TEAL program can evaluate Lagrange basis
+ * polynomials without expensive in-TEAL field inversions.
+ */
+async function computePlonkInverses(
+  circuit: string,
+  proof: any,
+  publicSignals: string[],
+): Promise<Uint8Array> {
+  const plonk = await import('../lib/plonkVerifierLsig')
+  const [vkResp, chunksResp] = await Promise.all([
+    fetch(`/circuits/${circuit}_plonk_vkey.json`),
+    fetch(`/circuits/${circuit}_plonk_verifier_vk_chunks.json`),
+  ])
+  const [vkey, vkChunks] = await Promise.all([vkResp.json(), chunksResp.json()])
+
+  const { xi } = await plonk.deriveFiatShamirXi(vkChunks, proof, publicSignals, vkey)
+  const omega = BigInt(vkey.w)
+  const n = 1 << vkChunks.power
+  return plonk.computePrecomputedInverses(xi, omega, n, vkChunks.nPublic)
+}
+
 /** Sign a mixed group: LogicSig for first 4 txns, wallet signer for the rest. */
 async function signPlonkMixedGroup(
   verifier: PlonkVerifierProgram,
   group: algosdk.Transaction[],
   proofBytes: Uint8Array,
+  inversesBytes: Uint8Array,
   walletSigner: (txns: algosdk.Transaction[], indices: number[]) => Promise<Uint8Array[]>,
 ): Promise<Uint8Array[]> {
   const { signPlonkVerifierTxns, PLONK_LSIG_GROUP_SIZE } = await import('../lib/plonkVerifierLsig')
-  const lsigSigned = signPlonkVerifierTxns(verifier, group, proofBytes)
+  const lsigSigned = signPlonkVerifierTxns(verifier, group, proofBytes, inversesBytes)
   const walletIndices = Array.from(
     { length: group.length - PLONK_LSIG_GROUP_SIZE },
     (_, i) => i + PLONK_LSIG_GROUP_SIZE,
@@ -157,10 +182,48 @@ if (!VERIFIER_APP_ID) console.error('ZkVerifier appId is 0 — withdrawals will 
 if (!DEPOSIT_VERIFIER_APP_ID) console.error('DepositVerifier appId is 0 — deposits will fail. Run the deploy script.')
 if (!PRIVATESEND_VERIFIER_APP_ID) console.error('PrivateSendVerifier appId is 0 — privateSend will fail. Run the deploy script.')
 
+// ── Anti-correlation session tracking (module-level, survives re-renders) ──
+let lastOperationTime = 0
+let sessionOperationCount = 0
+let sessionDepositCount = 0
+let sessionWithdrawCount = 0
+
+/** Enforce cooldown between operations to prevent clustering */
+function checkCooldown(): { ok: boolean; remainingSec: number } {
+  const elapsed = Date.now() - lastOperationTime
+  if (lastOperationTime === 0 || elapsed >= OPERATION_COOLDOWN_MS) return { ok: true, remainingSec: 0 }
+  return { ok: false, remainingSec: Math.ceil((OPERATION_COOLDOWN_MS - elapsed) / 1000) }
+}
+
+/** Record that an operation was performed */
+function recordOperation(type: 'deposit' | 'withdraw') {
+  lastOperationTime = Date.now()
+  sessionOperationCount++
+  if (type === 'deposit') sessionDepositCount++
+  else sessionWithdrawCount++
+}
+
+/** Check if user is creating a suspicious cluster pattern */
+function checkClusterRisk(): string | null {
+  if (sessionDepositCount >= CLUSTER_WARNING_THRESHOLD) {
+    return `You've made ${sessionDepositCount} deposits this session. Depositing many times in a row creates a linkable cluster — an observer can correlate them even without knowing your address. Consider waiting and spreading deposits across sessions.`
+  }
+  if (sessionWithdrawCount >= CLUSTER_WARNING_THRESHOLD) {
+    return `You've made ${sessionWithdrawCount} withdrawals this session. Withdrawing many times in a row creates a linkable cluster. Consider waiting and spreading withdrawals across sessions.`
+  }
+  return null
+}
+
+/** Add random jitter delay before withdrawal to prevent timing correlation */
+function withdrawJitter(): Promise<void> {
+  const jitter = WITHDRAW_JITTER_MS.min + Math.random() * (WITHDRAW_JITTER_MS.max - WITHDRAW_JITTER_MS.min)
+  return new Promise(resolve => setTimeout(resolve, jitter))
+}
+
 export function useTransaction(): UseTransactionReturn {
   const { activeAddress, transactionSigner, algodClient, signData } = useWallet()
   const { addToast } = useToast()
-  const relayerAvailable = !!RELAYER_URL && !!RELAYER_ADDRESS
+  const relayerAvailable = RELAYERS.length > 0
   const [useRelayerState, setUseRelayer] = useState(relayerAvailable)
   const batchCancelRef = useRef<(() => void) | null>(null)
   const batchTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -177,9 +240,13 @@ export function useTransaction(): UseTransactionReturn {
     subsidyActive: false,
   })
 
-  // Track active wallet for per-wallet deposit counter
+  // Track active wallet for per-wallet deposit counter; clear keys on disconnect
   useEffect(() => {
-    if (activeAddress) setActiveWallet(activeAddress)
+    if (activeAddress) {
+      setActiveWallet(activeAddress)
+    } else {
+      clearMasterKey()
+    }
   }, [activeAddress])
 
   // Load notes async on mount
@@ -308,7 +375,7 @@ export function useTransaction(): UseTransactionReturn {
     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
   }
 
-  /** Submit a withdrawal via the relayer service */
+  /** Submit a withdrawal via a randomly-picked relayer service */
   async function submitViaRelayer(
     proofBytes: Uint8Array,
     signalsBytes: Uint8Array,
@@ -317,23 +384,86 @@ export function useTransaction(): UseTransactionReturn {
     rootBytes: Uint8Array,
     recipient: string,
     fee: number,
+    relayerUrl: string,
+    relayerAddress: string,
+    inversesBytes?: Uint8Array,
   ): Promise<string> {
-    const resp = await fetch(`${RELAYER_URL}/api/withdraw`, {
+    const resp = await fetch(`${relayerUrl}/api/withdraw`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        mode: USE_PLONK_LSIG ? 'plonk' : 'groth16',
         proof: bytesToHex(proofBytes),
         signals: bytesToHex(signalsBytes),
+        inverses: inversesBytes ? bytesToHex(inversesBytes) : undefined,
         poolAppId,
         nullifierHash: bytesToHex(nullifierHashBytes),
         root: bytesToHex(rootBytes),
         recipient,
-        relayerAddress: RELAYER_ADDRESS,
+        relayerAddress,
         fee,
       }),
     })
     const data = await resp.json()
     if (!resp.ok) throw new Error(data.error || 'Relayer request failed')
+    return data.txId
+  }
+
+  /** Submit a deposit via the relayer — hides the depositor's address on-chain */
+  async function submitDepositViaRelayer(
+    proofBytes: Uint8Array,
+    signalsBytes: Uint8Array,
+    pool: { appId: number; appAddress: string },
+    commitmentBytes: Uint8Array,
+    newRootBytes: Uint8Array,
+    amount: bigint,
+    boxState: { rootHistoryIndex: number; nextIndex: number; evictedRoot?: Uint8Array },
+    relayerUrl: string,
+    relayerAddress: string,
+    relayerFee: bigint,
+    signer: typeof transactionSigner,
+    sender: string,
+    client: algosdk.Algodv2,
+    hpkeNote?: Uint8Array,
+    inversesBytes?: Uint8Array,
+  ): Promise<string> {
+    // Step 1: Build and sign a payment from user → relayer (amount + fee)
+    const params = await client.getTransactionParams().do()
+    const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      sender,
+      receiver: relayerAddress,
+      amount: Number(amount + relayerFee),
+      suggestedParams: params,
+      note: commitmentBytes, // Binds payment to this specific deposit
+    })
+    const signedPaymentGroup = await signer([paymentTxn], [0])
+    const signedPaymentB64 = btoa(String.fromCharCode(...signedPaymentGroup[0]))
+
+    // Step 2: Send to relayer
+    const resp = await fetch(`${relayerUrl}/api/deposit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: USE_PLONK_LSIG ? 'plonk' : 'groth16',
+        proof: bytesToHex(proofBytes),
+        signals: bytesToHex(signalsBytes),
+        inverses: inversesBytes ? bytesToHex(inversesBytes) : undefined,
+        poolAppId: pool.appId,
+        commitment: bytesToHex(commitmentBytes),
+        newRoot: bytesToHex(newRootBytes),
+        amount: Number(amount),
+        fee: Number(relayerFee),
+        signedPayment: signedPaymentB64,
+        hpkeNote: hpkeNote ? bytesToHex(hpkeNote) : undefined,
+        boxState: {
+          rootHistoryIndex: boxState.rootHistoryIndex,
+          nextIndex: boxState.nextIndex,
+          evictedRoot: boxState.evictedRoot ? bytesToHex(boxState.evictedRoot) : undefined,
+        },
+      }),
+    })
+    const data = await resp.json()
+    if (!resp.ok) throw new Error(data.error || 'Deposit relayer request failed')
     return data.txId
   }
 
@@ -395,7 +525,7 @@ export function useTransaction(): UseTransactionReturn {
       pathElements: merklePath.pathElements.map(e => e.toString()),
     }
 
-    const { proof } = await generateProof(
+    const { proof, publicSignals } = await generateProof(
       proofSystem,
       circuitInput,
       '/circuits/deposit.wasm',
@@ -425,18 +555,27 @@ export function useTransaction(): UseTransactionReturn {
     let hpkeNote: Uint8Array | undefined
     const viewKeypair = await getViewKeypair()
     if (viewKeypair) {
-      const senderPubkey = algosdk.decodeAddress(sender).publicKey
-      const txnMeta: TxnMetadata = {
-        senderPubkey,
-        firstValid: Number(params.firstValid),
-        lastValid: Number(params.lastValid),
-      }
-      hpkeNote = await encryptNote(note, viewKeypair.publicKey, txnMeta)
+      hpkeNote = await encryptNote(note, viewKeypair.publicKey)
     }
 
     let txId: string
 
-    if (USE_PLONK_LSIG) {
+    const viaRelayer = useRelayerState && relayerAvailable
+    if (viaRelayer) {
+      // Deposit via relayer — hides depositor's address on-chain
+      const chosenRelayer = pickRelayer()
+      setState(s => ({ ...s, message: 'Approve payment to relayer...' }))
+      const inversesBytes = USE_PLONK_LSIG
+        ? await computePlonkInverses('deposit', proof, publicSignals)
+        : undefined
+      txId = await submitDepositViaRelayer(
+        proofBytes, signalsBytes, pool, commitmentBytes, mimcRootBytes,
+        microAlgos,
+        { rootHistoryIndex: freshState.rootHistoryIndex, nextIndex: freshState.nextIndex, evictedRoot },
+        chosenRelayer.url, chosenRelayer.address, chosenRelayer.fee,
+        signer, sender, client, hpkeNote, inversesBytes,
+      )
+    } else if (USE_PLONK_LSIG) {
       // PLONK LogicSig group: [lsig×4, payTxn, poolAppCall, ?feeTxn]
       const plonk = await import('../lib/plonkVerifierLsig')
       const verifier = await loadPlonkVerifier(client, 'deposit')
@@ -472,7 +611,8 @@ export function useTransaction(): UseTransactionReturn {
       algosdk.assignGroupID(depositGroup)
 
       setState(s => ({ ...s, message: 'Approve deposit in your wallet...' }))
-      const signedTxns = await signPlonkMixedGroup(verifier, depositGroup, proofBytes, signer)
+      const inversesBytes = await computePlonkInverses('deposit', proof, publicSignals)
+      const signedTxns = await signPlonkMixedGroup(verifier, depositGroup, proofBytes, inversesBytes, signer)
 
       setState(s => ({ ...s, message: 'Submitting deposit...' }))
       const result = await client.sendRawTransaction(signedTxns).do()
@@ -567,6 +707,20 @@ export function useTransaction(): UseTransactionReturn {
     const pool = getPoolForTier(microAlgos)
 
     try {
+      // Anti-correlation: enforce cooldown between operations
+      const cooldown = checkCooldown()
+      if (!cooldown.ok) {
+        addToast('error', `Please wait ${cooldown.remainingSec}s between operations to avoid creating linkable patterns`)
+        setState(s => ({ ...s, stage: 'error', error: `Cooldown: wait ${cooldown.remainingSec}s between operations` }))
+        return
+      }
+
+      // Anti-correlation: warn about cluster patterns
+      const clusterWarning = checkClusterRisk()
+      if (clusterWarning) {
+        addToast('error', clusterWarning)
+      }
+
       setState(s => ({ ...s, stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null }))
 
       await initMimc()
@@ -593,9 +747,10 @@ export function useTransaction(): UseTransactionReturn {
           txId = await executeDeposit(client, activeAddress, transactionSigner, pool, note, microAlgos, subsidy)
           break // success
         } catch (err) {
+          // Always clear tree cache on failure — the in-memory tree has a phantom leaf
+          clearTreeCache(pool.appId)
           if (attempt < MAX_DEPOSIT_RETRIES && isStaleRootError(err)) {
             console.warn(`Deposit attempt ${attempt} failed (stale root), retrying...`)
-            clearTreeCache(pool.appId) // Force fresh sync on retry
             setState(s => ({
               ...s,
               stage: 'depositing',
@@ -607,9 +762,11 @@ export function useTransaction(): UseTransactionReturn {
         }
       }
 
-      // Persist note and increment deterministic counter
-      await saveNote(note)
+      // Increment counter FIRST — if tab crashes after this but before saveNote,
+      // we skip an index (safe) rather than reusing one (duplicate commitment)
       incrementDepositIndex()
+      await saveNote(note)
+      recordOperation('deposit')
 
       addToast('success', `Deposited ${amountAlgo} ALGO into the privacy pool`)
       const updatedNotes = await loadNotes()
@@ -661,6 +818,39 @@ export function useTransaction(): UseTransactionReturn {
     const pool = getPoolForTier(note.denomination)
 
     try {
+      // Anti-correlation: enforce cooldown between operations
+      const cooldown = checkCooldown()
+      if (!cooldown.ok) {
+        addToast('error', `Please wait ${cooldown.remainingSec}s between operations to avoid creating linkable patterns`)
+        setState(s => ({ ...s, stage: 'error', error: `Cooldown: wait ${cooldown.remainingSec}s between operations` }))
+        return
+      }
+
+      // Anti-correlation: warn about cluster patterns
+      const clusterWarning = checkClusterRisk()
+      if (clusterWarning) {
+        addToast('error', clusterWarning)
+      }
+
+      // Anti-correlation: soak time — ensure enough deposits have occurred since this note
+      const contractState = await readContractState(client, pool.appId)
+      const depositsSinceNote = contractState.nextIndex - note.leafIndex
+      if (depositsSinceNote < MIN_SOAK_DEPOSITS) {
+        const needed = MIN_SOAK_DEPOSITS - depositsSinceNote
+        addToast('error', `Withdrawing too soon — only ${depositsSinceNote} deposit(s) since yours. Wait for ${needed} more deposit(s) to grow your anonymity set.`)
+        setState(s => ({ ...s, stage: 'error', error: `Need ${needed} more deposit(s) in this pool before withdrawing` }))
+        return
+      }
+
+      // Optional batch delay — multiple withdrawals in the same window are harder to correlate
+      if (useRelayerState && relayerAvailable) {
+        await awaitBatchWindow()
+      }
+
+      // Anti-correlation: random jitter before submission
+      setState(s => ({ ...s, stage: 'withdrawing', message: 'Adding timing jitter for privacy...', txId: null, error: null }))
+      await withdrawJitter()
+
       setState(s => ({ ...s, stage: 'withdrawing', message: 'Checking note status...', txId: null, error: null }))
 
       await initMimc()
@@ -689,8 +879,9 @@ export function useTransaction(): UseTransactionReturn {
 
       const nullifierHash = computeNullifierHash(note.nullifier)
       const viaRelayer = useRelayerState && relayerAvailable
-      const relayerAddr = viaRelayer ? RELAYER_ADDRESS : 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-      const relayerFee = viaRelayer ? RELAYER_FEE : 0n
+      const chosenRelayer = viaRelayer ? pickRelayer() : null
+      const relayerAddr = chosenRelayer ? chosenRelayer.address : 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+      const relayerFee = chosenRelayer ? chosenRelayer.fee : 0n
 
       const circuitInput = {
         // Public inputs
@@ -707,7 +898,7 @@ export function useTransaction(): UseTransactionReturn {
         pathIndices: merklePath.pathIndices,
       }
 
-      const { proof } = await generateProof(
+      const { proof, publicSignals } = await generateProof(
         proofSystem,
         circuitInput,
         '/circuits/withdraw.wasm',
@@ -731,10 +922,14 @@ export function useTransaction(): UseTransactionReturn {
       if (viaRelayer) {
         // Submit via relayer — user doesn't sign, preserving privacy
         setState(s => ({ ...s, message: 'Submitting via relayer...' }))
+        const relayerInverses = USE_PLONK_LSIG
+          ? await computePlonkInverses('withdraw', proof, publicSignals)
+          : undefined
         txId = await submitViaRelayer(
           proofBytes, signalsBytes, pool.appId,
           nullifierHashBytes, rootBytes, destinationAddr,
-          Number(relayerFee),
+          Number(relayerFee), chosenRelayer!.url, chosenRelayer!.address,
+          relayerInverses,
         )
       } else if (USE_PLONK_LSIG) {
         // PLONK LogicSig group: [lsig×4, withdrawAppCall, ?feeTxn]
@@ -774,7 +969,8 @@ export function useTransaction(): UseTransactionReturn {
         algosdk.assignGroupID(withdrawGroup)
 
         setState(s => ({ ...s, message: 'Approve withdrawal in your wallet...' }))
-        const signedTxns = await signPlonkMixedGroup(verifier, withdrawGroup, proofBytes, transactionSigner)
+        const inversesBytes = await computePlonkInverses('withdraw', proof, publicSignals)
+        const signedTxns = await signPlonkMixedGroup(verifier, withdrawGroup, proofBytes, inversesBytes, transactionSigner)
 
         txId = withdrawAppCall.txID()
         setState(s => ({ ...s, message: 'Submitting withdrawal...' }))
@@ -841,6 +1037,7 @@ export function useTransaction(): UseTransactionReturn {
       await removeNoteByCommitment(note.commitment)
 
       const algoAmount = (Number(note.denomination) / 1_000_000).toFixed(6).replace(/\.?0+$/, '')
+      recordOperation('withdraw')
       addToast('success', `Withdrew ${algoAmount} ALGO to destination`)
       const wNotes = await loadNotes()
       setState(s => ({
@@ -883,8 +1080,10 @@ export function useTransaction(): UseTransactionReturn {
 
     const merklePath = getPath(tree, leafIndex)
     const nullifierHash = computeNullifierHash(note.nullifier)
-    const relayerAddr = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-    const relayerFee = 0n
+    const viaRelayer = useRelayerState && relayerAvailable
+    const chosenRelayer = viaRelayer ? pickRelayer() : null
+    const relayerAddr = chosenRelayer ? chosenRelayer.address : 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
+    const relayerFee = chosenRelayer ? chosenRelayer.fee : 0n
 
     // Generate ONE combined ZK proof (privateSend circuit)
     setState(s => ({ ...s, stage: 'generating_proof', message: 'Computing zero-knowledge proof... (10-30 sec)' }))
@@ -907,7 +1106,7 @@ export function useTransaction(): UseTransactionReturn {
       pathElements: merklePath.pathElements.map(e => e.toString()),
     }
 
-    const { proof } = await generateProof(
+    const { proof, publicSignals } = await generateProof(
       proofSystem,
       circuitInput,
       '/circuits/privateSend.wasm',
@@ -946,18 +1145,10 @@ export function useTransaction(): UseTransactionReturn {
     const evictedRoot = await readEvictedRoot(client, pool.appId, freshState.rootHistoryIndex)
     const boxes = privateSendBoxRefs(pool.appId, freshState.rootHistoryIndex, freshState.nextIndex, nullifierHashBytes, mimcRootBytes, evictedRoot)
 
-    // Compute HPKE envelope for the recipient (if we have their view pubkey)
-    let hpkeNote: Uint8Array | undefined
-    const targetViewPubkey = recipientViewPubkey || (await getViewKeypair())?.publicKey
-    if (targetViewPubkey) {
-      const senderPubkey = algosdk.decodeAddress(sender).publicKey
-      const txnMeta: TxnMetadata = {
-        senderPubkey,
-        firstValid: Number(params.firstValid),
-        lastValid: Number(params.lastValid),
-      }
-      hpkeNote = await encryptNote(note, targetViewPubkey, txnMeta)
-    }
+    // Do NOT emit HPKE envelope for privateSend — the contract burns the note's
+    // nullifier during execution, so the recipient would import an unspendable note.
+    // The recipient receives ALGO via the inner payment, not via the note.
+    const hpkeNote: Uint8Array | undefined = undefined
 
     let txId: string
 
@@ -987,7 +1178,7 @@ export function useTransaction(): UseTransactionReturn {
           abiEncodeBytes(nullifierHashBytes),
           recipientPubKey,
           relayerPubKey,
-          uint64ToBytes(0n),
+          uint64ToBytes(relayerFee),
           abiEncodeBytes(recipientSignalBytes),
           abiEncodeBytes(relayerSignalBytes),
         ],
@@ -1004,7 +1195,8 @@ export function useTransaction(): UseTransactionReturn {
       algosdk.assignGroupID(psGroup)
 
       setState(s => ({ ...s, message: 'Approve transaction in your wallet...' }))
-      const signedTxns = await signPlonkMixedGroup(verifier, psGroup, proofBytes, signer)
+      const inversesBytes = await computePlonkInverses('privateSend', proof, publicSignals)
+      const signedTxns = await signPlonkMixedGroup(verifier, psGroup, proofBytes, inversesBytes, signer)
 
       setState(s => ({ ...s, message: 'Submitting transaction...' }))
       const result = await client.sendRawTransaction(signedTxns).do()
@@ -1038,7 +1230,7 @@ export function useTransaction(): UseTransactionReturn {
           abiEncodeBytes(nullifierHashBytes),
           recipientPubKey,
           relayerPubKey,
-          uint64ToBytes(0n),
+          uint64ToBytes(relayerFee),
           abiEncodeBytes(recipientSignalBytes),
           abiEncodeBytes(relayerSignalBytes),
         ],
@@ -1114,6 +1306,20 @@ export function useTransaction(): UseTransactionReturn {
     const pool = getPoolForTier(microAlgos)
 
     try {
+      // Anti-correlation: enforce cooldown between operations
+      const cooldown = checkCooldown()
+      if (!cooldown.ok) {
+        addToast('error', `Please wait ${cooldown.remainingSec}s between operations to avoid creating linkable patterns`)
+        setState(s => ({ ...s, stage: 'error', error: `Cooldown: wait ${cooldown.remainingSec}s between operations` }))
+        return
+      }
+
+      // Anti-correlation: warn about cluster patterns
+      const clusterWarning = checkClusterRisk()
+      if (clusterWarning) {
+        addToast('error', clusterWarning)
+      }
+
       setState(s => ({ ...s, stage: 'depositing', message: 'Initializing cryptography...', txId: null, error: null }))
 
       await initMimc()
@@ -1139,9 +1345,9 @@ export function useTransaction(): UseTransactionReturn {
           txId = await executePrivateSend(client, activeAddress, transactionSigner, pool, note, microAlgos, recipientAlgoAddr, recipientViewPubkey, subsidy)
           break // success
         } catch (err) {
+          clearTreeCache(pool.appId) // Always clear — in-memory tree has phantom leaf
           if (attempt < MAX_DEPOSIT_RETRIES && isStaleRootError(err)) {
             console.warn(`PrivateSend attempt ${attempt} failed (stale root), retrying...`)
-            clearTreeCache(pool.appId) // Force fresh sync on retry
             setState(s => ({
               ...s,
               stage: 'depositing',
@@ -1157,6 +1363,7 @@ export function useTransaction(): UseTransactionReturn {
       incrementDepositIndex()
 
       const displayAddr = recipientAlgoAddr.slice(0, 6) + '...' + recipientAlgoAddr.slice(-4)
+      recordOperation('deposit') // privateSend is deposit+withdraw combined
       addToast('success', `${amountAlgo} ALGO sent privately to ${displayAddr}`)
       const psNotes = await loadNotes()
       setState(s => ({
@@ -1176,18 +1383,18 @@ export function useTransaction(): UseTransactionReturn {
     }
   }, [activeAddress, transactionSigner, signData, getClient, addToast])
 
-  // ── CHURN (withdraw + re-deposit to refresh note position) ──
+  // ── CHURN (withdraw old note + deposit new one) ──
   const churnNote = useCallback(async (note: DepositNote) => {
     if (!activeAddress || !transactionSigner) {
       addToast('error', 'Wallet not connected')
       return
     }
-    // Churn = withdraw to self, then deposit same amount back
-    // Step 1: Withdraw existing note to self
+    // Must use withdraw+deposit to actually consume the old note's nullifier.
+    // privateSend derives a fresh note and doesn't spend the specified one.
+    // Self-churn is inherently linkable (same address), but the old note IS consumed.
     await withdraw(note.commitment, activeAddress)
-    // Step 2: Deposit same amount back (creates new note at higher leaf index)
-    await deposit(note.denomination, true) // skip batch wait for re-deposit
-    addToast('success', 'Note churned — privacy refreshed')
+    await deposit(note.denomination)
+    addToast('success', 'Note churned — old nullifier spent, new note created')
   }, [activeAddress, transactionSigner, withdraw, deposit, addToast])
 
   /** Cancel the current batch window wait */

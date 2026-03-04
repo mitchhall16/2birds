@@ -1,48 +1,58 @@
-# privacy-sdk
+# 2birds
 
-Zero-knowledge privacy primitives for Algorand. Deposit ALGO into fixed-denomination pools, then withdraw to any address with a Groth16 ZK proof — breaking the on-chain link between sender and receiver. Powered by BN254 curve operations on the AVM.
+Zero-knowledge privacy pool for Algorand. Deposit ALGO into fixed-denomination pools, withdraw to any address with a ZK proof — breaking the on-chain link between sender and receiver. PLONK LogicSig verification at ~0.007 ALGO per operation.
+
+**Live**: [2birds.pages.dev](https://2birds.pages.dev) (Algorand Testnet)
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph "Frontend (React + Vite)"
+    subgraph "Frontend — 2birds.pages.dev"
         UI[TransactionFlow UI]
         HOOKS[useTransaction Hook]
         PRIV[privacy.ts — MiMC, notes, recovery]
         TREE[tree.ts — Client-side Merkle tree]
+        HPKE[hpke.ts — Encrypted on-chain notes]
+        SCAN[scanner.ts — Chain note recovery]
+        AC[Anti-Correlation<br/>Soak · Cooldown · Jitter]
     end
 
-    subgraph "ZK Circuits (Circom / Groth16)"
-        DC[Deposit Circuit<br/>~42K constraints<br/>4 public signals]
-        WC[Withdraw Circuit<br/>~23K constraints<br/>6 public signals]
-        PSC[PrivateSend Circuit<br/>~44K constraints<br/>9 public signals]
+    subgraph "ZK Circuits — Circom + snarkjs"
+        DC[Deposit ~42K constraints]
+        WC[Withdraw ~23K constraints]
+        PSC[PrivateSend ~44K constraints]
+        SC[Split ~66K constraints]
+        CC[Combine ~66K constraints]
     end
 
-    subgraph "Algorand AVM (Testnet)"
-        DV[Deposit Verifier]
-        WV[Withdraw Verifier]
-        PSV[PrivateSend Verifier]
-        BH[Budget Helper]
-        PP1["Pool 0.1 ALGO"]
-        PP5["Pool 0.5 ALGO"]
-        PP10["Pool 1.0 ALGO"]
+    subgraph "Algorand AVM — Testnet"
+        PLONK["PLONK LogicSig Verifiers<br/>4 txns per proof, 0.004 ALGO"]
+        PP1["Pool 0.1 ALGO<br/>App 756478534"]
+        PP5["Pool 0.5 ALGO<br/>App 756478549"]
+        PP10["Pool 1.0 ALGO<br/>App 756480627"]
     end
 
     subgraph "Infrastructure"
-        REL[Relayer<br/>Cloudflare Worker]
+        REL1[Relayer 1<br/>CF Worker]
+        REL2[Relayer 2<br/>CF Worker]
+        R2[Cloudflare R2<br/>PLONK zkeys]
+        IPFS[IPFS Fallback<br/>zkey mirror]
     end
 
     UI --> HOOKS
-    HOOKS --> PRIV & TREE
-    HOOKS -->|snarkjs| DC & WC & PSC
-
-    HOOKS -->|atomic group| DV & WV & PSV
+    HOOKS --> PRIV & TREE & HPKE & AC
+    HOOKS -->|snarkjs| DC & WC & PSC & SC & CC
+    HOOKS -->|LogicSig group| PLONK
     HOOKS -->|app call| PP1 & PP5 & PP10
+    SCAN -->|indexer| PP1 & PP5 & PP10
+    HOOKS -->|fetch zkeys| R2
+    R2 -.->|fallback| IPFS
+    REL1 & REL2 -->|submit withdrawal| PLONK
+    REL1 & REL2 -->|app call| PP1 & PP5 & PP10
 
-    DV & WV & PSV -->|inner calls| BH
-    REL -->|submit withdrawal| WV
-    REL -->|app call| PP1 & PP5 & PP10
+    style PLONK fill:#4CAF50,color:#fff
+    style AC fill:#e91e63,color:#fff
 ```
 
 ## How It Works
@@ -54,98 +64,124 @@ sequenceDiagram
     participant User
     participant Frontend
     participant snarkjs
-    participant Deposit Verifier
+    participant PLONK LogicSig
     participant Pool Contract
 
     User->>Frontend: deposit(amount, tier)
-    Frontend->>Frontend: Derive deterministic note (secret, nullifier) from master key
+    Frontend->>Frontend: Check cooldown (2 min) + cluster risk
+    Frontend->>Frontend: Derive note (secret, nullifier) from master key
     Frontend->>Frontend: commitment = MiMC(secret, nullifier, amount)
-    Frontend->>Frontend: Sync Merkle tree from chain, insert commitment
-    Frontend->>Frontend: oldRoot → newRoot transition
-    Frontend->>snarkjs: Generate insertion proof (deposit.wasm)
-    Note right of snarkjs: Proves: commitment inserted<br/>correctly at leafIndex,<br/>transitioning oldRoot → newRoot
-    snarkjs-->>Frontend: Groth16 proof (pi_a, pi_b, pi_c)
-    Frontend->>Deposit Verifier: App call with proof + 4 signals
-    Deposit Verifier->>Deposit Verifier: ~202 inner calls for opcode budget
-    Deposit Verifier->>Deposit Verifier: BN254 pairing check
-    Frontend->>Pool Contract: Atomic group: [verifier, payment, deposit]
-    Pool Contract->>Pool Contract: Verify verifier ran in same group
-    Pool Contract->>Pool Contract: Verify signals match (oldRoot, newRoot, commitment, leafIndex)
+    Frontend->>Frontend: Sync Merkle tree, compute oldRoot → newRoot
+    Frontend->>snarkjs: Generate PLONK proof (deposit.wasm + zkey from R2)
+    snarkjs-->>Frontend: PLONK proof
+    Frontend->>PLONK LogicSig: 4 LogicSig txns (0.004 ALGO)
+    Frontend->>Pool Contract: Atomic group: [4× LogicSig, payment, deposit]
+    Pool Contract->>Pool Contract: Verify PLONK verifier ran in same group
     Pool Contract->>Pool Contract: Store commitment in box storage
     Pool Contract->>Pool Contract: Update root + root history
-    Pool Contract-->>User: Deposit confirmed, note saved (encrypted)
+    Frontend->>Frontend: Encrypt note via HPKE, attach to txn note field
+    Pool Contract-->>User: Deposit confirmed
 ```
 
-### Withdraw Flow
+### Withdraw Flow (via Relayer)
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend
     participant snarkjs
-    participant Withdraw Verifier
+    participant Relayer (random)
+    participant PLONK LogicSig
     participant Pool Contract
 
     User->>Frontend: withdraw(note, recipient)
-    Frontend->>Frontend: Sync Merkle tree, get path for note's leaf
-    Frontend->>Frontend: nullifierHash = MiMC(nullifier)
-    Frontend->>snarkjs: Generate withdrawal proof (withdraw.wasm)
-    Note right of snarkjs: Proves: I know secret+nullifier<br/>for a leaf in the tree<br/>without revealing which one
-    snarkjs-->>Frontend: Groth16 proof
-    Frontend->>Withdraw Verifier: App call with proof + 6 signals
-    Withdraw Verifier->>Withdraw Verifier: ~211 inner calls for opcode budget
-    Withdraw Verifier->>Withdraw Verifier: BN254 pairing check
-    Frontend->>Pool Contract: Atomic group: [verifier, withdraw]
+    Frontend->>Frontend: Check soak time (≥3 deposits since yours)
+    Frontend->>Frontend: Check cooldown + cluster risk
+    Frontend->>Frontend: Sync Merkle tree, compute proof inputs
+    Frontend->>snarkjs: Generate PLONK proof (withdraw.wasm)
+    snarkjs-->>Frontend: PLONK proof + public signals
+    Frontend->>Frontend: Random jitter delay (5-30s)
+    Frontend->>Relayer (random): POST /withdraw {proof, signals, recipient}
+    Note right of Relayer (random): Relayer chosen randomly<br/>from pool of operators.<br/>IP hashed, never stored raw.
+    Relayer (random)->>Relayer (random): Verify pool has ≥3 deposits
+    Relayer (random)->>PLONK LogicSig: 4 LogicSig txns
+    Relayer (random)->>Pool Contract: Atomic group: [4× LogicSig, withdraw]
     Pool Contract->>Pool Contract: Verify root is known
     Pool Contract->>Pool Contract: Check nullifier not spent
-    Pool Contract->>Pool Contract: Record nullifier as spent
-    Pool Contract->>User: Send denomination to recipient
+    Pool Contract->>Pool Contract: Record nullifier, send ALGO to recipient
+    Pool Contract-->>Relayer (random): Withdrawal confirmed
+    Relayer (random)-->>Frontend: txId
 ```
 
-### PrivateSend Flow (Combined Deposit + Withdraw)
+### PrivateSend Flow
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend
     participant snarkjs
-    participant PrivateSend Verifier
+    participant PLONK LogicSig
     participant Pool Contract
 
-    User->>Frontend: privateSend(amount, destination)
+    User->>Frontend: privateSend(destination)
     Frontend->>Frontend: Derive new note, compute insertion + withdrawal inputs
     Frontend->>snarkjs: Generate combined proof (privateSend.wasm)
     Note right of snarkjs: Single proof covers both<br/>deposit insertion AND<br/>withdrawal membership
-    snarkjs-->>Frontend: Groth16 proof (9 public signals)
-    Frontend->>PrivateSend Verifier: App call with proof + 9 signals
-    PrivateSend Verifier->>PrivateSend Verifier: ~221 inner calls for opcode budget
-    PrivateSend Verifier->>PrivateSend Verifier: BN254 pairing check
-    Frontend->>Pool Contract: Atomic group: [verifier, payment, privateSend]
-    Pool Contract->>Pool Contract: Verify all 9 signals match
+    snarkjs-->>Frontend: PLONK proof (9 public signals)
+    Frontend->>PLONK LogicSig: 4 LogicSig txns
+    Frontend->>Pool Contract: Atomic group: [4× LogicSig, payment, privateSend]
     Pool Contract->>Pool Contract: Insert new commitment + mark nullifier spent
     Pool Contract->>User: Send denomination to destination
 ```
 
-### Groth16 Verification on AVM
+### PLONK LogicSig Verification (30x cheaper than Groth16)
 
 ```mermaid
 graph TD
-    subgraph "Verifier Application"
-        A[Extract proof from args<br/>pi_a, pi_b, pi_c] --> B[Extract public signals]
-        B --> BP["Budget padding loop<br/>~200-220 inner calls to budget helper<br/>until OpcodeBudget > 145,000"]
-        BP --> C["Compute vk_x = IC_0 + sum(signal_i * IC_i)<br/>ec_scalar_mul + ec_add on BN254 G1"]
-        C --> D["Pairing check<br/>e(-A, B) * e(alpha, beta) * e(vk_x, gamma) * e(C, delta) == 1"]
-        D -->|pass| E[Approve transaction]
-        D -->|fail| F[Reject]
+    subgraph "PLONK Verification Group (4 LogicSig txns)"
+        L1["LogicSig 1<br/>Program contains PLONK<br/>verifier + verification key"]
+        L2["LogicSig 2<br/>Proof data chunk 1"]
+        L3["LogicSig 3<br/>Proof data chunk 2"]
+        L4["LogicSig 4<br/>Public signals"]
+        L1 -->|"BN254 pairing check<br/>in LogicSig evaluation"| PASS[Verification passes]
     end
 
     subgraph "Pool App Call (same atomic group)"
         G[Check nullifier not in box storage] --> H[Check root in knownRoots]
-        H --> I[Transfer denomination to recipient]
-        I --> J[Record nullifier as spent]
+        H --> I[Check PLONK verifier addr matches locked config]
+        I --> J[Transfer denomination to recipient]
+        J --> K[Record nullifier as spent]
     end
 
-    E -.->|atomic group| G
+    PASS -.->|atomic group| G
+
+    style L1 fill:#4CAF50,color:#fff
+    style PASS fill:#2196F3,color:#fff
+```
+
+**Why PLONK LogicSig?** Groth16 verification required ~200 inner app calls for opcode budget (~0.2 ALGO). PLONK verification runs inside a LogicSig program — 4 txns at 0.001 ALGO each = 0.004 ALGO. Same cryptographic security, 30x cheaper.
+
+### Anti-Correlation Protections
+
+```mermaid
+graph LR
+    subgraph "Timing Defenses"
+        BW["Batch Windows<br/>:00 :15 :30 :45"]
+        CD["Operation Cooldown<br/>2 min between ops"]
+        WJ["Withdraw Jitter<br/>5-30s random delay"]
+    end
+
+    subgraph "Pattern Defenses"
+        ST["Soak Time<br/>≥3 deposits after yours<br/>before withdraw allowed"]
+        CL["Cluster Detection<br/>Warning after 3 ops/session"]
+        FD["Fixed Denominations<br/>0.1 / 0.5 / 1.0 ALGO"]
+    end
+
+    subgraph "Infrastructure Defenses"
+        DR["Dual Relayers<br/>Random selection per op"]
+        IH["IP Hashing<br/>SHA-256, raw IP never stored"]
+        HN["HPKE Notes<br/>Encrypted on-chain backup"]
+    end
 ```
 
 ### Merkle Tree (Incremental, Depth 16)
@@ -172,31 +208,7 @@ graph TB
     style ROOT fill:#2196F3,color:#fff
 ```
 
-Each leaf is `MiMC(secret, nullifier, amount)`. Siblings are hashed up with MiMC Sponge (220 rounds, x^5 Feistel). Empty leaves use precomputed zero hashes. Tree supports ~65K deposits (2^16 leaves).
-
-## Features
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Wallet connect (Pera/Defly) | Working | via @txnlab/use-wallet-react |
-| Multi-tier pools (0.1 / 0.5 / 1.0 ALGO) | Working | Fixed-denomination pools for anonymity sets |
-| Deposit with ZK insertion proof | Working | Groth16 proof that commitment was correctly inserted |
-| Withdraw to any address | Working | ZK proof of Merkle membership without revealing leaf |
-| Private Send (atomic deposit+withdraw) | Working | Single combined proof, saves one verifier call |
-| Relayer for private withdrawals | Working | Cloudflare Worker submits txn on user's behalf |
-| Deterministic note derivation | Working | Master key from wallet signature (ARC-0047 signData) |
-| Encrypted note storage | Working | AES-256-GCM derived from master key via HKDF |
-| Password fallback | Working | PBKDF2 key derivation for wallets without signData |
-| Note recovery | Working | Re-derives notes from master key, scans chain for matches |
-| Pool balance badge | Working | Queries indexer for grouped deposits minus withdrawals |
-| Animated pool blob | Working | Metaball visualization scales with pool balance |
-| Cost breakdown | Working | Per-operation fee breakdown with tooltip explanations |
-| HPKE encrypted notes | Working | Notes encrypted with X25519/ChaCha20-Poly1305 in txn note field |
-| View/spend key separation | Working | X25519 view key for note decryption, master key for spending |
-| Privacy addresses (priv1...) | Working | Bech32-encoded address with Algorand pubkey + view pubkey |
-| Chain scanner (HPKE) | Working | Scans on-chain txn notes with view key to recover encrypted notes |
-| Split circuit | Planned | Split 1.0 ALGO into 2 × 0.5 ALGO across pools |
-| Combine circuit | Planned | Combine 2 × 0.5 ALGO into 1.0 ALGO across pools |
+Each leaf is `MiMC(secret, nullifier, amount)`. Siblings are hashed up with MiMC Sponge (220 rounds, x^5 Feistel). Tree supports ~65K deposits (2^16 leaves).
 
 ### View/Spend Key Derivation
 
@@ -216,7 +228,7 @@ graph TD
     style SK fill:#e91e63,color:#fff
 ```
 
-The view key can decrypt HPKE envelopes to see note contents (amounts, leaf indices) but cannot spend notes. The master key is required for spending (deriving secrets and nullifiers).
+The view key can decrypt HPKE envelopes to see note contents (amounts, leaf indices) but cannot spend notes. The master key is required for spending.
 
 ### HPKE Envelope Format
 
@@ -241,45 +253,7 @@ graph LR
     CT -.->|"ChaCha20-Poly1305<br/>decrypt"| SEC & NUL & DEN & LI
 ```
 
-HPKE suite: X25519 + HKDF-SHA256 + ChaCha20-Poly1305. View tag enables fast scanning (ECDH check) before full HPKE decryption.
-
-### Chain Scanning Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Scanner
-    participant Indexer
-    participant HPKE
-
-    User->>Scanner: scanForNotes(viewKeypair)
-    Scanner->>Indexer: Search txns for pool app IDs
-    loop For each txn with note >= 190 bytes
-        Scanner->>HPKE: checkViewTag(envelope, viewPrivKey, txnMeta)
-        alt View tag matches
-            Scanner->>HPKE: decryptNote(envelope, viewPrivKey, txnMeta)
-            HPKE-->>Scanner: {secret, nullifier, denomination, leafIndex}
-            Scanner->>Scanner: Verify commitment = MiMC(secret, nullifier, denom)
-            Scanner->>Scanner: Add to recovered notes
-        else Tag mismatch
-            Scanner->>Scanner: Skip (fast reject)
-        end
-    end
-    Scanner-->>User: Recovered notes merged with localStorage
-```
-
-### Privacy Address Format
-
-```
-priv1... (bech32-encoded)
-┌─────────┬──────────┬───────────────┬───────────────┐
-│ version │ network  │ algo_pubkey   │ view_pubkey   │
-│  (1B)   │  (1B)    │   (32B)       │   (32B)       │
-└─────────┴──────────┴───────────────┴───────────────┘
-         Total payload: 66 bytes
-```
-
-Share your `priv1...` address to receive private transfers. Senders decode it to get your Algorand address (for on-chain recipient) and view public key (for HPKE encryption). Recipients scan the chain with their view key to discover notes.
+HPKE suite: X25519 + HKDF-SHA256 + ChaCha20-Poly1305. View tag enables fast scanning before full decryption.
 
 ### Split/Combine Flow
 
@@ -302,120 +276,154 @@ graph LR
     end
 ```
 
-Split/combine circuits prove denomination conservation across pools: `denomA == 2 * denomB` (split) or `2 * denomA == denomB` (combine). Single ZK proof covers the withdrawal(s) from pool A and deposit(s) into pool B.
+## Features
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Wallet connect (Pera/Defly) | Working | via @txnlab/use-wallet-react |
+| Multi-tier pools (0.1 / 0.5 / 1.0 ALGO) | Working | Fixed-denomination pools |
+| Deposit with ZK proof | Working | PLONK LogicSig verification |
+| Withdraw to any address | Working | ZK Merkle membership proof |
+| Private Send (atomic deposit+withdraw) | Working | Single combined proof |
+| Split (1→2 across pools) | Working | Denomination conservation proof |
+| Combine (2→1 across pools) | Working | Denomination conservation proof |
+| Relayer for private withdrawals | Working | 2 CF Workers, random selection |
+| PLONK LogicSig verification | Working | 30x cheaper than Groth16 |
+| Deterministic note derivation | Working | Master key from wallet signature |
+| HPKE encrypted notes | Working | X25519/ChaCha20-Poly1305 on-chain |
+| View/spend key separation | Working | View key decrypts, master key spends |
+| Privacy addresses (priv1...) | Working | Bech32 with Algorand + view pubkey |
+| Chain scanner | Working | View key scans txn notes for recovery |
+| Anti-correlation protections | Working | Soak, cooldown, jitter, cluster detection |
+| SRI integrity hashes | Working | SHA-384 on all JS/CSS assets |
+| R2 + IPFS zkey hosting | Working | Dual-source fallback for PLONK zkeys |
+
+## Contracts (Testnet)
+
+| Contract | App ID | Notes |
+|----------|--------|-------|
+| Pool — 0.1 ALGO | 756478534 | Fixed denomination, PLONK verifiers locked |
+| Pool — 0.5 ALGO | 756478549 | Fixed denomination, PLONK verifiers locked |
+| Pool — 1.0 ALGO | 756480627 | Fixed denomination, PLONK verifiers locked |
+| Withdraw Verifier (Groth16) | 756420114 | Legacy — 6 public signals |
+| Deposit Verifier (Groth16) | 756420115 | Legacy — 4 public signals |
+| PrivateSend Verifier (Groth16) | 756420116 | Legacy — 9 public signals |
+| Budget Helper | 756420102 | NoOp app for Groth16 opcode budget |
+| Stealth Registry | 756386179 | Stealth meta-address registry |
+
+### PLONK LogicSig Verifier Addresses (Testnet)
+
+| Circuit | Address |
+|---------|---------|
+| Withdraw | `Y5EGJIAMTCQJ5VYEPPNHUXLJ2QOAQRFION77ILEOFM63V5DOURIOSLE2XE` |
+| Deposit | `T7LRWUZ3PL5RPGNMFDQNU7KETGLG2KKXV2YWODJ4KZFJSN5I3IPQEH7E44` |
+| PrivateSend | `ANQG655MULTMHGQVJEEBKUDISGQ7OFNG7WBQXQPHQOKH4LSO5QMNA2KLIE` |
+
+These addresses are permanently locked via `setPlonkVerifiers` (one-shot function — cannot be changed by the creator or anyone else).
+
+## On-Chain Costs
+
+| Operation | PLONK LogicSig | Groth16 (legacy) |
+|-----------|----------------|-------------------|
+| Deposit | **0.007 ALGO** | 0.206 ALGO |
+| Withdraw | **0.006 ALGO** | 0.215 ALGO |
+| Private Send | **0.007 ALGO** | 0.226 ALGO |
+| Split | **0.014 ALGO** | 0.440 ALGO |
+| Combine | **0.014 ALGO** | 0.440 ALGO |
+| Relayer fee | **0.05 ALGO** | — |
+
+PLONK verification runs inside LogicSig programs (4 txns at 0.001 ALGO each). Groth16 required ~200 inner app calls for opcode budget. **PLONK is ~30x cheaper.**
+
+### Total Cost Per Operation (PLONK + Relayed)
+
+| Operation | User Pays | What Happens |
+|-----------|-----------|--------------|
+| Deposit | denomination + 0.057 ALGO | ZK proof + pool insertion |
+| Withdraw (relayed) | 0.05 ALGO from denomination | Relayer submits, user untraceable |
+| Private Send | denomination + 0.057 ALGO | Atomic withdraw + deposit |
+
+## 2birds vs HermesVault
+
+| | 2birds | HermesVault |
+|---|---|---|
+| **Proof system** | PLONK (circom + snarkjs) | PLONK (gnark via AlgoPlonk) |
+| **Verification** | LogicSig (4 txns) | LogicSig (AlgoPlonk) |
+| **Denomination tiers** | 0.1 / 0.5 / 1.0 ALGO | 10 / 100 / 1000 ALGO |
+| **Cost per op** | ~0.007 ALGO | ~0.007 ALGO |
+| **Relayer** | Yes (0.05 ALGO fee) | No |
+| **Unlinkability** | Full (relayer breaks tx graph) | Partial (user submits own tx) |
+| **Note backup** | HPKE encrypted on-chain | localStorage only |
+| **View/spend separation** | Yes (X25519 view key) | No |
+| **Privacy addresses** | Yes (priv1...) | No |
+| **Anti-correlation** | Soak, cooldown, jitter, cluster | None |
+| **Contract mutability** | Immutable (one-shot lock) | Immutable |
+| **IP protection** | SHA-256 hashed, never stored raw | N/A (no relayer) |
+| **Split/combine** | Yes (cross-pool) | No |
+| **Dual relayers** | Yes (random selection) | N/A |
+| **SRI hashes** | Yes (SHA-384) | No |
+| **zkey hosting** | R2 + IPFS fallback | Bundled |
+
+## Infrastructure
+
+| Resource | Provider | Cost |
+|----------|----------|------|
+| Frontend | Cloudflare Pages | Free |
+| Relayer 1 | Cloudflare Workers | Free (100K req/day) |
+| Relayer 2 | Cloudflare Workers | Free |
+| PLONK zkeys | Cloudflare R2 | Free (10GB/month) |
+| zkey fallback | IPFS (kubo) | Free |
+| Algorand RPC | Algonode | Free |
+| **Total** | | **$0/month** |
 
 ## Project Structure
 
 ```
 privacy-sdk/
 ├── circuits/
-│   ├── deposit.circom              # Insertion proof (~42K constraints, depth 16)
-│   ├── withdraw.circom             # Withdrawal proof (~23K constraints, depth 16)
+│   ├── deposit.circom              # Insertion proof (~42K constraints)
+│   ├── withdraw.circom             # Withdrawal proof (~23K constraints)
 │   ├── privateSend.circom          # Combined deposit+withdraw (~44K constraints)
-│   ├── split.circom                # Split 1→2 across pools (denomination conservation)
-│   ├── combine.circom              # Combine 2→1 across pools (denomination conservation)
-│   ├── merkleTree.circom           # MiMC Merkle tree checker + commitment hasher
-│   ├── range-proof.circom          # Amount range proofs (future)
-│   ├── shielded-transfer.circom    # Full shielded transfer (future)
+│   ├── split.circom                # Split 1→2 across pools
+│   ├── combine.circom              # Combine 2→1 across pools
+│   ├── merkleTree.circom           # MiMC Merkle tree + commitment hasher
 │   ├── build.sh                    # Circuit compilation + trusted setup
-│   └── build/                      # Compiled WASM, zkeys, vkeys, ptau
+│   └── build/                      # WASM, zkeys, vkeys, ptau
 ├── contracts/
-│   ├── privacy-pool.algo.ts        # Main pool: deposit, withdraw, privateSend
-│   ├── stealth-registry.algo.ts    # Stealth meta-address registry
-│   ├── shielded-pool.algo.ts       # Full UTXO privacy system (future)
-│   ├── confidential-asset.algo.ts  # Hidden transfer amounts (future)
-│   ├── generate-verifier.ts        # Generates TEAL verifier from vkey.json
-│   ├── deposit_verifier.teal       # Generated Groth16 verifier (4 signals)
-│   ├── withdraw_verifier.teal      # Generated Groth16 verifier (6 signals)
-│   ├── privateSend_verifier.teal   # Generated Groth16 verifier (9 signals)
-│   ├── budget_helper.teal          # NoOp app for opcode budget padding
-│   └── artifacts/                  # Compiled TealScript ARC-56 artifacts
+│   ├── privacy-pool.algo.ts        # Pool: deposit, withdraw, privateSend, split, combine
+│   ├── generate-plonk-verifier.ts  # Generates PLONK LogicSig TEAL from vkey
+│   ├── artifacts/                  # Compiled TealScript ARC-56 artifacts
+│   └── *.teal                      # Groth16 verifiers (legacy)
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx                 # Main layout, badges, blob
-│   │   ├── components/
-│   │   │   ├── TransactionFlow.tsx # Deposit / Quick Send / Manage tabs
-│   │   │   ├── PasswordModal.tsx   # Password fallback for Pera wallets
-│   │   │   ├── CostBreakdown.tsx   # Fee breakdown with tooltips
-│   │   │   ├── PoolBlob.tsx        # Animated background blob
-│   │   │   └── StatusBar.tsx       # Network/wallet status
+│   │   ├── components/             # TransactionFlow, CostBreakdown, PoolBlob
 │   │   ├── hooks/
-│   │   │   ├── useTransaction.ts   # deposit, withdraw, privateSend logic
-│   │   │   └── usePoolState.ts     # Pool balance, user balance, wallet balance
+│   │   │   ├── useTransaction.ts   # Deposit, withdraw, privateSend + anti-correlation
+│   │   │   └── usePoolState.ts     # Pool balance, user balance
 │   │   ├── lib/
-│   │   │   ├── privacy.ts          # MiMC, commitments, encrypted storage, recovery
-│   │   │   ├── keys.ts             # View/spend key derivation (HKDF + X25519)
-│   │   │   ├── address.ts          # Bech32 priv1... privacy address format
-│   │   │   ├── hpke.ts             # HPKE envelope encrypt/decrypt (190-byte format)
-│   │   │   ├── scanner.ts          # Chain scanner for HPKE-encrypted note recovery
-│   │   │   ├── tree.ts             # Client-side MiMC Merkle tree (depth 16)
-│   │   │   ├── config.ts           # Contract addresses, fees, tiers, relayer
-│   │   │   └── errorMessages.ts    # Human-readable error mapping
+│   │   │   ├── privacy.ts          # MiMC, commitments, notes, R2/IPFS zkey fetching
+│   │   │   ├── hpke.ts             # HPKE envelope encrypt/decrypt
+│   │   │   ├── scanner.ts          # Chain scanner for note recovery
+│   │   │   ├── keys.ts             # View/spend key derivation
+│   │   │   ├── address.ts          # Bech32 priv1... privacy addresses
+│   │   │   ├── tree.ts             # Client-side MiMC Merkle tree
+│   │   │   ├── config.ts           # Contracts, fees, relayers, anti-correlation
+│   │   │   └── plonkVerifierLsig.ts # PLONK LogicSig transaction building
 │   │   └── styles/
-│   │       ├── globals.css         # Theme variables, fonts
-│   │       └── components.css      # All component styles
-│   └── public/
-│       ├── circuits/               # deposit/withdraw/privateSend .wasm + .zkey
-│       └── contracts/              # TEAL files for reference
+│   ├── public/circuits/            # Groth16 wasm+zkey (PLONK zkeys on R2)
+│   ├── scripts/add-sri.sh          # Post-build SRI hash injection
+│   └── .env                        # VITE_USE_PLONK_LSIG=true
 ├── relayer/
-│   ├── src/index.ts                # Cloudflare Worker — relayed withdrawals
-│   └── wrangler.toml               # Worker config
+│   ├── src/index.ts                # CF Worker — IP hashing, rate limits, pool checks
+│   └── wrangler.toml               # Worker config + pool IDs
+├── relayer-2/
+│   ├── src/index.ts                # Second relayer (separate operator)
+│   ├── wrangler.toml
+│   └── setup.sh                    # One-shot setup for new relayer operators
 ├── scripts/
-│   ├── deploy-all.ts               # Deploy all contracts + verifiers
-│   ├── deploy-pool-v2.ts           # Deploy multi-tier pool contracts
-│   ├── deploy-verifier.ts          # Deploy verifier + budget helper
-│   └── fund-pools.ts               # Fund pool contracts with ALGO
-├── packages/                       # Legacy SDK packages (monorepo)
-│   ├── core/                       # BN254 curve ops, MiMC hash
-│   ├── pool/                       # Privacy pool SDK
-│   ├── stealth/                    # Stealth address protocol
-│   ├── shielded/                   # Full UTXO privacy
-│   ├── confidential/               # Hidden amounts (Pedersen)
-│   ├── relayer/                    # HTTP relayer SDK
-│   ├── circuits/                   # Circuit artifacts
-│   └── cli/                        # Command-line interface
-├── demo.ts                         # Interactive demo (no blockchain needed)
-└── test-proof.ts                   # Local ZK proof generation + verification
-```
-
-## Contracts (Testnet)
-
-| Contract | App ID | Notes |
-|----------|--------|-------|
-| Pool — 0.1 ALGO | 756420118 | Fixed denomination pool |
-| Pool — 0.5 ALGO | 756420130 | Fixed denomination pool |
-| Pool — 1.0 ALGO | 756420132 | Fixed denomination pool (default) |
-| Deposit Verifier | 756420115 | Groth16 BN254 pairing — 4 public signals |
-| Withdraw Verifier | 756420114 | Groth16 BN254 pairing — 6 public signals |
-| PrivateSend Verifier | 756420116 | Groth16 BN254 pairing — 9 public signals |
-| Budget Helper | 756420102 | NoOp app for opcode budget padding |
-| Stealth Registry | 756386179 | Stealth meta-address registry |
-| Shielded Pool | 756386192 | Full UTXO privacy system (future) |
-| Confidential Asset | 756386193 | Hidden transfer amounts (future) |
-
-## On-Chain Costs
-
-| Operation | Cost | Details |
-|-----------|------|---------|
-| Deposit | ~0.206 ALGO | Deposit verifier (~202 inner calls) + payment + pool app call |
-| Withdraw | ~0.215 ALGO | Withdraw verifier (~211 inner calls) + pool app call |
-| Private Send | ~0.226 ALGO | PrivateSend verifier (~221 inner calls) + payment + pool app call |
-| Relayed Withdraw | 0.25 ALGO | Deducted from withdrawal amount, paid to relayer |
-| Split (1→2) | ~0.44 ALGO | Split verifier + pool A withdraw + pool B 2× deposit (estimated) |
-| Combine (2→1) | ~0.44 ALGO | Combine verifier + pool A 2× withdraw + pool B deposit (estimated) |
-
-Most of the cost comes from the ZK proof verification step — the BN254 pairing check needs ~145,000 opcodes, which requires ~200-220 inner app calls to the budget helper at 0.001 ALGO each. The exact count varies by circuit (more public signals = more `ec_scalar_mul` operations).
-
-## Live Frontend
-
-**URL**: https://algo-privacy.pages.dev (Cloudflare Pages, Algorand Testnet)
-
-To use: Install Pera Wallet, go to Settings > Developer Settings > Node Settings > Testnet, fund from the [testnet dispenser](https://bank.testnet.algorand.network/), then connect at the URL above.
-
-**Build & Deploy**:
-```bash
-cd frontend && npx vite build
-npx wrangler pages deploy dist --project-name algo-privacy --branch main --commit-dirty=true
+│   ├── deploy-all.ts               # Deploy contracts + verifiers
+│   ├── deploy-plonk-pools.ts       # Deploy PLONK-enabled pools
+│   └── fund-and-finalize.ts        # Fund pools + lock PLONK verifiers
+└── packages/                       # Legacy SDK packages
 ```
 
 ## Quick Start
@@ -427,46 +435,43 @@ npm install
 # Run the interactive demo (no blockchain needed)
 npx tsx demo.ts
 
-# Generate and verify a real ZK proof locally
-npx tsx test-proof.ts
-
 # Build ZK circuits (requires circom + snarkjs)
 cd circuits && bash build.sh
 
-# Deploy to testnet (requires funded deployer wallet)
-npx tsx scripts/deploy-all.ts
+# Build frontend (with SRI hashes)
+cd frontend && npm run build
+
+# Deploy frontend to Cloudflare Pages
+cd frontend && npx wrangler pages deploy dist --project-name 2birds
+
+# Deploy relayer
+cd relayer && npm run deploy
 ```
 
 ## Tech Stack
 
-- **Circuits**: Circom 2.1.6 + snarkjs (Groth16, BN254)
-- **Curve**: BN254 (alt_bn128) — native AVM v11 support
-- **Hash**: MiMC Sponge (220 rounds, x^5 Feistel) — circomlib-compatible
-- **Contracts**: TealScript (compiles to TEAL for AVM)
-- **Verifiers**: Generated TEAL from verification keys (gnark-crypto G2 encoding)
-- **Frontend**: React + Vite, deployed on Cloudflare Pages
-- **Relayer**: Cloudflare Worker (TypeScript)
-- **Proving**: snarkjs WASM prover (~2-10s proof generation in browser)
-- **Verification**: BN254 pairing check via AVM opcodes (`ec_add`, `ec_scalar_mul`, `ec_pairing_check`)
-- **Storage**: AES-256-GCM encrypted notes in localStorage, HKDF-derived from master key
-- **HPKE**: X25519 + HKDF-SHA256 + ChaCha20-Poly1305 for encrypted on-chain notes
-- **View Keys**: X25519 keypair derived via HKDF from master key
-- **Addresses**: Bech32 `priv1...` format encoding Algorand pubkey + view pubkey
+- **Circuits**: Circom 2.1.6 + snarkjs (PLONK + Groth16, BN254)
+- **Verification**: PLONK LogicSig (4 txns, 0.004 ALGO) — 30x cheaper than Groth16 app calls
+- **Hash**: MiMC Sponge (220 rounds, x^5 Feistel)
+- **Contracts**: TealScript → TEAL for AVM v11
+- **Frontend**: React + Vite on Cloudflare Pages
+- **Relayer**: 2× Cloudflare Workers (TypeScript)
+- **Proving**: snarkjs WASM prover (~2-10s in browser)
+- **Note encryption**: HPKE (X25519 + HKDF-SHA256 + ChaCha20-Poly1305)
+- **Key derivation**: HKDF for view keys, MiMC for spend secrets
+- **Addresses**: Bech32 `priv1...` encoding Algorand pubkey + view pubkey
+- **zkey hosting**: Cloudflare R2 (primary) + IPFS (fallback)
+- **Integrity**: SRI SHA-384 hashes on all frontend assets
 
-## AVM Requirements
+## Security Model
 
-- AVM v11 for BN254 curve operations (`ec_scalar_mul`, `ec_add`, `ec_pairing_check`)
-- Box storage for Merkle tree commitments, nullifier set, root history (ring buffer of 1000)
-- Application opcode budget pooling (~200-220 inner calls to budget helper for ~145K+ opcodes)
-
-## Known Issues
-
-- **Note persistence**: Notes are stored both encrypted in localStorage (AES-256-GCM) and as HPKE envelopes in on-chain txn note fields. Chain scanning with your view key recovers notes even after clearing browser data.
-- **Concurrent deposits**: If another user deposits during your proof generation (~10-30s), the root changes and the proof becomes invalid. The frontend automatically retries up to 3 times.
-- **Quick Send privacy**: PrivateSend deposits and withdraws in the same block, publicly linking both transactions. For maximum privacy, deposit first, wait for pool activity, then withdraw separately.
-- **Pool balance accuracy**: Uses indexer to count grouped payments minus inner-txn payments. Polls every 30s.
-- **View key compromise**: If an attacker obtains your view key (derived from master key via HKDF), they can decrypt all HPKE envelopes and see note contents. They cannot spend notes (requires master key). This is by design — view keys enable auditors/compliance without spend authority.
-- **Split/combine circuits**: Not yet compiled or deployed. The circuits are defined but require trusted setup (`./build.sh split` / `./build.sh combine`) and verifier deployment before use.
+- **ZK proofs**: PLONK on BN254 — same cryptographic hardness as Groth16
+- **Contract immutability**: `setPlonkVerifiers` is one-shot — verifier addresses are permanently locked after first call
+- **Relayer privacy**: IPs hashed with SHA-256 before rate-limit storage, raw IPs never persisted
+- **Dual relayers**: Frontend randomly picks one per operation — no single operator sees all traffic
+- **Anti-correlation**: Soak time (3 deposits), cooldown (2 min), jitter (5-30s), cluster warnings (3 ops/session)
+- **Frontend integrity**: SRI hashes on all JS/CSS, CSP headers restrict script/connect sources
+- **Note recovery**: HPKE-encrypted notes stored on-chain — recoverable with view key even after clearing browser data
 
 ## License
 

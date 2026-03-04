@@ -1,0 +1,14 @@
+name = "privacy-pool-relayer-2"
+main = "src/index.ts"
+compatibility_date = "2024-05-01"
+
+[vars]
+ALGOD_URL = "https://testnet-api.algonode.cloud"
+VERIFIER_APP_ID = "756420114"
+BUDGET_HELPER_APP_ID = "756420102"
+ALLOWED_POOL_IDS = "756478534,756478549,756480627"
+PLONK_VERIFIER_ADDR = "Y5EGJIAMTCQJ5VYEPPNHUXLJ2QOAQRFION77ILEOFM63V5DOURIOSLE2XE"
+
+# Secrets (set via `wrangler secret put`):
+# RELAYER_MNEMONIC — 25-word Algorand mnemonic for this relayer's wallet
+# ALLOWED_ORIGINS — comma-separated CORS origins (e.g. https://2birds.pages.dev)

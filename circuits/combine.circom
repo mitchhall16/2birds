@@ -1,7 +1,25 @@
 pragma circom 2.0.0;
 
-include "../node_modules/circomlibjs/circuits/mimcsponge.circom";
 include "merkleTree.circom";
+
+/**
+ * Num2Bits — Convert a number to its binary representation
+ * (needed to extract path indices from leafIndex)
+ */
+template Num2Bits(n) {
+    signal input in;
+    signal output out[n];
+
+    var lc1 = 0;
+    var e2 = 1;
+    for (var i = 0; i < n; i++) {
+        out[i] <-- (in >> i) & 1;
+        out[i] * (out[i] - 1) === 0;
+        lc1 += out[i] * e2;
+        e2 = e2 + e2;
+    }
+    lc1 === in;
+}
 
 /**
  * Combine circuit — proves two withdrawals from pool A and one deposit into pool B.
@@ -101,6 +119,13 @@ template Combine(levels) {
         treeChecker2.pathElements[i] <== pathElementsA2[i];
         treeChecker2.pathIndices[i] <== pathIndicesA2[i];
     }
+
+    // ── Enforce distinct nullifiers (prevent same note used twice) ──
+    signal nullifierDiff;
+    nullifierDiff <== nullifierHash1 - nullifierHash2;
+    signal invDiff;
+    invDiff <-- 1 / nullifierDiff;       // witness hint (only solvable if diff != 0)
+    invDiff * nullifierDiff === 1;        // constrains nullifierDiff to be non-zero
 
     // ── Pool B: Verify deposit ──
 

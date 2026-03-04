@@ -25,16 +25,6 @@ const ENVELOPE_LEN = 1 + 1 + ENCAP_KEY_LEN + CIPHERTEXT_LEN + VIEW_TAG_LEN + VIE
 const VIEW_TAG_DOMAIN = 'privacy-pool-view-tag'
 
 /**
- * Transaction metadata used for binding the HPKE envelope to a specific transaction.
- * Used in view tag computation to prevent replay attacks.
- */
-export interface TxnMetadata {
-  senderPubkey: Uint8Array // 32 bytes — sender's Algorand public key
-  firstValid: number
-  lastValid: number
-}
-
-/**
  * Serialize a deposit note's plaintext fields into 76 bytes.
  */
 function serializePlaintext(note: DepositNote): Uint8Array {
@@ -59,36 +49,26 @@ function deserializePlaintext(buf: Uint8Array): Pick<DepositNote, 'secret' | 'nu
     secret: bytesToScalar(buf.slice(0, 32)),
     nullifier: bytesToScalar(buf.slice(32, 64)),
     denomination: bytesToScalar(buf.slice(64, 72)),
-    leafIndex: (buf[72] << 24) | (buf[73] << 16) | (buf[74] << 8) | buf[75],
+    leafIndex: ((buf[72] << 24) | (buf[73] << 16) | (buf[74] << 8) | buf[75]) >>> 0,
   }
 }
 
 /**
  * Compute a view tag for fast scanning.
  *
- * 1. Sender generates ephemeral X25519 keypair (r, R)
- * 2. Shared secret T = r * recipientViewPubkey (ECDH)
- * 3. viewTag = SHA256("privacy-pool-view-tag" || T || senderPubkey || firstValid || lastValid)
+ * viewTag = SHA256("privacy-pool-view-tag" || sharedSecret)
  *
- * Scanner: T' = viewPrivate * R, compare tags
+ * The shared secret is unique per envelope (ephemeral ECDH), so no additional
+ * binding to sender/round params is needed. Previous versions included
+ * senderPubkey/firstValid/lastValid which broke relayed deposits (the on-chain
+ * sender is the relayer, not the user).
  */
-function computeViewTag(
-  sharedSecret: Uint8Array,
-  txnMeta: TxnMetadata,
-): Uint8Array {
+function computeViewTag(sharedSecret: Uint8Array): Uint8Array {
   const encoder = new TextEncoder()
   const domain = encoder.encode(VIEW_TAG_DOMAIN)
-  const fv = uint64ToBytes(txnMeta.firstValid)
-  const lv = uint64ToBytes(txnMeta.lastValid)
-
-  const preimage = new Uint8Array(domain.length + sharedSecret.length + txnMeta.senderPubkey.length + 8 + 8)
-  let offset = 0
-  preimage.set(domain, offset); offset += domain.length
-  preimage.set(sharedSecret, offset); offset += sharedSecret.length
-  preimage.set(txnMeta.senderPubkey, offset); offset += txnMeta.senderPubkey.length
-  preimage.set(fv, offset); offset += 8
-  preimage.set(lv, offset)
-
+  const preimage = new Uint8Array(domain.length + sharedSecret.length)
+  preimage.set(domain, 0)
+  preimage.set(sharedSecret, domain.length)
   return sha256(preimage)
 }
 
@@ -101,7 +81,6 @@ function computeViewTag(
 export async function encryptNote(
   note: DepositNote,
   recipientViewPubkey: Uint8Array,
-  txnMeta: TxnMetadata,
 ): Promise<Uint8Array> {
   const plaintext = serializePlaintext(note)
 
@@ -119,7 +98,7 @@ export async function encryptNote(
 
   // ECDH for view tag: shared = ephemeralPriv * recipientViewPubkey
   const sharedSecret = x25519.getSharedSecret(ephemeralPriv, recipientViewPubkey)
-  const viewTag = computeViewTag(sharedSecret, txnMeta)
+  const viewTag = computeViewTag(sharedSecret)
 
   // Assemble envelope
   const envelope = new Uint8Array(ENVELOPE_LEN)
@@ -141,7 +120,6 @@ export async function encryptNote(
 export function checkViewTag(
   envelope: Uint8Array,
   viewPrivateKey: Uint8Array,
-  txnMeta: TxnMetadata,
 ): boolean {
   if (envelope.length < ENVELOPE_LEN) return false
   if (envelope[0] !== ENVELOPE_VERSION) return false
@@ -159,7 +137,7 @@ export function checkViewTag(
     return false
   }
 
-  const computedTag = computeViewTag(sharedSecret, txnMeta)
+  const computedTag = computeViewTag(sharedSecret)
 
   // Constant-time comparison
   if (computedTag.length !== storedTag.length) return false
@@ -177,7 +155,6 @@ export function checkViewTag(
 export async function decryptNote(
   envelope: Uint8Array,
   viewPrivateKey: Uint8Array,
-  txnMeta: TxnMetadata,
 ): Promise<Pick<DepositNote, 'secret' | 'nullifier' | 'denomination' | 'leafIndex'> | null> {
   if (envelope.length < ENVELOPE_LEN) return null
   if (envelope[0] !== ENVELOPE_VERSION) return null

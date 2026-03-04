@@ -25,6 +25,9 @@ frontend/public/circuits/*.zkey
 # Wallet state (contains private keys!)
 .algo-privacy/
 
+# Wrangler local state
+.wrangler/
+
 # OS files
 .DS_Store
 Thumbs.db

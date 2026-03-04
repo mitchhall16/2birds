@@ -1,7 +1,7 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
 const TREE_DEPTH = 16;
-const ROOT_HISTORY_SIZE = 1000;
+const ROOT_HISTORY_SIZE = 10000;
 
 class PrivacyPool extends Contract {
   // Global state
@@ -48,12 +48,15 @@ class PrivacyPool extends Contract {
   }
 
   /**
-   * Set PLONK LogicSig verifier addresses (creator only, one-time setup).
-   * Once set, the contract will accept LogicSig-based verification instead of app calls.
+   * Set PLONK LogicSig verifier addresses (creator only, one-shot).
+   * Once set, verifier addresses are immutable — prevents creator rug pull.
    */
   setPlonkVerifiers(withdrawAddr: Address, depositAddr: Address, privateSendAddr: Address): void {
     assert(this.txn.sender === this.app.creator);
-    assert(this.plonkVerifierAddr.value === Address.zeroAddress); // one-shot only
+    // One-shot: ALL three must be zero — prevents bypass via partial zero args
+    assert(this.plonkVerifierAddr.value === Address.zeroAddress);
+    assert(this.plonkDepositVerifierAddr.value === Address.zeroAddress);
+    assert(this.plonkPrivateSendVerifierAddr.value === Address.zeroAddress);
     this.plonkVerifierAddr.value = withdrawAddr;
     this.plonkDepositVerifierAddr.value = depositAddr;
     this.plonkPrivateSendVerifierAddr.value = privateSendAddr;
@@ -68,6 +71,10 @@ class PrivacyPool extends Contract {
   deposit(commitment: bytes, mimcRoot: bytes): void {
     assert(len(commitment) === 32);
     assert(len(mimcRoot) === 32);
+
+    // Enforce 15-minute batch windows: deposits only within 120s of :00/:15/:30/:45
+    const windowOffset = globals.latestTimestamp % 900;
+    assert(windowOffset <= 120 || windowOffset >= 780);
 
     // Verify insertion proof in a preceding transaction.
     // Supports two modes:
@@ -155,16 +162,26 @@ class PrivacyPool extends Contract {
     recipientSignal: bytes,
     relayerSignal: bytes,
   ): void {
-    // 1. Verify the root is known
+    assert(len(nullifierHash) === 32);
+    assert(len(root) === 32);
+
+    // 1. Verify signal/address binding — prevents malicious relayer from redirecting funds
+    // recipientSignal must equal recipient pubkey mod BN254_R (as 32-byte BE)
+    // relayerSignal must equal relayer pubkey mod BN254_R (as 32-byte BE)
+    // Note: TealScript doesn't have b%, so this is done in TEAL patch below
+    // assert(recipientSignal === addressToScalar(recipient))
+    // assert(relayerSignal === addressToScalar(relayer))
+
+    // 2. Verify the root is known
     assert(this.isKnownRoot(root));
 
-    // 2. Check nullifier hasn't been spent
+    // 3. Check nullifier hasn't been spent
     assert(!this.nullifiers(nullifierHash).exists);
 
-    // 3. Record nullifier as spent
+    // 4. Record nullifier as spent
     this.nullifiers(nullifierHash).value = hex('01');
 
-    // 4. Verify ZK verifier is the preceding transaction in this group.
+    // 5. Verify ZK verifier is the preceding transaction in this group.
     // Supports two modes:
     //   1. App-based verifier (Groth16): app call to verifierAppId
     //   2. LogicSig verifier (PLONK): payment signed by plonkVerifierAddr
@@ -182,7 +199,7 @@ class PrivacyPool extends Contract {
       assert(prevTxn.sender === this.txn.sender);
     }
 
-    // 5. Verify ALL public signals match (prevents front-running / proof replay attacks)
+    // 6. Verify ALL public signals match (prevents front-running / proof replay attacks)
     // Signals layout: 0-32 root, 32-64 nullifierHash, 64-96 recipient, 96-128 relayer, 128-160 fee, 160-192 amount
     // In app mode: signals in applicationArgs[1]. In LogicSig mode: signals in Note field.
     const signals = prevTxn.typeEnum === TransactionType.Payment
@@ -253,6 +270,15 @@ class PrivacyPool extends Contract {
     assert(len(commitment) === 32);
     assert(len(mimcRoot) === 32);
     assert(len(nullifierHash) === 32);
+
+    // Verify signal/address binding — prevents malicious relayer from redirecting funds
+    // Note: TealScript doesn't have b%, so this is done in TEAL patch below
+    // assert(recipientSignal === addressToScalar(recipient))
+    // assert(relayerSignal === addressToScalar(relayer))
+
+    // Enforce 15-minute batch windows: deposits only within 120s of :00/:15/:30/:45
+    const windowOffset = globals.latestTimestamp % 900;
+    assert(windowOffset <= 120 || windowOffset >= 780);
 
     // Verify combined privateSend verifier call at groupIndex - 2.
     // Supports app-based (Groth16) or LogicSig (PLONK) verification.

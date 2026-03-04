@@ -1,185 +1,224 @@
 #pragma version 11
-// PLONK LogicSig Verifier for Algorand AVM
-// nPublic: 4, domain: 65536
+// PLONK LogicSig Verifier — nPublic=4, domain=65536
 
-// === Group index check: only index 0 verifies ===
+// === Group structure validation ===
+// All 4 LogicSig txns must share the same sender (this program)
+// Non-index-0 txns approve only after verifying group integrity
 txn GroupIndex
 pushint 0
 !=
-bnz auto_approve
+bnz budget_padding
 
-// === Step 1: Reconstruct VK from group txn Notes, verify SHA256 hash ===
-gtxn 1 Note  // VK chunk 1
-gtxn 2 Note  // VK chunk 2
-concat
-gtxn 3 Note  // VK chunk 3
-concat
+// Index 0: verify group has >= 5 txns and all 4 LogicSig senders match
+global GroupSize
+pushint 5
+>=
+assert // group must have >= 5 txns (4 lsig + app call)
+
+// Verify gtxn 1, 2, 3 senders all equal this LogicSig address
+gtxn 1 Sender
+txn Sender
+==
+assert // gtxn 1 sender must match verifier
+gtxn 2 Sender
+txn Sender
+==
+assert // gtxn 2 sender must match verifier
+gtxn 3 Sender
+txn Sender
+==
+assert // gtxn 3 sender must match verifier
+
+// === Step 1: Load VK from gtxn 1 Note, verify SHA256 ===
+gtxn 1 Note
 dup
 sha256
 pushbytes 0x7073719b75f7515149c213e25288960ff076089506571472142c19db0117dcec
 ==
 assert // VK hash mismatch
-store 50 // full serialized VK
+store 50 // vk_bytes
 
 // === Step 2: Parse proof (768 bytes) from arg 0 ===
-txna ApplicationArgs 0
+arg 0
+dup
 len
 pushint 768
 ==
 assert // proof must be 768 bytes
+store 15 // proof_raw
 
-// A = proof[0:64]
-txna ApplicationArgs 0
-extract 0 64
+load 15
+extract 0 64 // A
 store 0
-// B = proof[64:128]
-txna ApplicationArgs 0
-extract 64 64
+load 15
+extract 64 64 // B
 store 1
-// C = proof[128:192]
-txna ApplicationArgs 0
-extract 128 64
+load 15
+extract 128 64 // C
 store 2
-// Z = proof[192:256]
-txna ApplicationArgs 0
-extract 192 64
+load 15
+extract 192 64 // Z
 store 3
-// T1 = proof[256:320]
-txna ApplicationArgs 0
+load 15
 pushint 256
 pushint 64
-extract3
+extract3 // T1
 store 4
-// T2 = proof[320:384]
-txna ApplicationArgs 0
+load 15
 pushint 320
 pushint 64
-extract3
+extract3 // T2
 store 5
-// T3 = proof[384:448]
-txna ApplicationArgs 0
+load 15
 pushint 384
 pushint 64
-extract3
+extract3 // T3
 store 6
-// eval_a = proof[448:480]
-txna ApplicationArgs 0
+load 15
 pushint 448
 pushint 32
-extract3
+extract3 // eval_a
 store 7
-// eval_b = proof[480:512]
-txna ApplicationArgs 0
+load 15
 pushint 480
 pushint 32
-extract3
+extract3 // eval_b
 store 8
-// eval_c = proof[512:544]
-txna ApplicationArgs 0
+load 15
 pushint 512
 pushint 32
-extract3
+extract3 // eval_c
 store 9
-// eval_s1 = proof[544:576]
-txna ApplicationArgs 0
+load 15
 pushint 544
 pushint 32
-extract3
+extract3 // eval_s1
 store 10
-// eval_s2 = proof[576:608]
-txna ApplicationArgs 0
+load 15
 pushint 576
 pushint 32
-extract3
+extract3 // eval_s2
 store 11
-// eval_zw = proof[608:640]
-txna ApplicationArgs 0
+load 15
 pushint 608
 pushint 32
-extract3
+extract3 // eval_zw
 store 12
-// Wxi = proof[640:704]
-txna ApplicationArgs 0
+load 15
 pushint 640
 pushint 64
-extract3
+extract3 // Wxi
 store 13
-// Wxiw = proof[704:768]
-txna ApplicationArgs 0
+load 15
 pushint 704
 pushint 64
-extract3
+extract3 // Wxiw
 store 14
 
-// === Step 3: Parse 4 public signals from arg 1 (128 bytes) ===
-txna ApplicationArgs 1
+// === Step 3: Parse 4 signals from gtxn 3 Note ===
+gtxn 3 Note
+dup
 len
 pushint 128
 ==
-assert // signals must be nPublic * 32 bytes
+assert // signals must be nPublic*32 bytes
+store 51 // signals_bytes
 
-// === Step 4: Parse VK fields ===
-load 50 // VK
+// === Step 4: Parse 4 precomputed inverses from arg 1 ===
+arg 1
+dup
+len
+pushint 128
+==
+assert // inverses must be nPublic*32 bytes
+store 52 // inverses_bytes
+
+// === Step 5: Parse VK fields ===
+load 50
 extract 8 32
-store 20 // VK.k1
-load 50 // VK
+store 20 // k1
+load 50
 extract 40 32
-store 21 // VK.k2
-load 50 // VK
+store 21 // k2
+load 50
 extract 72 32
-store 22 // VK.w
-load 50 // VK
+store 22 // w
+load 50
 extract 104 64
-store 23 // VK.Qm
-load 50 // VK
+store 23 // Qm
+load 50
 extract 168 64
-store 24 // VK.Ql
-load 50 // VK
+store 24 // Ql
+load 50
 extract 232 64
-store 25 // VK.Qr
-load 50 // VK
+store 25 // Qr
+load 50
 pushint 296
 pushint 64
 extract3
-store 26 // VK.Qo
-load 50 // VK
+store 26 // Qo
+load 50
 pushint 360
 pushint 64
 extract3
-store 27 // VK.Qc
-load 50 // VK
+store 27 // Qc
+load 50
 pushint 424
 pushint 64
 extract3
-store 28 // VK.S1
-load 50 // VK
+store 28 // S1
+load 50
 pushint 488
 pushint 64
 extract3
-store 29 // VK.S2
-load 50 // VK
+store 29 // S2
+load 50
 pushint 552
 pushint 64
 extract3
-store 30 // VK.S3
-load 50 // VK
+store 30 // S3
+load 50
 pushint 616
 pushint 128
 extract3
-store 31 // VK.X_2
+store 31 // X_2
 
-// === Step 5: Fiat-Shamir challenges ===
-// beta = keccak256(A || B || C || signals) mod r
-load 0  // A
-load 1  // B
+// === Step 6: Fiat-Shamir challenges ===
+// beta = keccak256(Qm||Ql||Qr||Qo||Qc||S1||S2||S3||signals||A||B||C) mod r
+load 23 // Qm
+load 24 // Ql
 concat
-load 2  // C
+load 25 // Qr
 concat
-txna ApplicationArgs 1 // signals
+load 26 // Qo
+concat
+load 27 // Qc
+concat
+load 28 // S1
+concat
+load 29 // S2
+concat
+load 30 // S3
+concat
+load 51 // signals
+concat
+load 0 // A
+concat
+load 1 // B
+concat
+load 2 // C
 concat
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
 store 32 // beta
 
 // gamma = keccak256(beta) mod r
@@ -187,9 +226,17 @@ load 32
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
 store 33 // gamma
 
-// alpha = keccak256(beta || gamma || Z) mod r
+// alpha = keccak256(beta||gamma||Z) mod r
 load 32
 load 33
 concat
@@ -198,9 +245,17 @@ concat
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
 store 34 // alpha
 
-// xi = keccak256(alpha || T1 || T2 || T3) mod r
+// xi = keccak256(alpha||T1||T2||T3) mod r
 load 34
 load 4 // T1
 concat
@@ -211,38 +266,61 @@ concat
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
 store 35 // xi
 
-// v = keccak256(xi || evals) mod r
-load 35 // xi
-load 7 // eval_a
+// v1 = keccak256(xi||evals) mod r
+load 35
+load 7
 concat
-load 8 // eval_b
+load 8
 concat
-load 9 // eval_c
+load 9
 concat
-load 10 // eval_s1
+load 10
 concat
-load 11 // eval_s2
+load 11
 concat
-load 12 // eval_zw
+load 12
 concat
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
-store 36 // v
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 36 // v1
 
-// u = keccak256(Wxi || Wxiw) mod r
-load 13 // Wxi
-load 14 // Wxiw
+// u = keccak256(Wxi||Wxiw) mod r
+load 13
+load 14
 concat
 keccak256
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
 store 37 // u
 
-// === Step 6: ZH(xi) = xi^65536 - 1 ===
-// Compute xi^n via repeated squaring
+// === Step 7: xin = xi^65536, zh = xin - 1 ===
 load 35 // xi
 dup
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
@@ -340,6 +418,8 @@ swap
 b*
 swap
 b%
+dup
+store 39 // xin = xi^n
 pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
@@ -347,114 +427,631 @@ b-
 b+
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 b%
-store 38 // ZH_xi
+store 38 // zh
 
-// === Step 7: Verify public signals are correctly bound ===
-// Public signals are passed directly and verified by the pool contract
-// The LogicSig verifies the proof is valid for these signals
-
-// === Step 8: Linearisation & pairing check ===
-load 14 // Wxiw (G1 point)
-load 37 // u (scalar)
-ec_scalar_mul BN254g1
-store 40 // u_Wxiw
-
-load 13 // Wxi
-load 40 // u_Wxiw
-ec_add BN254g1
-store 41 // Wxi_plus_uWxiw (RHS G1)
-
-load 13 // Wxi
+// === Step 8: Lagrange evaluations with precomputed inverses ===
+// L[1](xi): w^0 * zh * inv[0]
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001 // w^0 = 1
+store 70 // w^0
+// verify inv[0]: inv * n * (xi - w^0) mod r == 1
+load 52 // inverses_bytes
+extract 0 32 // inv[0]
+dup
+store 71 // inv[0]
 load 35 // xi
-ec_scalar_mul BN254g1
-store 42 // xi_Wxi
+load 70 // w^0
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000010000 // n
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+==
+assert // inv[0] verification failed
+load 70 // w^0
+load 38 // zh
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 71 // inv[i]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 73 // L[1]
 
-load 37 // u
+// L[2](xi): w^1 * zh * inv[1]
+load 22 // w^1 = omega
+store 70 // w^1
+// verify inv[1]: inv * n * (xi - w^1) mod r == 1
+load 52 // inverses_bytes
+extract 32 32 // inv[1]
+dup
+store 71 // inv[1]
 load 35 // xi
+load 70 // w^1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000010000 // n
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
 b*
 swap
 b%
-load 22 // w (root of unity)
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
 b*
 swap
 b%
-store 43 // u_xi_w
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+==
+assert // inv[1] verification failed
+load 70 // w^1
+load 38 // zh
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 71 // inv[i]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 74 // L[2]
 
-load 14 // Wxiw
-load 43 // u_xi_w
-ec_scalar_mul BN254g1
-store 44 // u_xi_w_Wxiw
+// L[3](xi): w^2 * zh * inv[2]
+load 22 // w
+load 70 // w^1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 70 // w^2
+// verify inv[2]: inv * n * (xi - w^2) mod r == 1
+load 52 // inverses_bytes
+extract 64 32 // inv[2]
+dup
+store 71 // inv[2]
+load 35 // xi
+load 70 // w^2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000010000 // n
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+==
+assert // inv[2] verification failed
+load 70 // w^2
+load 38 // zh
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 71 // inv[i]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 75 // L[3]
 
-// D commitment (linearisation)
+// L[4](xi): w^3 * zh * inv[3]
+load 22 // w
+load 70 // w^2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 70 // w^3
+// verify inv[3]: inv * n * (xi - w^3) mod r == 1
+load 52 // inverses_bytes
+extract 96 32 // inv[3]
+dup
+store 71 // inv[3]
+load 35 // xi
+load 70 // w^3
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000010000 // n
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+==
+assert // inv[3] verification failed
+load 70 // w^3
+load 38 // zh
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 71 // inv[i]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 76 // L[4]
+
+// === Step 9: PI(xi) ===
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000 // accumulator
+load 51 // signals_bytes
+extract 0 32 // signal[0]
+load 73 // L[1]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 51 // signals_bytes
+extract 32 32 // signal[1]
+load 74 // L[2]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 51 // signals_bytes
+extract 64 32 // signal[2]
+load 75 // L[3]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 51 // signals_bytes
+extract 96 32 // signal[3]
+load 76 // L[4]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 42 // pi_xi
+
+// === Step 10: Precompute alpha^2 ===
+load 34 // alpha
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 40 // alpha2
+
+// === Step 11: r0 scalar ===
+// e2 = alpha2 * L1
+load 40 // alpha2
+load 73 // L[1]
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 70 // e2
+// e3 = (eval_a+beta*eval_s1+gamma)*(eval_b+beta*eval_s2+gamma)*(eval_c+gamma)*eval_zw*alpha
+load 32 // beta
+load 10 // eval_s1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
 load 7 // eval_a
-load 8 // eval_b
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 71 // e3a
+load 32 // beta
+load 11 // eval_s2
 pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
 b*
 swap
 b%
-store 45 // eval_ab
-
-load 23 // Qm
-load 45 // eval_ab
-ec_scalar_mul BN254g1
-store 46 // D starts as eval_ab * Qm
-
-load 24 // Ql
-load 7 // eval_a
-ec_scalar_mul BN254g1
-load 46
-swap
-ec_add BN254g1
-store 46
-
-load 25 // Qr
 load 8 // eval_b
-ec_scalar_mul BN254g1
-load 46
-swap
-ec_add BN254g1
-store 46
-
-load 26 // Qo
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 72 // e3b
 load 9 // eval_c
-ec_scalar_mul BN254g1
-load 46
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 71 // e3a
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
-ec_add BN254g1
-store 46
-
-load 46
-load 27 // Qc
-ec_add BN254g1
-store 46 // D += Qc
-
-// F = D + batched commitments
-load 0 // A
-load 36 // v
-ec_scalar_mul BN254g1
-load 46 // D
+b*
 swap
-ec_add BN254g1
-store 46 // F
+b%
+load 72 // e3b
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 12 // eval_zw
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 34 // alpha
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 71 // e3
+load 42 // pi
+load 70 // e2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 71 // e3
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 43 // r0
 
-load 46 // F
-load 42 // xi_Wxi
-ec_add BN254g1
-load 44 // u_xi_w_Wxiw
-ec_add BN254g1
-store 47 // LHS G1
-
-// === Pairing check ===
-load 47 // LHS
-extract 0 32 // x
-load 47
-extract 32 32 // y
-pushbytes 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47 // field prime
+// === Step 12: D commitment ===
+// eval_ab = eval_a * eval_b
+load 7
+load 8
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 70 // eval_ab
+// z_coeff = alpha*(eval_a+betaxi+gamma)*(eval_b+betaxi*k1+gamma)*(eval_c+betaxi*k2+gamma) + alpha2*L1 + u
+load 32 // beta
+load 35 // xi
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 44 // betaxi
+load 7 // eval_a
+load 44 // betaxi
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 71 // z_a
+load 44 // betaxi
+load 20 // k1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 8 // eval_b
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 72 // z_b
+load 44 // betaxi
+load 21 // k2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 9 // eval_c
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 71 // z_a
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 72 // z_b
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 34 // alpha
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 40 // alpha2
+load 73 // L1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 37 // u
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 71 // z_coeff
+// s3_coeff (negated for subtraction)
+load 32 // beta
+load 10 // eval_s1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 7 // eval_a
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+store 72 // s3_a
+load 32 // beta
+load 11 // eval_s2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 8 // eval_b
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 33 // gamma
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 72 // s3_a
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 34 // alpha
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 32 // beta
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 12 // eval_zw
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
 swap
 b-
 dup
@@ -465,26 +1062,387 @@ swap
 bzero
 swap
 concat
-concat // -LHS
-store 48 // -LHS
+store 72 // neg_s3_coeff
 
-// G1 array: -LHS || RHS
-load 48 // -LHS
-load 41 // RHS
+// quotient scalars: neg_zh, neg_zh*xin, neg_zh*xin^2
+load 38 // zh
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b-
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
 concat
+store 75 // neg_zh
+load 75 // neg_zh
+load 39 // xin
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 76 // neg_zh_xin
+load 39 // xin
+load 39 // xin
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+store 77 // xin2
+load 75 // neg_zh
+load 77 // xin2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 78 // neg_zh_xin2
 
-// G2 array: [1]_2 || X_2
-pushbytes 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c212c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b
+// D = 10-point MSM (gate + perm + quotient)
+load 23 // Qm
+load 24 // Ql
+concat
+load 25 // Qr
+concat
+load 26 // Qo
+concat
+load 3 // Z
+concat
+load 30 // S3
+concat
+load 27 // Qc
+concat
+load 4 // T1
+concat
+load 5 // T2
+concat
+load 6 // T3
+concat
+load 70 // eval_ab
+load 7 // eval_a
+concat
+load 8 // eval_b
+concat
+load 9 // eval_c
+concat
+load 71 // z_coeff
+concat
+load 72 // neg_s3
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001 // 1 for Qc
+concat
+load 75 // neg_zh
+concat
+load 76 // neg_zh_xin
+concat
+load 78 // neg_zh_xin2
+concat
+ec_multi_scalar_mul BN254g1
+store 60 // D
+
+// === Step 13: F commitment ===
+// powers of v
+load 36 // v1
+dup
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 45 // v2
+load 45 // v2
+load 36 // v1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 46 // v3
+load 46 // v3
+load 36 // v1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 47 // v4
+load 47 // v4
+load 36 // v1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 48 // v5
+// F = 6-point MSM: D + v*A + v^2*B + v^3*C + v^4*S1 + v^5*S2
+load 60 // D
+load 0 // A
+concat
+load 1 // B
+concat
+load 2 // C
+concat
+load 28 // S1
+concat
+load 29 // S2
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+load 36 // v1
+concat
+load 45 // v2
+concat
+load 46 // v3
+concat
+load 47 // v4
+concat
+load 48 // v5
+concat
+ec_multi_scalar_mul BN254g1
+store 61 // F
+
+// === Step 14: E scalar ===
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+load 43 // r0
+b-
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+load 36 // v1
+load 7 // eval_a
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 45 // v2
+load 8 // eval_b
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 46 // v3
+load 9 // eval_c
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 47 // v4
+load 10 // eval_s1
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 48 // v5
+load 11 // eval_s2
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+load 37 // u
+load 12 // eval_zw
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+b+
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 70 // e_val
+
+// === Step 15: Pairing check ===
+// A1 = Wxi + u*Wxiw
+load 14 // Wxiw
+load 37 // u
+ec_scalar_mul BN254g1
+load 13 // Wxi
+ec_add BN254g1
+store 62 // A1
+// negate A1
+load 62 // A1
+extract 0 32 // x
+load 62
+extract 32 32 // y
+pushbytes 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47 // field prime p
+swap
+b-
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+concat // neg_A1
+store 62 // neg_A1
+// B1 = xi*Wxi + u*xi*w*Wxiw + F - E
+load 37 // u
+load 35 // xi
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+load 22 // w
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+swap
+b*
+swap
+b%
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+store 70 // u_xi_w
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+store 79 // u_xi_w
+pushbytes 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+load 70 // e_val
+b-
+dup
+len
+pushint 32
+swap
+-
+bzero
+swap
+concat
+load 13 // Wxi
+load 14 // Wxiw
+concat
+load 61 // F
+concat
+pushbytes 0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002 // G1 generator
+concat
+store 78 // neg_e_val temp
+load 35 // xi
+load 79 // u_xi_w
+concat
+pushbytes 0x0000000000000000000000000000000000000000000000000000000000000001
+concat
+load 78 // neg_e_val
+concat
+ec_multi_scalar_mul BN254g1
+store 63 // B1
+
+// === Final pairing check ===
+load 62 // neg_A1
+load 63 // B1
+concat
 load 31 // X_2
+pushbytes 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c212c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b // G2 generator
 concat
-
 ec_pairing_check BN254g1
-assert // PLONK pairing check must pass
+assert // PLONK pairing check failed
 
-// Verification passed — signals are in arg[1]
 pushint 1
 return
 
-auto_approve:
+// Budget padding txns (index 1, 2, 3): approve only if index 0 is same program
+budget_padding:
+// Verify gtxn 0 sender matches our sender (same LogicSig program)
+gtxn 0 Sender
+txn Sender
+==
+assert // budget txn must be grouped with verifier at index 0
+// Verify this is a zero-amount self-payment (no fund extraction)
+txn Amount
+pushint 0
+==
+assert // budget txn must be zero amount
+txn Receiver
+txn Sender
+==
+assert // budget txn must be self-payment
 pushint 1
 return

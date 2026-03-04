@@ -77,7 +77,7 @@ export function bytesToScalar(buf: Uint8Array): bigint {
   for (let i = 0; i < buf.length; i++) {
     n = (n << 8n) | BigInt(buf[i])
   }
-  return n
+  return buf.length >= 32 ? n % BN254_R : n
 }
 
 /** Convert a uint64 to 8-byte big-endian Uint8Array */
@@ -180,13 +180,6 @@ export function nullifierBox(appId: number, nullifierHash: Uint8Array) {
 }
 
 /** Build box reference for deposit amount at a given leaf index */
-export function amountBox(appId: number, leafIndex: number) {
-  const name = new Uint8Array(11) // "amt" (3) + uint64 (8)
-  name.set(TEXT_ENCODER.encode('amt'), 0)
-  name.set(uint64ToBytes(BigInt(leafIndex)), 3)
-  return { appIndex: appId, name }
-}
-
 /** Build box reference for commitment at a given leaf index */
 export function commitmentBox(appId: number, leafIndex: number) {
   const name = new Uint8Array(11) // "cmt" (3) + uint64 (8)
@@ -195,15 +188,14 @@ export function commitmentBox(appId: number, leafIndex: number) {
   return { appIndex: appId, name }
 }
 
-/** Build all box references needed for a deposit (4-5 boxes — includes evicted root if ring buffer wraps) */
+/** Build all box references needed for a deposit (3-4 boxes — includes evicted root if ring buffer wraps) */
 export function depositBoxRefs(appId: number, rootHistoryIndex: number, leafIndex: number, mimcRoot: Uint8Array, evictedRoot?: Uint8Array) {
   const refs = [
-    rootBox(appId, rootHistoryIndex % 1000),
-    amountBox(appId, leafIndex),
+    rootBox(appId, rootHistoryIndex % 10000),
     commitmentBox(appId, leafIndex),
     knownRootBox(appId, mimcRoot),
   ]
-  // When ring buffer wraps (>=1000 deposits), include the old root's knownRoots box for eviction
+  // When ring buffer wraps (>=10000 deposits), include the old root's knownRoots box for eviction
   if (evictedRoot) {
     refs.push(knownRootBox(appId, evictedRoot))
   }
@@ -212,8 +204,8 @@ export function depositBoxRefs(appId: number, rootHistoryIndex: number, leafInde
 
 /** Read the root stored at a ring buffer slot (for eviction). Returns undefined if slot is empty. */
 export async function readEvictedRoot(client: algosdk.Algodv2, appId: number, rootHistoryIndex: number): Promise<Uint8Array | undefined> {
-  if (rootHistoryIndex < 1000) return undefined // ring buffer hasn't wrapped yet
-  const slot = rootHistoryIndex % 1000
+  if (rootHistoryIndex < 10000) return undefined // ring buffer hasn't wrapped yet
+  const slot = rootHistoryIndex % 10000
   const boxName = new Uint8Array(12)
   boxName.set(TEXT_ENCODER.encode('root'), 0)
   boxName.set(uint64ToBytes(BigInt(slot)), 4)
@@ -383,6 +375,15 @@ async function loadAllNotesAsync(): Promise<DepositNote[]> {
   return []
 }
 
+/** Simple async mutex — prevents concurrent load→modify→save from clobbering each other */
+let notesMutex: Promise<void> = Promise.resolve()
+function withNotesMutex<T>(fn: () => Promise<T>): Promise<T> {
+  const prev = notesMutex
+  let resolve: () => void
+  notesMutex = new Promise<void>(r => { resolve = r })
+  return prev.then(fn).finally(() => resolve!())
+}
+
 /** Save all notes (encrypted — requires master key) */
 async function saveAllNotesAsync(notes: DepositNote[]): Promise<void> {
   const plaintext = JSON.stringify(notes.map(encodeNote))
@@ -398,10 +399,12 @@ async function saveAllNotesAsync(notes: DepositNote[]): Promise<void> {
 }
 
 export async function saveNote(note: DepositNote): Promise<void> {
-  const pool = getPoolForTier(note.denomination)
-  const existing = await loadAllNotesAsync()
-  existing.push({ ...note, appId: pool.appId })
-  await saveAllNotesAsync(existing)
+  return withNotesMutex(async () => {
+    const pool = getPoolForTier(note.denomination)
+    const existing = await loadAllNotesAsync()
+    existing.push({ ...note, appId: pool.appId })
+    await saveAllNotesAsync(existing)
+  })
 }
 
 /** Load deposit notes, filtering out stale notes from defunct pools */
@@ -435,12 +438,14 @@ export async function removeNote(noteIndex: number): Promise<void> {
 
 /** Remove a note by its commitment value (safe regardless of index shifting) */
 export async function removeNoteByCommitment(commitment: bigint): Promise<void> {
-  const all = await loadAllNotesAsync()
-  const idx = all.findIndex(n => n.commitment === commitment)
-  if (idx >= 0) {
-    all.splice(idx, 1)
-    await saveAllNotesAsync(all)
-  }
+  return withNotesMutex(async () => {
+    const all = await loadAllNotesAsync()
+    const idx = all.findIndex(n => n.commitment === commitment)
+    if (idx >= 0) {
+      all.splice(idx, 1)
+      await saveAllNotesAsync(all)
+    }
+  })
 }
 
 // ── ZK Proof Encoding ───────────────────
@@ -480,9 +485,73 @@ export function encodeProofForVerifier(proof: {
 /** Which proof system to use — controlled by config */
 export type ProofSystem = 'groth16' | 'plonk'
 
+// R2 + IPFS fallback for large PLONK zkey files (too big for CF Pages' 25 MiB limit)
+const ZKEY_SOURCES = [
+  'https://pub-1f17b1af48bb408e8ca34acad7658b0d.r2.dev',
+  'https://dweb.link/ipfs/QmTkYMTmiZz18iCcUYdFGxuBzEpZ34zo5vDSBopXMn4FXi',
+] as const
+
+// Known-good SHA-256 hashes of zkey files (hex)
+const ZKEY_HASHES: Record<string, string> = {
+  '/circuits/deposit_final.zkey': 'c63146b69154d1ef8456b72b3e656421bf1b1509aec2ae116da598552f1d55dc',
+  '/circuits/deposit_plonk.zkey': '0f603fb9ae326bb9c3fabe8bdf72c3ce0e62281ad7637bd1f711255f37450e80',
+  '/circuits/privateSend_final.zkey': '667c0bc59b90f84cd86b4d4e6c6312a2842f7a0ad553263fd5dd10c60be63f69',
+  '/circuits/privateSend_plonk.zkey': '85c442bb0720b9c4b48cb8a25c98cc5154553ca15a5ebd5df73055a3249ad5a2',
+  '/circuits/withdraw_final.zkey': 'b6d7ba955d936bcad62203f9a329e1ec1f4dce76e5d62f20268a654cd406fcb1',
+  '/circuits/withdraw_plonk.zkey': '078cf41bbc8ab2b1e7240f94492b0cac2f24c75cebc1d2edd7ca7183d893f9f1',
+}
+
+/** Resolve zkey path to fetch URLs — PLONK zkeys try R2 then IPFS fallback */
+function resolveZkeyUrls(zkeyPath: string): string[] {
+  if (zkeyPath.includes('_plonk.zkey')) {
+    const filename = zkeyPath.split('/').pop()!
+    return ZKEY_SOURCES.map(base => `${base}/${filename}`)
+  }
+  return [zkeyPath]
+}
+
+// Module-level cache: original zkey path → verified blob URL
+// Fetch once, verify hash, then reuse the blob URL for snarkjs (which requires a URL string).
+const verifiedZkeyBlobUrls = new Map<string, string>()
+
+/**
+ * Fetch a zkey file, verify its SHA-256 hash, and return a blob URL.
+ * The blob URL is cached so subsequent calls for the same zkeyPath skip re-fetch.
+ * This eliminates the TOCTOU gap where the file could change between verification and use.
+ */
+async function getVerifiedZkeyUrl(zkeyPath: string): Promise<string> {
+  const cached = verifiedZkeyBlobUrls.get(zkeyPath)
+  if (cached) return cached
+
+  const expectedHash = ZKEY_HASHES[zkeyPath]
+  if (!expectedHash) throw new Error(`Unknown zkey path: ${zkeyPath} — cannot verify integrity`)
+
+  const urls = resolveZkeyUrls(zkeyPath)
+  let buf: ArrayBuffer | null = null
+  for (const url of urls) {
+    try {
+      const resp = await fetch(url)
+      if (resp.ok) { buf = await resp.arrayBuffer(); break }
+    } catch { /* try next source */ }
+  }
+  if (!buf) throw new Error(`Failed to fetch zkey from all sources: ${zkeyPath}`)
+
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf)
+  const actual = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+  if (actual !== expectedHash) {
+    throw new Error(`zkey integrity check failed for ${zkeyPath}: expected ${expectedHash}, got ${actual}`)
+  }
+
+  const blobUrl = URL.createObjectURL(new Blob([buf], { type: 'application/octet-stream' }))
+  verifiedZkeyBlobUrls.set(zkeyPath, blobUrl)
+  return blobUrl
+}
+
 /**
  * Generate a ZK proof using the configured proof system.
  * Abstracts over snarkjs.groth16.fullProve vs snarkjs.plonk.fullProve.
+ * Fetches the zkey once, verifies its SHA-256 hash, and passes the verified
+ * blob URL to snarkjs — eliminating the TOCTOU double-fetch vulnerability.
  */
 export async function generateProof(
   system: ProofSystem,
@@ -490,11 +559,12 @@ export async function generateProof(
   wasmPath: string,
   zkeyPath: string,
 ): Promise<{ proof: any; publicSignals: string[] }> {
+  const verifiedUrl = await getVerifiedZkeyUrl(zkeyPath)
   const snarkjs = await import('snarkjs')
   if (system === 'plonk') {
-    return snarkjs.plonk.fullProve(circuitInput, wasmPath, zkeyPath)
+    return snarkjs.plonk.fullProve(circuitInput, wasmPath, verifiedUrl)
   }
-  return snarkjs.groth16.fullProve(circuitInput, wasmPath, zkeyPath)
+  return snarkjs.groth16.fullProve(circuitInput, wasmPath, verifiedUrl)
 }
 
 /**
@@ -574,12 +644,11 @@ export function encodePrivateSendSignals(
   return result
 }
 
-/** Build all box references needed for a privateSend (5-6 boxes — commitment, amount, root history, nullifier, knownRoot, evicted root) */
+/** Build all box references needed for a privateSend (4-5 boxes — commitment, root history, nullifier, knownRoot, evicted root) */
 export function privateSendBoxRefs(appId: number, rootHistoryIndex: number, leafIndex: number, nullifierHash: Uint8Array, mimcRoot: Uint8Array, evictedRoot?: Uint8Array) {
   const refs = [
     commitmentBox(appId, leafIndex),
-    amountBox(appId, leafIndex),
-    rootBox(appId, rootHistoryIndex % 1000),
+    rootBox(appId, rootHistoryIndex % 10000),
     nullifierBox(appId, nullifierHash),
     knownRootBox(appId, mimcRoot),
   ]
@@ -604,6 +673,21 @@ let masterKeyDeterministic = false
 
 /** Cached view keypair (derived from master key) */
 let cachedViewKeypair: { privateKey: Uint8Array; publicKey: Uint8Array } | null = null
+
+/** Inactivity timeout — clear cached key after 15 minutes of no crypto operations */
+const KEY_INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000
+let keyInactivityTimer: ReturnType<typeof setTimeout> | null = null
+
+function resetKeyInactivityTimer() {
+  if (keyInactivityTimer) clearTimeout(keyInactivityTimer)
+  keyInactivityTimer = setTimeout(() => {
+    cachedMasterKey = null
+    cachedViewKeypair = null
+    masterKeyDeterministic = false
+    sessionStorage.removeItem(MASTER_KEY_SESSION)
+    keyInactivityTimer = null
+  }, KEY_INACTIVITY_TIMEOUT_MS)
+}
 
 /** Get or derive the view keypair from the cached master key */
 export async function getViewKeypair(): Promise<{ privateKey: Uint8Array; publicKey: Uint8Array } | null> {
@@ -658,11 +742,15 @@ async function decryptMasterKey(encoded: string): Promise<bigint> {
 
 /** Get the master key, loading from sessionStorage cache if available */
 export async function getCachedMasterKey(): Promise<bigint | null> {
-  if (cachedMasterKey) return cachedMasterKey
+  if (cachedMasterKey) {
+    resetKeyInactivityTimer()
+    return cachedMasterKey
+  }
   const stored = sessionStorage.getItem(MASTER_KEY_SESSION)
   if (stored) {
     try {
       cachedMasterKey = await decryptMasterKey(stored)
+      resetKeyInactivityTimer()
       return cachedMasterKey
     } catch {
       // Tab key changed (new tab loaded same session) — key is unrecoverable
@@ -714,6 +802,7 @@ export async function deriveMasterKey(
   cachedViewKeypair = deriveViewKeypair(masterKey)
   const encrypted = await encryptMasterKey(masterKey)
   sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
+  resetKeyInactivityTimer()
 
   return masterKey
 }
@@ -819,17 +908,15 @@ export async function recoverNotes(
 
     if (onChainNextIndex === 0) continue
 
-    // Batch fetch: commitments and amounts in parallel (BATCH_SIZE concurrent RPCs)
+    // Batch fetch: commitments (BATCH_SIZE concurrent RPCs)
     const BATCH_SIZE = 10
     const onChainCommitments = new Map<string, number>() // hex(commitment) → leafIndex
-    const onChainAmounts = new Map<number, bigint>() // leafIndex → amount
 
     for (let start = 0; start < onChainNextIndex; start += BATCH_SIZE) {
       const end = Math.min(start + BATCH_SIZE, onChainNextIndex)
       const batch = Array.from({ length: end - start }, (_, i) => {
         const leaf = start + i
         return (async () => {
-          // Fetch commitment box
           const cmtBoxName = new Uint8Array(11)
           cmtBoxName.set(TEXT_ENCODER.encode('cmt'), 0)
           cmtBoxName.set(uint64ToBytes(BigInt(leaf)), 3)
@@ -839,16 +926,6 @@ export async function recoverNotes(
             onChainCommitments.set(hex, leaf)
           } catch {
             return
-          }
-          // Fetch amount box
-          const amtBoxName = new Uint8Array(11)
-          amtBoxName.set(TEXT_ENCODER.encode('amt'), 0)
-          amtBoxName.set(uint64ToBytes(BigInt(leaf)), 3)
-          try {
-            const amtBox = await client.getApplicationBoxByName(id, amtBoxName).do()
-            onChainAmounts.set(leaf, bytesToScalar(amtBox.value))
-          } catch {
-            // Default denomination will be used
           }
         })()
       })
@@ -874,12 +951,6 @@ export async function recoverNotes(
       note.leafIndex = foundLeafIndex
       note.appId = id
 
-      // Use pre-fetched amount
-      const fetchedAmount = onChainAmounts.get(foundLeafIndex)
-      if (fetchedAmount !== undefined) {
-        note.denomination = fetchedAmount
-      }
-
       // Check if nullifier has been spent
       const nullHash = computeNullifierHash(note.nullifier)
       const nullBytes = scalarToBytes(nullHash)
@@ -899,18 +970,22 @@ export async function recoverNotes(
     }
   }
 
-  // Batch save recovered notes (avoids O(N^2) from saving one at a time)
-  const existingNotes = await loadNotes()
-  const newNotes = recovered.filter(note =>
-    !existingNotes.some(n => n.commitment === note.commitment && n.appId === note.appId)
-  )
-  if (newNotes.length > 0) {
-    const all = await loadAllNotesAsync()
-    for (const note of newNotes) {
-      const pool = getPoolForTier(note.denomination)
-      all.push({ ...note, appId: pool.appId })
-    }
-    await saveAllNotesAsync(all)
+  // Batch save recovered notes under mutex (avoids race with concurrent saveNote calls)
+  if (recovered.length > 0) {
+    await withNotesMutex(async () => {
+      const existingNotes = await loadNotes()
+      const newNotes = recovered.filter(note =>
+        !existingNotes.some(n => n.commitment === note.commitment && n.appId === note.appId)
+      )
+      if (newNotes.length > 0) {
+        const all = await loadAllNotesAsync()
+        for (const note of newNotes) {
+          const pool = getPoolForTier(note.denomination)
+          all.push({ ...note, appId: pool.appId })
+        }
+        await saveAllNotesAsync(all)
+      }
+    })
   }
 
   // Update deposit counter to one past the highest derivation index found.
@@ -952,7 +1027,8 @@ export async function isNullifierSpent(
 // ── Password-Based Key Derivation (Pera fallback) ────────
 
 const PWD_SALT_KEY = 'privacy_pool_pwd_salt'
-const PWD_HASH_KEY = 'privacy_pool_pwd_hash'
+const PWD_VERIFY_KEY = 'privacy_pool_pwd_verify' // AES-GCM encrypted marker (replaces plaintext hash)
+const PWD_MARKER = 'privacy-pool-password-ok' // known plaintext for verification
 
 /** Check if a password-derived key has been set up */
 export function hasPasswordKey(): boolean {
@@ -976,6 +1052,31 @@ async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promis
   return new Uint8Array(bits)
 }
 
+/** Encrypt a known marker with the derived key — used to verify password without storing a hash */
+async function encryptPasswordMarker(derived: Uint8Array): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', derived as ArrayBufferView<ArrayBuffer>, 'AES-GCM', false, ['encrypt'])
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(PWD_MARKER))
+  const combined = new Uint8Array(12 + ct.byteLength)
+  combined.set(iv, 0)
+  combined.set(new Uint8Array(ct), 12)
+  return Array.from(combined).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Decrypt the marker — throws on wrong password (AEAD tag mismatch) */
+async function verifyPasswordMarker(derived: Uint8Array, markerHex: string): Promise<void> {
+  const markerBytes = Uint8Array.from(markerHex.match(/.{2}/g)!.map(b => parseInt(b, 16)))
+  const iv = markerBytes.slice(0, 12)
+  const ct = markerBytes.slice(12)
+  const key = await crypto.subtle.importKey('raw', derived as ArrayBufferView<ArrayBuffer>, 'AES-GCM', false, ['decrypt'])
+  try {
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct)
+    if (new TextDecoder().decode(pt) !== PWD_MARKER) throw new Error('Incorrect password')
+  } catch {
+    throw new Error('Incorrect password')
+  }
+}
+
 /** Derive and cache a master key from a user-provided password */
 export async function deriveMasterKeyFromPassword(password: string): Promise<bigint> {
   await initMimc()
@@ -984,17 +1085,16 @@ export async function deriveMasterKeyFromPassword(password: string): Promise<big
   const existingSaltHex = localStorage.getItem(PWD_SALT_KEY)
 
   if (existingSaltHex) {
-    // Existing password — verify it
+    // Existing password — verify via AEAD decryption (no hash stored)
     salt = Uint8Array.from(existingSaltHex.match(/.{2}/g)!.map(b => parseInt(b, 16)))
     const derived = await deriveKeyFromPassword(password, salt)
 
-    // Verify password by checking hash
-    const hashBuf = await crypto.subtle.digest('SHA-256', derived as ArrayBufferView<ArrayBuffer>)
-    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
-    const storedHash = localStorage.getItem(PWD_HASH_KEY)
-    if (storedHash && hashHex !== storedHash) {
-      throw new Error('Incorrect password')
+    const storedMarker = localStorage.getItem(PWD_VERIFY_KEY)
+    if (storedMarker) {
+      await verifyPasswordMarker(derived, storedMarker)
     }
+    // Migrate: remove legacy hash if present
+    localStorage.removeItem('privacy_pool_pwd_hash')
 
     const masterKey = bytesToScalar(derived) % BN254_R
     masterKeyDeterministic = true
@@ -1002,6 +1102,7 @@ export async function deriveMasterKeyFromPassword(password: string): Promise<big
     cachedViewKeypair = deriveViewKeypair(masterKey)
     const encrypted = await encryptMasterKey(masterKey)
     sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
+    resetKeyInactivityTimer()
     return masterKey
   } else {
     // New password setup
@@ -1009,11 +1110,9 @@ export async function deriveMasterKeyFromPassword(password: string): Promise<big
     const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('')
     const derived = await deriveKeyFromPassword(password, salt)
 
-    // Store salt and verification hash
-    const hashBuf = await crypto.subtle.digest('SHA-256', derived as ArrayBufferView<ArrayBuffer>)
-    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('')
+    // Store salt and AEAD-encrypted marker (no plaintext hash)
     localStorage.setItem(PWD_SALT_KEY, saltHex)
-    localStorage.setItem(PWD_HASH_KEY, hashHex)
+    localStorage.setItem(PWD_VERIFY_KEY, await encryptPasswordMarker(derived))
 
     const masterKey = bytesToScalar(derived) % BN254_R
     masterKeyDeterministic = true
@@ -1021,6 +1120,7 @@ export async function deriveMasterKeyFromPassword(password: string): Promise<big
     cachedViewKeypair = deriveViewKeypair(masterKey)
     const encrypted = await encryptMasterKey(masterKey)
     sessionStorage.setItem(MASTER_KEY_SESSION, encrypted)
+    resetKeyInactivityTimer()
     return masterKey
   }
 }
@@ -1031,6 +1131,15 @@ export function clearMasterKey(): void {
   cachedViewKeypair = null
   masterKeyDeterministic = false
   sessionStorage.removeItem(MASTER_KEY_SESSION)
+  if (keyInactivityTimer) {
+    clearTimeout(keyInactivityTimer)
+    keyInactivityTimer = null
+  }
+  // Revoke cached zkey blob URLs to free memory
+  for (const blobUrl of verifiedZkeyBlobUrls.values()) {
+    URL.revokeObjectURL(blobUrl)
+  }
+  verifiedZkeyBlobUrls.clear()
 }
 
 // ── Chain-Based Note Recovery (HPKE) ────
@@ -1045,23 +1154,29 @@ export async function recoverNotesFromChain(
   fromRound?: number,
   onProgress?: (round: number, found: number) => void,
 ): Promise<{ recovered: DepositNote[]; newNotes: number }> {
-  const chainNotes = await scanChainForNotes(viewKeypair, poolAppIds, fromRound, onProgress)
+  const scanResult = await scanChainForNotes(viewKeypair, poolAppIds, fromRound, onProgress)
 
-  // Merge with existing localStorage notes (deduplicate by commitment + appId)
-  const existing = await loadNotes()
-  const newNotes = chainNotes.filter(cn =>
-    !existing.some(en => en.commitment === cn.commitment && en.appId === cn.appId),
-  )
-
-  if (newNotes.length > 0) {
-    const all = await loadAllNotesAsync()
-    for (const note of newNotes) {
-      all.push(note)
-    }
-    await saveAllNotesAsync(all)
+  if (scanResult.errors.length > 0) {
+    console.warn('Scanner encountered errors (results may be partial):', scanResult.errors)
   }
 
-  return { recovered: chainNotes, newNotes: newNotes.length }
+  // Merge with existing localStorage notes (deduplicate by commitment + appId)
+  const mergeCount = await withNotesMutex(async () => {
+    const existing = await loadNotes()
+    const newNotes = scanResult.recovered.filter(cn =>
+      !existing.some(en => en.commitment === cn.commitment && en.appId === cn.appId),
+    )
+    if (newNotes.length > 0) {
+      const all = await loadAllNotesAsync()
+      for (const note of newNotes) {
+        all.push(note)
+      }
+      await saveAllNotesAsync(all)
+    }
+    return newNotes.length
+  })
+
+  return { recovered: scanResult.recovered, newNotes: mergeCount }
 }
 
 // ── Stale Note Detection ────────────────

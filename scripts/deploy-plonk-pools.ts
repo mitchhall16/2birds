@@ -52,9 +52,10 @@ async function main() {
   }
 
   const deployer = algosdk.mnemonicToSecretKey(process.env.DEPLOYER_MNEMONIC);
-  console.log(`Deployer: ${deployer.addr}`);
+  const deployerAddr = deployer.addr.toString();
+  console.log(`Deployer: ${deployerAddr}`);
 
-  const accountInfo = await algod.accountInformation(deployer.addr).do();
+  const accountInfo = await algod.accountInformation(deployerAddr).do();
   console.log(`Balance: ${(Number(accountInfo.amount) / 1e6).toFixed(6)} ALGO`);
 
   // Compile contract
@@ -97,7 +98,7 @@ async function main() {
     const params = await algod.getTransactionParams().do();
 
     const txn = algosdk.makeApplicationCreateTxnFromObject({
-      sender: deployer.addr,
+      sender: deployerAddr,
       approvalProgram: approvalBytes,
       clearProgram: clearBytes,
       numGlobalInts: globalInts,
@@ -130,7 +131,7 @@ async function main() {
     // Fund the app address with min balance for boxes
     const fundParams = await algod.getTransactionParams().do();
     const fundTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      sender: deployer.addr,
+      sender: deployerAddr,
       receiver: appAddress,
       amount: 1_000_000, // 1 ALGO for box storage
       suggestedParams: { ...fundParams, fee: BigInt(1000), flatFee: true },
@@ -150,7 +151,7 @@ async function main() {
     const privateSendAddr = algosdk.decodeAddress(plonkAddresses.privateSend);
 
     const setTxn = algosdk.makeApplicationCallTxnFromObject({
-      sender: deployer.addr,
+      sender: deployerAddr,
       appIndex: appId,
       onComplete: algosdk.OnApplicationComplete.NoOpOC,
       appArgs: [setPlonkSelector, withdrawAddr.publicKey, depositAddr.publicKey, privateSendAddr.publicKey],
@@ -178,7 +179,7 @@ async function main() {
 
     const params = await algod.getTransactionParams().do();
     const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      sender: deployer.addr,
+      sender: deployerAddr,
       receiver: addr,
       amount: 100_000,
       suggestedParams: { ...params, fee: BigInt(1000), flatFee: true },

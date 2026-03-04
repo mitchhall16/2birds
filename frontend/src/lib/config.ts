@@ -21,9 +21,10 @@ const DEFAULT_POOL_APP_ADDRESS = '624W56BLCEIXUMOYCDYACW3QOJEKQTCC6YXY4Q7Z3Z4WQU
 
 function getPoolConfig() {
   const storedId = localStorage.getItem('privacy_pool_app_id')
-  const storedAddr = localStorage.getItem('privacy_pool_app_address')
-  if (storedId && storedAddr) {
-    return { appId: parseInt(storedId, 10), appAddress: storedAddr }
+  if (storedId) {
+    // Validate against known pool contracts — reject untrusted app IDs
+    const pool = POOL_CONTRACTS[storedId] ?? Object.values(POOL_CONTRACTS).find(p => p.appId === parseInt(storedId, 10))
+    if (pool) return { appId: pool.appId, appAddress: pool.appAddress }
   }
   return { appId: DEFAULT_POOL_APP_ID, appAddress: DEFAULT_POOL_APP_ADDRESS }
 }
@@ -87,10 +88,26 @@ export function getPoolForTier(microAlgos: bigint): { appId: number; appAddress:
   return pool
 }
 
-// Relayer configuration (set RELAYER_URL to enable relayed withdrawals)
-export const RELAYER_URL = 'https://privacy-pool-relayer.mitchhall16.workers.dev'
-export const RELAYER_ADDRESS = 'MCH3ZDYI6NEP2EFGZVLOH7BZH6ZEUYBZWERNJT7JGYK4GMUJDL6TLHZTIA'
-export const RELAYER_FEE = 250_000n // 0.25 ALGO — covers verifier gas + margin
+// Relayer configuration — multiple relayers for privacy (no single operator sees all withdrawals)
+// Frontend randomly picks one per operation. Add more as operators join.
+export const RELAYERS = [
+  {
+    url: 'https://privacy-pool-relayer.mitchhall16.workers.dev',
+    address: 'MCH3ZDYI6NEP2EFGZVLOH7BZH6ZEUYBZWERNJT7JGYK4GMUJDL6TLHZTIA',
+    fee: 50_000n, // 0.05 ALGO
+  },
+  {
+    url: 'https://privacy-pool-relayer-2.mitchhall16.workers.dev',
+    address: 'EVDMCOHJVAOKKSWBTRQN5JYIMRQHJV2YGPUE2HHVBWLOZCKZOJXATZPOYE',
+    fee: 50_000n, // 0.05 ALGO
+  },
+] as const
+
+/** Pick a random relayer for this operation */
+export function pickRelayer(): typeof RELAYERS[number] {
+  return RELAYERS[Math.floor(Math.random() * RELAYERS.length)]
+}
+
 
 // Whether to use PLONK LogicSig verification (cheaper) or Groth16 app verification
 export const USE_PLONK_LSIG = (import.meta.env.VITE_USE_PLONK_LSIG === 'true') || false
@@ -132,13 +149,31 @@ export const FEES = USE_PLONK_LSIG ? PLONK_LSIG_FEES : GROTH16_FEES
 export const BATCH_WINDOW_MINUTES = 15
 
 // Treasury address for protocol fees
-export const TREASURY_ADDRESS = '' // Set before deployment
+export const TREASURY_ADDRESS = 'MCH3ZDYI6NEP2EFGZVLOH7BZH6ZEUYBZWERNJT7JGYK4GMUJDL6TLHZTIA'
 
 // Protocol fee per operation (microAlgos)
 export const PROTOCOL_FEE = 5_000n // 0.005 ALGO
 
 // Pool operations since note creation before suggesting churn
 export const STALE_NOTE_THRESHOLD = 20
+
+// ── Anti-correlation protections ──
+
+// Minimum deposits that must exist in a pool after your deposit before you can withdraw.
+// Prevents "deposit then immediately withdraw" deanonymization.
+export const MIN_SOAK_DEPOSITS = 3
+
+// Minimum seconds between operations from the same session.
+// Prevents rapid deposit-withdraw clustering that creates linkable patterns.
+export const OPERATION_COOLDOWN_MS = 120_000 // 2 minutes
+
+// Maximum operations per session before warning about cluster correlation.
+// If a user deposits 5x in a row, the cluster is obvious even if individual txns aren't linked.
+export const CLUSTER_WARNING_THRESHOLD = 3
+
+// Random delay range (ms) added before withdrawal submission.
+// Jitters timing so withdrawals don't happen at predictable offsets from batch windows.
+export const WITHDRAW_JITTER_MS = { min: 5_000, max: 30_000 }
 
 // Optional subsidy tiers — user can pay extra to reduce fees for the next depositor
 export const SUBSIDY_TIERS = [

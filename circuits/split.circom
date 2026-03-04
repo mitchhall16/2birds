@@ -1,7 +1,25 @@
 pragma circom 2.0.0;
 
-include "../node_modules/circomlibjs/circuits/mimcsponge.circom";
 include "merkleTree.circom";
+
+/**
+ * Num2Bits — Convert a number to its binary representation
+ * (needed to extract path indices from leafIndex)
+ */
+template Num2Bits(n) {
+    signal input in;
+    signal output out[n];
+
+    var lc1 = 0;
+    var e2 = 1;
+    for (var i = 0; i < n; i++) {
+        out[i] <-- (in >> i) & 1;
+        out[i] * (out[i] - 1) === 0;
+        lc1 += out[i] * e2;
+        e2 = e2 + e2;
+    }
+    lc1 === in;
+}
 
 /**
  * Split circuit — proves withdrawal from pool A and two deposits into pool B.
@@ -97,6 +115,20 @@ template Split(levels) {
     commitHasher2.k <== 0;
     commitHasher2.outs[0] === commitment2;
 
+    // ── Enforce distinct commitments (prevent duplicate tree slot waste) ──
+    signal commitDiff;
+    commitDiff <== commitment1 - commitment2;
+    signal invCommitDiff;
+    invCommitDiff <-- 1 / commitDiff;
+    invCommitDiff * commitDiff === 1;
+
+    // Convert leaf indices to bits BEFORE use
+    component idx1Bits = Num2Bits(levels);
+    idx1Bits.in <== leafIndex1;
+
+    component idx2Bits = Num2Bits(levels);
+    idx2Bits.in <== leafIndex2;
+
     // Verify insertion 1: empty leaf at leafIndex1 → commitment1
     // newRootB1 is the root after inserting commitment1 at leafIndex1
     component insertChecker1 = MerkleTreeChecker(levels);
@@ -104,7 +136,7 @@ template Split(levels) {
     insertChecker1.root <== newRootB1;
     for (var i = 0; i < levels; i++) {
         insertChecker1.pathElements[i] <== pathElementsB1[i];
-        insertChecker1.pathIndices[i] <== pathIndicesA[i]; // Reusing index bits from leafIndex1
+        insertChecker1.pathIndices[i] <== idx1Bits.out[i];
     }
 
     // Verify old root B: empty (0) at leafIndex1 → oldRootB
@@ -113,12 +145,8 @@ template Split(levels) {
     oldRootChecker1.root <== oldRootB;
     for (var i = 0; i < levels; i++) {
         oldRootChecker1.pathElements[i] <== pathElementsB1[i];
-        oldRootChecker1.pathIndices[i] <== pathIndicesA[i];
+        oldRootChecker1.pathIndices[i] <== idx1Bits.out[i];
     }
-
-    // Convert leafIndex1 to bits for insertion 1
-    component idx1Bits = Num2Bits(levels);
-    idx1Bits.in <== leafIndex1;
 
     // Verify insertion 2: empty leaf at leafIndex2 → commitment2
     component insertChecker2 = MerkleTreeChecker(levels);
@@ -126,17 +154,13 @@ template Split(levels) {
     insertChecker2.root <== newRootB2;
     for (var i = 0; i < levels; i++) {
         insertChecker2.pathElements[i] <== pathElementsB2[i];
-        insertChecker2.pathIndices[i] <== idx1Bits.out[i];
+        insertChecker2.pathIndices[i] <== idx2Bits.out[i];
     }
 
     // Verify intermediate root: empty (0) at leafIndex2 → newRootB1
     component midRootChecker = MerkleTreeChecker(levels);
     midRootChecker.leaf <== 0;
     midRootChecker.root <== newRootB1;
-
-    // Convert leafIndex2 to bits for insertion 2
-    component idx2Bits = Num2Bits(levels);
-    idx2Bits.in <== leafIndex2;
     for (var i = 0; i < levels; i++) {
         midRootChecker.pathElements[i] <== pathElementsB2[i];
         midRootChecker.pathIndices[i] <== idx2Bits.out[i];

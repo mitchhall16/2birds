@@ -39,11 +39,12 @@ template MerkleTreeChecker(levels) {
     signal input pathIndices[levels]; // 0 = leaf is on left, 1 = leaf is on right
 
     component hashers[levels];
-    component muxes_left[levels];
-    component muxes_right[levels];
 
     signal levelHashes[levels + 1];
     levelHashes[0] <== leaf;
+
+    signal mux_left[levels];
+    signal mux_right[levels];
 
     for (var i = 0; i < levels; i++) {
         // Ensure pathIndices[i] is binary
@@ -53,12 +54,12 @@ template MerkleTreeChecker(levels) {
 
         // If pathIndices[i] == 0: hash(levelHash, pathElement)
         // If pathIndices[i] == 1: hash(pathElement, levelHash)
-        // Use arithmetic mux: left = levelHash * (1 - idx) + pathElement * idx
-        var left = levelHashes[i] + (pathElements[i] - levelHashes[i]) * pathIndices[i];
-        var right = pathElements[i] + (levelHashes[i] - pathElements[i]) * pathIndices[i];
+        // Use signal intermediaries for explicit constraint generation
+        mux_left[i] <== levelHashes[i] + (pathElements[i] - levelHashes[i]) * pathIndices[i];
+        mux_right[i] <== pathElements[i] + (levelHashes[i] - pathElements[i]) * pathIndices[i];
 
-        hashers[i].left <== left;
-        hashers[i].right <== right;
+        hashers[i].left <== mux_left[i];
+        hashers[i].right <== mux_right[i];
 
         levelHashes[i + 1] <== hashers[i].hash;
     }
