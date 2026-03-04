@@ -196,15 +196,19 @@ graph LR
 ### Exploitability scorecard
 
 ```mermaid
-graph LR
-    subgraph "2birds"
-        T1["Timing ✅"] --- T2["Linking ✅"] --- T3["IP ✅"] --- T4["Notes ✅"]
-        T5["Sybil ✅"] --- T6["Tamper ✅"] --- T7["Amount ✅"] --- T8["Anon set ⚠️"]
+block-beta
+    columns 8
+    space:8
+    block:2birds:8
+        columns 8
+        t0["2birds — 7/8 mitigated"]:8
+        T1["Timing ✅"] T2["Linking ✅"] T3["IP ✅"] T4["Notes ✅"] T5["Sybil ✅"] T6["Tamper ✅"] T7["Amount ✅"] T8["Anon set ⚠️"]
     end
-
-    subgraph "HermesVault"
-        H1["Timing ⚠️"] --- H2["Linking ⚠️"] --- H3["IP ⚠️"] --- H4["Notes ⚠️"]
-        H5["Sybil ⚠️"] --- H6["Tamper ⚠️"] --- H7["Amount ✅"] --- H8["Anon set ⚠️"]
+    space:8
+    block:hermes:8
+        columns 8
+        h0["HermesVault — 2/8 mitigated"]:8
+        H1["Timing ⚠️"] H2["Linking ⚠️"] H3["IP ⚠️"] H4["Notes ⚠️"] H5["Sybil ⚠️"] H6["Tamper ⚠️"] H7["Amount ✅"] H8["Anon set ⚠️"]
     end
 
     style T1 fill:#4CAF50,color:#fff
@@ -223,9 +227,9 @@ graph LR
     style H6 fill:#FF9800,color:#fff
     style H7 fill:#4CAF50,color:#fff
     style H8 fill:#FF9800,color:#fff
+    style t0 fill:none,stroke:none,color:#fff
+    style h0 fill:none,stroke:none,color:#fff
 ```
-
-**2birds: 7/8 mitigated. HermesVault: 2/8.**
 
 | Attack Vector | 2birds | HermesVault |
 |---|---|---|
