@@ -344,6 +344,8 @@ PLONK verification runs inside LogicSig programs (4 txns at 0.001 ALGO each). Gr
 
 ## 2birds vs HermesVault
 
+### Feature Comparison
+
 | | 2birds | HermesVault |
 |---|---|---|
 | **Proof system** | PLONK (circom + snarkjs) | PLONK (gnark via AlgoPlonk) |
@@ -362,6 +364,91 @@ PLONK verification runs inside LogicSig programs (4 txns at 0.001 ALGO each). Gr
 | **Dual relayers** | Yes (random selection) | N/A |
 | **SRI hashes** | Yes (SHA-384) | No |
 | **zkey hosting** | R2 + IPFS fallback | Bundled |
+
+### Cost Comparison
+
+```mermaid
+graph LR
+    subgraph "2birds (PLONK + Relayer)"
+        D2["Deposit<br/>0.007 ALGO network<br/>+ 0.05 relayer<br/>= 0.057 ALGO"]
+        W2["Withdraw<br/>0.006 ALGO network<br/>+ 0.05 relayer<br/>= 0.056 ALGO"]
+        PS2["Private Send<br/>0.007 ALGO network<br/>+ 0.05 relayer<br/>= 0.057 ALGO"]
+    end
+
+    subgraph "HermesVault (PLONK, no relayer)"
+        DH["Deposit<br/>~0.007 ALGO"]
+        WH["Withdraw<br/>~0.007 ALGO"]
+        PSH["Private Send<br/>N/A"]
+    end
+
+    style D2 fill:#4CAF50,color:#fff
+    style W2 fill:#4CAF50,color:#fff
+    style PS2 fill:#4CAF50,color:#fff
+    style DH fill:#2196F3,color:#fff
+    style WH fill:#2196F3,color:#fff
+    style PSH fill:#666,color:#fff
+```
+
+### Exploitability Comparison
+
+```mermaid
+graph TB
+    subgraph "Attack Surface — 2birds"
+        T2A["Timing correlation ✅ MITIGATED<br/>Batch windows + jitter + cooldown"]
+        T2B["Deposit-withdraw linking ✅ MITIGATED<br/>Relayer breaks tx graph"]
+        T2C["Amount correlation ✅ MITIGATED<br/>Fixed denominations + split/combine"]
+        T2D["Note loss ✅ MITIGATED<br/>HPKE encrypted on-chain backup"]
+        T2E["IP leak ✅ MITIGATED<br/>Relayer hashes IPs (SHA-256)"]
+        T2F["Sybil deposits ✅ MITIGATED<br/>Soak time (3 deposits) + cluster warning"]
+        T2G["Anonymity set size ⚠️ INHERENT<br/>Depends on pool usage"]
+        T2H["Frontend tampering ✅ MITIGATED<br/>SRI hashes + CSP headers"]
+    end
+
+    subgraph "Attack Surface — HermesVault"
+        H2A["Timing correlation ⚠️ VULNERABLE<br/>No jitter, no batch windows"]
+        H2B["Deposit-withdraw linking ⚠️ VULNERABLE<br/>User submits own tx from own wallet"]
+        H2C["Amount correlation ✅ MITIGATED<br/>Fixed denominations"]
+        H2D["Note loss ⚠️ VULNERABLE<br/>localStorage only — clear browser = lose funds"]
+        H2E["IP leak ⚠️ VULNERABLE<br/>User IP visible to RPC node"]
+        H2F["Sybil deposits ⚠️ VULNERABLE<br/>No soak time enforcement"]
+        H2G["Anonymity set size ⚠️ INHERENT<br/>Depends on pool usage"]
+        H2H["Frontend tampering ⚠️ VULNERABLE<br/>No SRI or CSP"]
+    end
+
+    style T2A fill:#4CAF50,color:#fff
+    style T2B fill:#4CAF50,color:#fff
+    style T2C fill:#4CAF50,color:#fff
+    style T2D fill:#4CAF50,color:#fff
+    style T2E fill:#4CAF50,color:#fff
+    style T2F fill:#4CAF50,color:#fff
+    style T2G fill:#FF9800,color:#fff
+    style T2H fill:#4CAF50,color:#fff
+
+    style H2A fill:#FF9800,color:#fff
+    style H2B fill:#FF9800,color:#fff
+    style H2C fill:#4CAF50,color:#fff
+    style H2D fill:#FF9800,color:#fff
+    style H2E fill:#FF9800,color:#fff
+    style H2F fill:#FF9800,color:#fff
+    style H2G fill:#FF9800,color:#fff
+    style H2H fill:#FF9800,color:#fff
+```
+
+### Summary
+
+| Attack Vector | 2birds | HermesVault |
+|---|---|---|
+| Timing correlation | **Mitigated** — batch windows, jitter (5-30s), cooldown (2 min) | Vulnerable — no timing defenses |
+| Deposit-withdraw linking | **Mitigated** — relayer submits tx, user never touches chain | Vulnerable — user wallet submits withdraw tx |
+| IP metadata leak | **Mitigated** — relayer hashes IPs with SHA-256 | Vulnerable — user IP visible to Algorand RPC |
+| Note loss risk | **Mitigated** — HPKE encrypted backup in on-chain txn notes | Vulnerable — localStorage only |
+| Sybil / immediate withdraw | **Mitigated** — soak time (3 deposits), cluster detection | Vulnerable — no soak enforcement |
+| Frontend tampering | **Mitigated** — SRI SHA-384 + CSP headers | Vulnerable — no integrity checks |
+| Amount correlation | **Mitigated** — fixed tiers + split/combine | Mitigated — fixed tiers |
+| Contract trust | **Equal** — one-shot locked, immutable | Equal — immutable |
+| Anonymity set | Depends on usage | Depends on usage |
+
+**HermesVault is cheaper** (no relayer fee). **2birds is more private** (7/8 attack vectors mitigated vs 2/8).
 
 ## Infrastructure
 
