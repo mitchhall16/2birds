@@ -193,6 +193,40 @@ graph LR
 | **IP protection** | SHA-256 hashed | Exposed to RPC |
 | **SRI integrity** | Yes | No |
 
+### Exploitability scorecard
+
+```mermaid
+graph LR
+    subgraph "2birds"
+        T1["Timing ✅"] --- T2["Linking ✅"] --- T3["IP ✅"] --- T4["Notes ✅"]
+        T5["Sybil ✅"] --- T6["Tamper ✅"] --- T7["Amount ✅"] --- T8["Anon set ⚠️"]
+    end
+
+    subgraph "HermesVault"
+        H1["Timing ⚠️"] --- H2["Linking ⚠️"] --- H3["IP ⚠️"] --- H4["Notes ⚠️"]
+        H5["Sybil ⚠️"] --- H6["Tamper ⚠️"] --- H7["Amount ✅"] --- H8["Anon set ⚠️"]
+    end
+
+    style T1 fill:#4CAF50,color:#fff
+    style T2 fill:#4CAF50,color:#fff
+    style T3 fill:#4CAF50,color:#fff
+    style T4 fill:#4CAF50,color:#fff
+    style T5 fill:#4CAF50,color:#fff
+    style T6 fill:#4CAF50,color:#fff
+    style T7 fill:#4CAF50,color:#fff
+    style T8 fill:#FF9800,color:#fff
+    style H1 fill:#FF9800,color:#fff
+    style H2 fill:#FF9800,color:#fff
+    style H3 fill:#FF9800,color:#fff
+    style H4 fill:#FF9800,color:#fff
+    style H5 fill:#FF9800,color:#fff
+    style H6 fill:#FF9800,color:#fff
+    style H7 fill:#4CAF50,color:#fff
+    style H8 fill:#FF9800,color:#fff
+```
+
+**2birds: 7/8 mitigated. HermesVault: 2/8.**
+
 | Attack Vector | 2birds | HermesVault |
 |---|---|---|
 | Timing correlation | **Mitigated** — jitter, cooldown, batch windows | Vulnerable |
@@ -203,8 +237,6 @@ graph LR
 | Frontend tampering | **Mitigated** — SRI + CSP | Vulnerable |
 | Amount correlation | Mitigated — fixed tiers + split/combine | Mitigated — fixed tiers |
 | Anonymity set | Depends on usage | Depends on usage |
-
-**Score: 2birds 7/8 mitigated, HermesVault 2/8.**
 
 ### Detailed docs
 
