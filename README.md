@@ -30,6 +30,10 @@ Think of it like putting cash into a shared jar, getting a receipt, and later re
 
 That's it. No subscriptions, no tokens, no hidden fees. The infrastructure runs on Cloudflare's free tier — **$0/month**.
 
+### How private is it?
+
+Your privacy depends on the **anonymity set** — how many people your transaction hides among. If 100 people deposit 1 ALGO and you withdraw, an observer knows you're one of those 100, but not which one. If only 2 people deposited, you're one of 2. More users = better privacy. This is true for every privacy pool, not just 2birds.
+
 ---
 
 ## For Algorand Developers
