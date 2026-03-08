@@ -4,7 +4,7 @@ import { useToast } from '../contexts/ToastContext'
 import { useTransaction, type TxStage } from '../hooks/useTransaction'
 import { CostBreakdown } from './CostBreakdown'
 import { txnUrl, DENOMINATION_TIERS, type DenominationTier, SUBSIDY_TIERS, TREASURY_ADDRESS } from '../lib/config'
-import { loadNotes, removeNote, removeNoteByCommitment, deriveMasterKey, deriveMasterKeyFromPassword, getCachedMasterKey, clearMasterKey, recoverNotes, initMimc, PasswordRequiredError, hasPasswordKey, exportNotesBackup, importNotesBackup, isNoteSpent, type DepositNote } from '../lib/privacy'
+import { loadNotes, removeNote, removeNoteByCommitment, deriveMasterKey, deriveMasterKeyFromPassword, getCachedMasterKey, clearMasterKey, recoverNotes, initMimc, PasswordRequiredError, hasPasswordKey, isNoteSpent, type DepositNote } from '../lib/privacy'
 import { PasswordModal } from './PasswordModal'
 import { NoteBackup } from './NoteBackup'
 import { ALGOD_CONFIG, POOL_CONTRACTS } from '../lib/config'
@@ -700,20 +700,23 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
           <div className="manage-recovery-section">
             <div className="manage-recovery-section__header">Recovery</div>
             <div className="manage-recovery-section__desc">
-              New device, cleared browser data, or refreshed the page? Use these tools to restore your deposits.
+              Lost your notes? Recover them from the blockchain.
             </div>
 
             <div className="manage-recovery-item">
               <button
-                className={`manage-btn manage-btn--recover ${recovering ? 'manage-btn--loading' : ''}`}
-                onClick={handleRecover}
-                disabled={recovering || !activeAddress}
+                className={`manage-btn manage-btn--recover ${recovering || scanningChain ? 'manage-btn--loading' : ''}`}
+                onClick={async () => {
+                  await handleRecover()
+                  await handleChainScan()
+                }}
+                disabled={recovering || scanningChain || !activeAddress}
                 style={{ width: '100%' }}
               >
-                {recovering ? 'Scanning chain...' : 'Recover Notes'}
+                {recovering || scanningChain ? 'Scanning chain...' : 'Recover Notes from Chain'}
               </button>
               <div className="manage-recovery-item__desc">
-                Scans the blockchain for your deposits using your wallet key. Run this first on a new device.
+                Scans the blockchain for your deposits. Use this on a new device or after clearing browser data.
               </div>
             </div>
             {recoveryResult && (
@@ -725,27 +728,13 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                     : 'No deposits found for this wallet'}
               </div>
             )}
-
-            <div className="manage-recovery-item">
-              <button
-                className={`manage-btn manage-btn--recover ${scanningChain ? 'manage-btn--loading' : ''}`}
-                onClick={handleChainScan}
-                disabled={scanningChain || !activeAddress}
-                style={{ width: '100%' }}
-              >
-                {scanningChain ? 'Scanning encrypted notes...' : 'Scan Chain (HPKE)'}
-              </button>
-              <div className="manage-recovery-item__desc">
-                Scans on-chain transaction notes for HPKE-encrypted deposits sent to your view key.
-              </div>
-            </div>
             {scanResult && (
               <div className="manage-recovery-result">
                 {scanResult.newNotes > 0
-                  ? `Found ${scanResult.newNotes} new encrypted note${scanResult.newNotes > 1 ? 's' : ''} (${scanResult.recovered} total on-chain)`
+                  ? `Found ${scanResult.newNotes} new encrypted note${scanResult.newNotes > 1 ? 's' : ''}`
                   : scanResult.recovered > 0
-                    ? `All ${scanResult.recovered} on-chain notes already imported`
-                    : 'No encrypted notes found for your view key'}
+                    ? `All on-chain notes already imported`
+                    : 'No encrypted notes found'}
               </div>
             )}
 
@@ -756,87 +745,11 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                 disabled={rebuildingTrees}
                 style={{ width: '100%' }}
               >
-                {rebuildingTrees ? rebuildProgress : 'Rebuild Trees from Chain'}
+                {rebuildingTrees ? rebuildProgress : 'Fix Withdrawal Errors'}
               </button>
               <div className="manage-recovery-item__desc">
-                Re-syncs the Merkle trees from on-chain data. Needed if withdrawals fail with a root mismatch error.
+                Re-syncs Merkle trees from the chain. Only needed if withdrawals fail.
               </div>
-            </div>
-
-            <div className="manage-recovery-item" style={{ display: 'flex', gap: 8 }}>
-              <button
-                className="manage-btn manage-btn--recover"
-                style={{ flex: 1 }}
-                disabled={notes.length === 0}
-                onClick={async () => {
-                  const pw = prompt('Enter a password to encrypt your backup:')
-                  if (!pw || pw.length < 12) {
-                    addToast('error', 'Password must be at least 12 characters')
-                    return
-                  }
-                  try {
-                    const data = await exportNotesBackup(pw)
-                    const blob = new Blob([data], { type: 'text/plain' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `2birds-backup-${new Date().toISOString().slice(0, 10)}.enc`
-                    a.click()
-                    URL.revokeObjectURL(url)
-                    addToast('success', `Exported ${notes.length} encrypted note${notes.length > 1 ? 's' : ''}`)
-                  } catch (err: any) {
-                    addToast('error', err?.message || 'Export failed')
-                  }
-                }}
-              >
-                Export Backup
-              </button>
-              <button
-                className="manage-btn manage-btn--recover"
-                style={{ flex: 1 }}
-                onClick={() => {
-                  const input = document.createElement('input')
-                  input.type = 'file'
-                  input.accept = '.enc,.txt'
-                  input.onchange = async () => {
-                    const file = input.files?.[0]
-                    if (!file) return
-                    const pw = prompt('Enter the backup password:')
-                    if (!pw) return
-                    try {
-                      const text = await file.text()
-                      const count = await importNotesBackup(text, pw)
-                      if (count > 0) {
-                        addToast('success', `Imported ${count} note${count > 1 ? 's' : ''}. Checking on-chain status...`)
-                        // Validate imported notes against chain — remove already-spent ones
-                        const client = new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
-                        const allNotes = await loadNotes()
-                        let spentCount = 0
-                        for (const n of allNotes) {
-                          try {
-                            if (await isNoteSpent(client, n)) {
-                              await removeNoteByCommitment(n.commitment)
-                              spentCount++
-                            }
-                          } catch { /* skip check failures */ }
-                        }
-                        if (spentCount > 0) addToast('info', `Removed ${spentCount} already-spent note${spentCount > 1 ? 's' : ''}`)
-                        refreshNotes()
-                      } else {
-                        addToast('success', 'No new notes to import')
-                      }
-                    } catch (err: any) {
-                      addToast('error', err?.message || 'Import failed')
-                    }
-                  }
-                  input.click()
-                }}
-              >
-                Import Backup
-              </button>
-            </div>
-            <div className="manage-recovery-item__desc">
-              Export your notes as a backup file. Import to restore on another device.
             </div>
           </div>
         </>
