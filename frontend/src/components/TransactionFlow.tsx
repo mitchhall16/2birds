@@ -345,23 +345,65 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
             </>
           )}
 
-          {tab === 'deposit' && tx.poolNextIndices.size > 0 && (
-            <div className="anonymity-indicator anonymity-indicator--compact">
-              {DENOMINATION_TIERS.map(tier => {
-                const pool = POOL_CONTRACTS[tier.microAlgos.toString()]
-                if (!pool) return null
-                const count = tx.poolNextIndices.get(pool.appId) ?? 0
-                const level = count >= 50 ? 'good' : count >= 10 ? 'moderate' : 'low'
-                return (
-                  <div key={tier.label} className="anonymity-indicator__row">
-                    <span className="anonymity-indicator__tier">{tier.label}</span>
-                    <span className="anonymity-indicator__count">{count}</span>
-                    <span className={`anonymity-indicator__level anonymity-indicator__level--${level}`}>
-                      {level === 'good' ? 'Good' : level === 'moderate' ? 'OK' : 'Low'}
-                    </span>
-                  </div>
-                )
-              })}
+          {tab === 'deposit' && (
+            <>
+              <div className="tx-info-box">
+                <strong>How it works:</strong> Depositing shields your ALGO in the privacy pool. To send it to another address later, go to <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button> and withdraw.
+              </div>
+
+              {tx.poolNextIndices.size > 0 && (
+                <div className="anonymity-indicator">
+                  <div className="anonymity-indicator__title">Pool Activity</div>
+                  {DENOMINATION_TIERS.map(tier => {
+                    const pool = POOL_CONTRACTS[tier.microAlgos.toString()]
+                    if (!pool) return null
+                    const count = tx.poolNextIndices.get(pool.appId) ?? 0
+                    const level = count >= 50 ? 'good' : count >= 10 ? 'moderate' : 'low'
+                    return (
+                      <div key={tier.label} className="anonymity-indicator__row">
+                        <span className="anonymity-indicator__tier">{tier.label} ALGO</span>
+                        <span className="anonymity-indicator__count">{count} deposits</span>
+                        <span className={`anonymity-indicator__level anonymity-indicator__level--${level}`}>
+                          {level === 'good' ? 'Good privacy' : level === 'moderate' ? 'Moderate' : 'Low privacy'}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Subsidy selector — help grow the pool */}
+          {!!TREASURY_ADDRESS && (
+            <div className="subsidy-selector">
+              <div className="subsidy-selector__label">
+                {tx.subsidyActive
+                  ? 'Protocol fee subsidized! Pay it forward?'
+                  : 'Help grow the pool (optional)'}
+              </div>
+              <div className="subsidy-selector__row">
+                <button
+                  className={`subsidy-btn ${selectedSubsidy === 0n ? 'subsidy-btn--active' : ''}`}
+                  onClick={() => setSelectedSubsidy(0n)}
+                >
+                  None
+                </button>
+                {SUBSIDY_TIERS.map(tier => (
+                  <button
+                    key={tier.label}
+                    className={`subsidy-btn ${selectedSubsidy === tier.microAlgos ? 'subsidy-btn--active' : ''}`}
+                    onClick={() => setSelectedSubsidy(tier.microAlgos)}
+                  >
+                    +{tier.label}
+                  </button>
+                ))}
+              </div>
+              {selectedSubsidy > 0n && (
+                <div className="subsidy-selector__hint">
+                  Reduces fees for the next user, attracting more deposits and strengthening privacy for everyone.
+                </div>
+              )}
             </div>
           )}
 

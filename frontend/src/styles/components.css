@@ -220,10 +220,10 @@
 }
 
 .app-layout__left {
-  width: 520px;
-  min-width: 520px;
+  width: 580px;
+  min-width: 580px;
   padding: 24px 24px 24px 32px;
-  overflow-y: auto;
+  overflow: hidden;
   max-height: calc(100vh - 65px);
 }
 
