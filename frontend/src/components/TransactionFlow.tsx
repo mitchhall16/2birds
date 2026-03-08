@@ -331,23 +331,8 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                   <div className="tx-field__hint">Privacy address detected — note will be encrypted for recipient</div>
                 )}
               </div>
-              {tx.relayerAvailable && (
-                <label className="tx-relayer-toggle">
-                  <input
-                    type="checkbox"
-                    checked={tx.useRelayer}
-                    onChange={e => tx.setUseRelayer(e.target.checked)}
-                  />
-                  <span>Use relayer (hides your wallet address, 0.25 ALGO fee)</span>
-                </label>
-              )}
               <div className="privacy-warning privacy-warning--strong">
-                <strong>Reduced privacy:</strong> Quick Send deposits and withdraws in the same block, publicly linking both transactions on-chain. Your anonymity set is effectively zero.
-                <br /><br />
-                For maximum privacy, use{' '}
-                <button className="tx-info-link" onClick={() => setTab('deposit')}>Deposit</button>{' '}
-                first, wait for other pool activity, then withdraw from{' '}
-                <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button>.
+                <strong>Heads up:</strong> Quick Send deposits and withdraws in the same block — fast but less private. For best privacy, <button className="tx-info-link" onClick={() => setTab('deposit')}>Deposit</button> first, wait, then withdraw from <button className="tx-info-link" onClick={() => setTab('manage')}>Manage</button>.
               </div>
               <label className="privacy-ack">
                 <input
@@ -355,7 +340,7 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                   checked={privacyAcknowledged}
                   onChange={e => setPrivacyAcknowledged(e.target.checked)}
                 />
-                <span>I understand this trade-off: lower fees, reduced privacy</span>
+                <span>I understand — quick but less private</span>
               </label>
             </>
           )}
@@ -492,16 +477,6 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
                             spellCheck={false}
                             autoFocus
                           />
-                          {tx.relayerAvailable && (
-                            <label className="tx-relayer-toggle" style={{ marginTop: 6, marginBottom: 2 }}>
-                              <input
-                                type="checkbox"
-                                checked={tx.useRelayer}
-                                onChange={e => tx.setUseRelayer(e.target.checked)}
-                              />
-                              <span>Use relayer</span>
-                            </label>
-                          )}
                           {isValidManageDest && (
                             <CostBreakdown amount={noteAlgo} mode="withdraw" subsidyActive={tx.subsidyActive} />
                           )}
@@ -595,163 +570,148 @@ export function TransactionFlow({ onDeposit, onWithdraw, onComplete, walletBalan
             </div>
           )}
 
-          {/* Falcon quantum-safe mode */}
-          <div className="manage-recovery-section" style={{ marginBottom: 16 }}>
-            <div className="manage-recovery-section__header">Quantum-Safe Mode</div>
-            <label className="tx-relayer-toggle" style={{ marginTop: 8 }}>
-              <input
-                type="checkbox"
-                checked={falcon.enabled}
-                onChange={e => falcon.setEnabled(e.target.checked)}
-              />
-              <span>Falcon-1024 Post-Quantum Signing</span>
-            </label>
-            {falcon.enabled && falcon.loading && (
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
-                Deriving Falcon keypair...
-              </div>
-            )}
-            {falcon.enabled && falcon.error && (
-              <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 8 }}>
-                {falcon.error}
-              </div>
-            )}
-            {falcon.enabled && falcon.account && (
-              <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>Falcon Address</div>
-                <div style={{ fontFamily: 'monospace', fontSize: 11, wordBreak: 'break-all', color: 'var(--text-primary)' }}>
-                  {falcon.account.address}
-                </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
-                  <button
-                    className="manage-btn manage-btn--copy"
-                    onClick={() => {
-                      navigator.clipboard.writeText(falcon.account!.address)
-                      addToast('success', 'Falcon address copied')
-                    }}
-                  >
-                    Copy
-                  </button>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                    Balance: {(Number(falcon.balance) / 1_000_000).toFixed(3)} ALGO
-                    {falcon.funded ? '' : ' (unfunded)'}
-                  </span>
-                  <button
-                    className="manage-btn manage-btn--copy"
-                    style={{ marginLeft: 'auto' }}
-                    onClick={() => falcon.refresh()}
-                  >
-                    Refresh
-                  </button>
-                </div>
-                {falcon.funded && (
-                  <button
-                    className="manage-btn manage-btn--cancel"
-                    style={{ width: '100%', marginTop: 8 }}
-                    disabled={sweeping}
-                    onClick={async () => {
-                      if (!activeAddress || !falcon.account) return
-                      setSweeping(true)
-                      try {
-                        const client = algodClient ?? new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
-                        await sweepFalconToWallet(client, falcon.account, activeAddress)
-                        addToast('success', 'Funds swept back to wallet')
-                        await falcon.refresh()
-                      } catch (err: any) {
-                        addToast('error', err?.message || 'Sweep failed')
-                      } finally {
-                        setSweeping(false)
-                      }
-                    }}
-                  >
-                    {sweeping ? 'Sweeping...' : 'Sweep Funds to Wallet'}
-                  </button>
-                )}
-                <div className="manage-recovery-item__desc" style={{ marginTop: 6 }}>
-                  All pool operations signed locally with Falcon-1024 — no wallet popup needed.
-                  Same wallet + password = same Falcon address on any device.
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Privacy address display */}
+          {/* Privacy address — compact inline */}
           {privacyAddress && (
-            <div className="manage-privacy-address">
-              <div className="manage-privacy-address__label">Your Privacy Address</div>
-              <div className="manage-privacy-address__value" title={privacyAddress}>
-                {privacyAddress.slice(0, 20)}...{privacyAddress.slice(-8)}
-              </div>
+            <div className="manage-compact-row">
+              <span className="manage-compact-row__label">Privacy Address</span>
+              <span className="manage-compact-row__value" title={privacyAddress}>
+                {privacyAddress.slice(0, 12)}...{privacyAddress.slice(-6)}
+              </span>
               <button
                 className="manage-btn manage-btn--copy"
-                onClick={() => { navigator.clipboard.writeText(privacyAddress); }}
+                onClick={() => { navigator.clipboard.writeText(privacyAddress); addToast('success', 'Copied') }}
               >
                 Copy
               </button>
-              <div className="manage-privacy-address__hint">
-                Share this address to receive private transfers with encrypted notes.
-              </div>
             </div>
           )}
 
-          {/* Note backup */}
-          <NoteBackup notes={notes} onImport={refreshNotes} />
+          {/* Collapsible: Backup & Recovery */}
+          <details className="manage-collapsible">
+            <summary className="manage-collapsible__summary">Backup & Recovery</summary>
+            <div className="manage-collapsible__content">
+              <NoteBackup notes={notes} onImport={refreshNotes} />
 
-          <div className="manage-recovery-section">
-            <div className="manage-recovery-section__header">Recovery</div>
-            <div className="manage-recovery-section__desc">
-              Lost your notes? Recover them from the blockchain.
-            </div>
+              <div style={{ marginTop: 12 }}>
+                <button
+                  className={`manage-btn manage-btn--recover ${recovering || scanningChain ? 'manage-btn--loading' : ''}`}
+                  onClick={async () => {
+                    await handleRecover()
+                    await handleChainScan()
+                  }}
+                  disabled={recovering || scanningChain || !activeAddress}
+                  style={{ width: '100%' }}
+                >
+                  {recovering || scanningChain ? 'Scanning chain...' : 'Recover Notes from Chain'}
+                </button>
+                {recoveryResult && (
+                  <div className="manage-recovery-result">
+                    {recoveryResult.recovered > 0
+                      ? `Found ${recoveryResult.recovered} note${recoveryResult.recovered > 1 ? 's' : ''} (${recoveryResult.spent} spent)`
+                      : recoveryResult.total > 0
+                        ? `All ${recoveryResult.total} deposits already accounted for`
+                        : 'No deposits found for this wallet'}
+                  </div>
+                )}
+                {scanResult && (
+                  <div className="manage-recovery-result">
+                    {scanResult.newNotes > 0
+                      ? `Found ${scanResult.newNotes} new encrypted note${scanResult.newNotes > 1 ? 's' : ''}`
+                      : scanResult.recovered > 0
+                        ? `All on-chain notes already imported`
+                        : 'No encrypted notes found'}
+                  </div>
+                )}
+              </div>
 
-            <div className="manage-recovery-item">
-              <button
-                className={`manage-btn manage-btn--recover ${recovering || scanningChain ? 'manage-btn--loading' : ''}`}
-                onClick={async () => {
-                  await handleRecover()
-                  await handleChainScan()
-                }}
-                disabled={recovering || scanningChain || !activeAddress}
-                style={{ width: '100%' }}
-              >
-                {recovering || scanningChain ? 'Scanning chain...' : 'Recover Notes from Chain'}
-              </button>
-              <div className="manage-recovery-item__desc">
-                Scans the blockchain for your deposits. Use this on a new device or after clearing browser data.
-              </div>
-            </div>
-            {recoveryResult && (
-              <div className="manage-recovery-result">
-                {recoveryResult.recovered > 0
-                  ? `Found ${recoveryResult.recovered} note${recoveryResult.recovered > 1 ? 's' : ''} (${recoveryResult.spent} spent)`
-                  : recoveryResult.total > 0
-                    ? `All ${recoveryResult.total} deposits already accounted for`
-                    : 'No deposits found for this wallet'}
-              </div>
-            )}
-            {scanResult && (
-              <div className="manage-recovery-result">
-                {scanResult.newNotes > 0
-                  ? `Found ${scanResult.newNotes} new encrypted note${scanResult.newNotes > 1 ? 's' : ''}`
-                  : scanResult.recovered > 0
-                    ? `All on-chain notes already imported`
-                    : 'No encrypted notes found'}
-              </div>
-            )}
-
-            <div className="manage-recovery-item">
               <button
                 className={`manage-btn manage-btn--recover ${rebuildingTrees ? 'manage-btn--loading' : ''}`}
                 onClick={handleRebuildTrees}
                 disabled={rebuildingTrees}
-                style={{ width: '100%' }}
+                style={{ width: '100%', marginTop: 8 }}
               >
                 {rebuildingTrees ? rebuildProgress : 'Fix Withdrawal Errors'}
               </button>
-              <div className="manage-recovery-item__desc">
-                Re-syncs Merkle trees from the chain. Only needed if withdrawals fail.
-              </div>
             </div>
-          </div>
+          </details>
+
+          {/* Collapsible: Advanced */}
+          <details className="manage-collapsible">
+            <summary className="manage-collapsible__summary">Advanced</summary>
+            <div className="manage-collapsible__content">
+              {/* Falcon quantum-safe mode */}
+              <label className="tx-relayer-toggle">
+                <input
+                  type="checkbox"
+                  checked={falcon.enabled}
+                  onChange={e => falcon.setEnabled(e.target.checked)}
+                />
+                <span>Falcon-1024 Post-Quantum Signing</span>
+              </label>
+              {falcon.enabled && falcon.loading && (
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
+                  Deriving Falcon keypair...
+                </div>
+              )}
+              {falcon.enabled && falcon.error && (
+                <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 8 }}>
+                  {falcon.error}
+                </div>
+              )}
+              {falcon.enabled && falcon.account && (
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: 11, wordBreak: 'break-all', color: 'var(--text-primary)' }}>
+                    {falcon.account.address}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
+                    <button
+                      className="manage-btn manage-btn--copy"
+                      onClick={() => {
+                        navigator.clipboard.writeText(falcon.account!.address)
+                        addToast('success', 'Falcon address copied')
+                      }}
+                    >
+                      Copy
+                    </button>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                      {(Number(falcon.balance) / 1_000_000).toFixed(3)} ALGO
+                      {falcon.funded ? '' : ' (unfunded)'}
+                    </span>
+                    <button
+                      className="manage-btn manage-btn--copy"
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => falcon.refresh()}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                  {falcon.funded && (
+                    <button
+                      className="manage-btn manage-btn--cancel"
+                      style={{ width: '100%', marginTop: 8 }}
+                      disabled={sweeping}
+                      onClick={async () => {
+                        if (!activeAddress || !falcon.account) return
+                        setSweeping(true)
+                        try {
+                          const client = algodClient ?? new algosdk.Algodv2(ALGOD_CONFIG.token, ALGOD_CONFIG.baseServer, ALGOD_CONFIG.port)
+                          await sweepFalconToWallet(client, falcon.account, activeAddress)
+                          addToast('success', 'Funds swept back to wallet')
+                          await falcon.refresh()
+                        } catch (err: any) {
+                          addToast('error', err?.message || 'Sweep failed')
+                        } finally {
+                          setSweeping(false)
+                        }
+                      }}
+                    >
+                      {sweeping ? 'Sweeping...' : 'Sweep Funds to Wallet'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </details>
         </>
       )}
 
