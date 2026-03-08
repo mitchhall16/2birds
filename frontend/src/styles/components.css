@@ -209,7 +209,144 @@
   color: var(--text-primary);
 }
 
-/* ── Blob — full viewport background ─────────── */
+/* ── App Layout — two column ────────────────── */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 65px;
+  position: relative;
+  z-index: 1;
+}
+
+.app-layout__left {
+  width: 440px;
+  min-width: 440px;
+  padding: 24px 24px 24px 32px;
+  overflow-y: auto;
+  max-height: calc(100vh - 65px);
+}
+
+.app-layout__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.blob-container .pool-canvas-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.pool-stats {
+  position: absolute;
+  bottom: 28px;
+  right: 32px;
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+
+.pool-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  backdrop-filter: blur(12px);
+}
+
+.pool-stat__label {
+  font-size: 11px;
+  font-weight: 200;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pool-stat__value {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.pool-stat__value--accent {
+  color: var(--accent);
+}
+
+/* ── Hero (pre-connect) ────────────────────── */
+
+.app-hero {
+  padding: 40px 8px;
+}
+
+.app-hero__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.app-hero__desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.app-hero__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.app-hero__step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.app-hero__step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.app-hero__connect-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ── Legacy blob (keep for backward compat) ── */
 
 .blob-fullscreen {
   position: fixed;
@@ -267,63 +404,7 @@
   font-size: 11px;
 }
 
-/* ── Pool Badges — bottom right ─────────────── */
-
-.pool-badges {
-  position: fixed;
-  bottom: 28px;
-  right: 32px;
-  z-index: 10;
-  display: flex;
-  gap: 8px;
-}
-
-.pool-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-surface);
-  border: 1px solid #ffffff0a;
-  border-radius: var(--radius-sm);
-  padding: 10px 16px;
-}
-
-.pool-badge--user {
-  border-color: var(--accent);
-  border-width: 1px;
-}
-
-.pool-badge--user .pool-badge__value {
-  color: var(--accent);
-}
-
-.pool-badge__label {
-  font-family: var(--font-body);
-  font-weight: 200;
-  font-size: 11px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.pool-badge__value {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-/* ── Transaction Panel — top right ────────────── */
-
-.tx-panel {
-  position: fixed;
-  top: 80px;
-  left: 32px;
-  z-index: 20;
-  width: 380px;
-  max-height: calc(100vh - 100px);
-  overflow: hidden;
-}
+/* ── Pool Badges (legacy, kept for compat) ──── */
 
 /* ── Transaction Flow ───────────────────────── */
 
@@ -337,7 +418,7 @@
   display: flex;
   flex-direction: column;
   min-height: 420px;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 110px);
 }
 
 .tx-flow__spacer {
@@ -1898,18 +1979,28 @@
 /* ── Responsive ─────────────────────────────── */
 
 @media (max-width: 900px) {
-  .tx-panel {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    width: auto;
+  .app-layout {
+    flex-direction: column;
   }
 
-  .pool-badges {
+  .app-layout__left {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .app-layout__right {
+    min-height: 300px;
+  }
+
+  .pool-stats {
+    position: relative;
     bottom: auto;
-    top: 70px;
-    right: 16px;
-    flex-direction: column;
+    right: auto;
+    justify-content: center;
+    padding: 16px;
   }
 
   .toast-container {

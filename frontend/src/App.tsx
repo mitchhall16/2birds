@@ -37,26 +37,62 @@ export function App() {
         <StatusBar />
       </div>
 
-      {/* Blob — full viewport background */}
-      <div className="blob-fullscreen">
-        <PoolBlob
-          poolBalance={pool.totalDeposited}
-          onDeposit={depositAnim}
-          onWithdraw={withdrawAnim}
-        />
-      </div>
+      <div className="app-layout">
+        {/* Left column — transaction panel */}
+        <div className="app-layout__left">
+          {activeAddress ? (
+            <TransactionFlow
+              onDeposit={handleDeposit}
+              onWithdraw={handleWithdraw}
+              onComplete={handleComplete}
+              walletBalance={pool.walletBalance}
+            />
+          ) : (
+            <div className="app-hero">
+              <h1 className="app-hero__title">Private transactions on Algorand</h1>
+              <p className="app-hero__desc">
+                Deposit ALGO into a shared pool, withdraw to any address. Zero-knowledge proofs guarantee your deposit without revealing which one is yours.
+              </p>
+              <div className="app-hero__steps">
+                <div className="app-hero__step">
+                  <span className="app-hero__step-num">1</span>
+                  <span>Deposit ALGO into the pool</span>
+                </div>
+                <div className="app-hero__step">
+                  <span className="app-hero__step-num">2</span>
+                  <span>Wait for others to deposit</span>
+                </div>
+                <div className="app-hero__step">
+                  <span className="app-hero__step-num">3</span>
+                  <span>Withdraw to any address — unlinkable</span>
+                </div>
+              </div>
+              <p className="app-hero__connect-hint">Connect your wallet to get started</p>
+            </div>
+          )}
+        </div>
 
-      {/* Balances — bottom right */}
-      <div className="pool-badges">
-        {activeAddress && pool.userBalance > 0 && (
-          <div className="pool-badge pool-badge--user">
-            <span className="pool-badge__label">Your Balance</span>
-            <span className="pool-badge__value">{pool.userBalance.toFixed(3)} ALGO</span>
+        {/* Right column — blob + stats */}
+        <div className="app-layout__right">
+          <div className="blob-container">
+            <PoolBlob
+              poolBalance={pool.totalDeposited}
+              onDeposit={depositAnim}
+              onWithdraw={withdrawAnim}
+            />
           </div>
-        )}
-        <div className="pool-badge">
-          <span className="pool-badge__label">Pool Balance</span>
-          <span className="pool-badge__value">{pool.totalDeposited.toFixed(3)} ALGO</span>
+          <div className="pool-stats">
+            {activeAddress && pool.userBalance > 0 && (
+              <div className="pool-stat">
+                <span className="pool-stat__label">Your Balance</span>
+                <span className="pool-stat__value pool-stat__value--accent">{pool.userBalance.toFixed(3)} ALGO</span>
+              </div>
+            )}
+            <div className="pool-stat">
+              <span className="pool-stat__label">Pool Balance</span>
+              <span className="pool-stat__value">{pool.totalDeposited.toFixed(3)} ALGO</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -78,18 +114,6 @@ export function App() {
       {deployer.appId && needsDeploy && (
         <div className="deploy-banner deploy-banner--success">
           Deployed! App ID: {deployer.appId} — Refresh the page to use it.
-        </div>
-      )}
-
-      {/* Transaction panel — top left */}
-      {activeAddress && (
-        <div className="tx-panel">
-          <TransactionFlow
-            onDeposit={handleDeposit}
-            onWithdraw={handleWithdraw}
-            onComplete={handleComplete}
-            walletBalance={pool.walletBalance}
-          />
         </div>
       )}
 
