@@ -31,3 +31,4 @@ frontend/public/circuits/*.zkey
 # OS files
 .DS_Store
 Thumbs.db
+bot-marley/

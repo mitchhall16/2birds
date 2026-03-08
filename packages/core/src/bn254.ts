@@ -159,12 +159,12 @@ export function encodePoint(p: BN254Point): Uint8Array {
   return buf;
 }
 
-/** Decode a BN254 point from 64 bytes */
+/** Decode a BN254 point from 64 bytes, reducing coordinates mod field prime */
 export function decodePoint(buf: Uint8Array): BN254Point {
   if (buf.length !== 64) throw new Error('Point encoding must be 64 bytes');
   return {
-    x: bytes32ToBigint(buf.slice(0, 32)),
-    y: bytes32ToBigint(buf.slice(32, 64)),
+    x: fieldMod(bytes32ToBigint(buf.slice(0, 32))),
+    y: fieldMod(bytes32ToBigint(buf.slice(32, 64))),
   };
 }
 

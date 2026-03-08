@@ -38,7 +38,7 @@ export class IncrementalMerkleTree {
   }
 
   /** Create a new Merkle tree. Must use this factory (MiMC requires async init). */
-  static async create(depth: number = 20): Promise<IncrementalMerkleTree> {
+  static async create(depth: number = 16): Promise<IncrementalMerkleTree> {
     await initMimc();
     const zeroHashes = computeZeroHashes(depth);
     return new IncrementalMerkleTree(depth, zeroHashes);
@@ -147,6 +147,12 @@ export class IncrementalMerkleTree {
   /** Deserialize tree state */
   static async deserialize(json: string): Promise<IncrementalMerkleTree> {
     const obj = JSON.parse(json);
+    if (typeof obj.depth !== 'number' || obj.depth < 1 || obj.depth > 32) {
+      throw new Error(`Invalid tree depth: ${obj.depth} (must be 1-32)`);
+    }
+    if (!Array.isArray(obj.leaves)) {
+      throw new Error('Invalid tree data: leaves must be an array');
+    }
     const tree = await IncrementalMerkleTree.create(obj.depth);
     for (const leaf of obj.leaves) {
       tree.insert(BigInt(leaf));

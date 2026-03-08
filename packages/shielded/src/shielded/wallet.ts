@@ -147,13 +147,18 @@ export class ShieldedWallet {
       zkeyPath,
     );
 
-    // Submit on-chain
+    // Submit on-chain and wait for confirmation before updating local state
     const txId = await submitShieldedTransfer(transfer, config, sender);
 
-    // Update local state
+    // Only update local state after on-chain confirmation succeeded
     for (const note of inputNotes) {
       note.spent = true;
     }
+
+    // Insert recipient note into tree first (we track full tree state)
+    const recipientNote = transfer.outputNotes[0];
+    recipientNote.index = this.tree.nextIndex;
+    this.tree.insert(recipientNote.commitment);
 
     // Add change note to wallet
     const changeNote = transfer.outputNotes[1]; // Index 1 is change
@@ -162,11 +167,6 @@ export class ShieldedWallet {
       this.tree.insert(changeNote.commitment);
       this.notes.push(changeNote);
     }
-
-    // Also insert recipient note into tree (we track full tree state)
-    const recipientNote = transfer.outputNotes[0];
-    recipientNote.index = this.tree.nextIndex;
-    this.tree.insert(recipientNote.commitment);
 
     return txId;
   }

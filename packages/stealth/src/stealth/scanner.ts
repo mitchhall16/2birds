@@ -17,7 +17,7 @@ import {
   BN254_G,
   sleep,
 } from '@2birds/core';
-import { checkStealthAddress, stealthPubKeyToAddress } from './keys.js';
+import { stealthPubKeyToAddress } from './keys.js';
 import { StealthRegistry, type RegistryConfig } from './registry.js';
 
 /** Event emitted when a stealth payment is found */
@@ -90,7 +90,9 @@ export class StealthScanner {
 
   /** Scan for new announcements since the last scanned round */
   private async scanNewAnnouncements(): Promise<void> {
-    const currentRound = this.lastScannedRound + 1000n; // Would get from algod
+    const currentRound = await this.registry.getCurrentRound();
+    if (currentRound <= this.lastScannedRound) return;
+
     const announcements = await this.registry.getAnnouncements(
       this.lastScannedRound + 1n,
       currentRound,
@@ -133,28 +135,52 @@ export class StealthScanner {
     isOwner: boolean;
     stealthPrivKey?: Scalar;
   }> {
-    // Compute shared secret and expected stealth pub key
-    const result = await checkStealthAddress(
-      announcement.ephemeralPubKey,
-      // Derive expected stealth public key: P = spending_pub + hash(viewing_priv * R) * G
-      // We pass a dummy here — checkStealthAddress computes expectedPub internally
-      // and compares it to this value. Instead, we compute our own expected address.
-      { x: 0n, y: 0n }, // ignored — we verify via address comparison below
-      this.keys.viewingKey,
-      this.keys.spendingKey,
-      announcement.viewTag,
-    );
+    // Compute shared secret: s = hash(viewing_priv * ephemeral_pub)
+    // Then derive expected stealth pub key: P = spending_pub + s*G
+    // checkStealthAddress does this internally and compares against the passed-in stealthPubKey.
+    // We first derive the expected stealth pub key to pass it in correctly.
+    const spendingPub = derivePubKey(this.keys.spendingKey);
+    const dhPoint = ecMul(announcement.ephemeralPubKey, this.keys.viewingKey);
 
-    // If view tag matched, verify via Algorand address comparison
-    if (result.stealthPrivKey !== undefined) {
-      const spendingPub = derivePubKey(this.keys.spendingKey);
-      // Re-derive the shared secret to get the expected stealth pub key
-      const expectedPubKey = derivePubKey(result.stealthPrivKey);
-      const expectedAddress = await stealthPubKeyToAddress(expectedPubKey);
+    // Hash the DH point to get the shared secret (same as hashSharedSecret in keys.ts)
+    const pointBytes = new Uint8Array(64);
+    const xBytes = new Uint8Array(32);
+    const yBytes = new Uint8Array(32);
+    let xVal = dhPoint.x;
+    let yVal = dhPoint.y;
+    for (let i = 31; i >= 0; i--) { xBytes[i] = Number(xVal & 0xffn); xVal >>= 8n; }
+    for (let i = 31; i >= 0; i--) { yBytes[i] = Number(yVal & 0xffn); yVal >>= 8n; }
+    pointBytes.set(xBytes, 0);
+    pointBytes.set(yBytes, 32);
+    const domain = new TextEncoder().encode('algo-stealth-v1');
+    const hashInput = new Uint8Array(domain.length + pointBytes.length);
+    hashInput.set(domain, 0);
+    hashInput.set(pointBytes, domain.length);
+    const hashBuf = await crypto.subtle.digest('SHA-256', hashInput);
+    const hashBytes = new Uint8Array(hashBuf);
+    let sharedSecret = 0n;
+    for (let i = 0; i < 32; i++) sharedSecret = (sharedSecret << 8n) | BigInt(hashBytes[i]);
 
-      if (expectedAddress === announcement.stealthAddress) {
-        return { isOwner: true, stealthPrivKey: result.stealthPrivKey };
+    // Quick view tag check
+    if (announcement.viewTag !== undefined) {
+      const computedTag = Number(sharedSecret & 0xffn);
+      if (computedTag !== announcement.viewTag) {
+        return { isOwner: false };
       }
+    }
+
+    // Derive expected stealth pub key: P = spending_pub + sharedSecret * G
+    const stealthOffset = ecMul(BN254_G, sharedSecret);
+    const expectedPub = ecAdd(spendingPub, stealthOffset);
+
+    // Derive the Algorand address from the expected stealth pub key
+    const expectedAddress = await stealthPubKeyToAddress(expectedPub);
+
+    if (expectedAddress === announcement.stealthAddress) {
+      // Derive stealth private key: p = spending_priv + sharedSecret
+      const { scalarMod } = await import('@2birds/core');
+      const stealthPrivKey = scalarMod(this.keys.spendingKey + sharedSecret);
+      return { isOwner: true, stealthPrivKey };
     }
 
     return { isOwner: false };
@@ -165,7 +191,7 @@ export class StealthScanner {
    * Useful for wallet recovery or initial sync.
    */
   async scanAll(fromRound: bigint = 0n, toRound?: bigint): Promise<StealthPaymentFound[]> {
-    const target = toRound ?? fromRound + 1000000n; // Would get from algod
+    const target = toRound ?? await this.registry.getCurrentRound();
     const announcements = await this.registry.getAnnouncements(fromRound, target);
     const found: StealthPaymentFound[] = [];
 

@@ -170,8 +170,8 @@ export async function confidentialTransfer(
       new TextEncoder().encode('confidentialTransfer'),
       algosdk.decodeAddress(recipient).publicKey,
       encodeCommitment(senderNewPC),
-      // recipientNewCommitment would need to be computed knowing recipient's current balance
-      new Uint8Array(64), // placeholder — recipient commitment update
+      // Recipient's new commitment is computed on-chain as:
+      // recipientOldCommitment + transferCommitment (homomorphic addition)
       encodeCommitment(transferPC),
     ],
     boxes: [

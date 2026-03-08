@@ -162,7 +162,7 @@ graph TB
 | HPKE | X25519 + HKDF-SHA256 + ChaCha20-Poly1305 | Encrypted note backup in txn notes |
 | Key derivation | HKDF for view keys, MiMC for spend secrets | View/spend separation |
 | Privacy addresses | Bech32 `priv1...` (66-byte payload) | Algo pubkey + X25519 view pubkey |
-| Merkle tree | Incremental, depth 20, ~1M leaf capacity | Commitment storage + membership proofs |
+| Merkle tree | Incremental, depth 16, ~65K leaf capacity | Commitment storage + membership proofs |
 | Falcon-1024 | NIST Level 5 post-quantum, AVM v12 `falcon_verify` | Optional quantum-safe transaction signing |
 | Signal binding | On-chain `verifyProofWithSignals` | Proof replay / parameter substitution prevention |
 

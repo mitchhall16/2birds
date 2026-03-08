@@ -1,7 +1,13 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
 const TREE_DEPTH = 16;
-const ROOT_HISTORY_SIZE = 10000;
+const ROOT_HISTORY_SIZE = 30000;
+
+// BN254 scalar field modulus (used for address-to-scalar binding)
+const BN254_R = hex('30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001');
+
+// Maximum relayer fee as fraction of denomination (10% = prevents relayer theft)
+const MAX_FEE_BPS = 1000; // 10% in basis points
 
 class PrivacyPool extends Contract {
   // Global state
@@ -168,9 +174,8 @@ class PrivacyPool extends Contract {
     // 1. Verify signal/address binding — prevents malicious relayer from redirecting funds
     // recipientSignal must equal recipient pubkey mod BN254_R (as 32-byte BE)
     // relayerSignal must equal relayer pubkey mod BN254_R (as 32-byte BE)
-    // Note: TealScript doesn't have b%, so this is done in TEAL patch below
-    // assert(recipientSignal === addressToScalar(recipient))
-    // assert(relayerSignal === addressToScalar(relayer))
+    assert(recipientSignal === this.addressToScalar(recipient));
+    assert(relayerSignal === this.addressToScalar(relayer));
 
     // 2. Verify the root is known
     assert(this.isKnownRoot(root));
@@ -215,6 +220,8 @@ class PrivacyPool extends Contract {
     // 6. Send denomination minus fee to recipient
     const amount = this.denomination.value;
     assert(amount > fee);
+    // Fee cap: relayer fee cannot exceed MAX_FEE_BPS of denomination (prevents theft)
+    assert(fee * 10000 <= amount * MAX_FEE_BPS);
     const withdrawAmount = amount - fee;
 
     if (this.assetId.value === 0) {
@@ -272,9 +279,8 @@ class PrivacyPool extends Contract {
     assert(len(nullifierHash) === 32);
 
     // Verify signal/address binding — prevents malicious relayer from redirecting funds
-    // Note: TealScript doesn't have b%, so this is done in TEAL patch below
-    // assert(recipientSignal === addressToScalar(recipient))
-    // assert(relayerSignal === addressToScalar(relayer))
+    assert(recipientSignal === this.addressToScalar(recipient));
+    assert(relayerSignal === this.addressToScalar(relayer));
 
     // Enforce 15-minute batch windows: deposits only within 120s of :00/:15/:30/:45
     const windowOffset = globals.latestTimestamp % 900;
@@ -356,6 +362,8 @@ class PrivacyPool extends Contract {
     // Send denomination minus fee to recipient
     const amount = this.denomination.value;
     assert(amount > fee);
+    // Fee cap: relayer fee cannot exceed MAX_FEE_BPS of denomination (prevents theft)
+    assert(fee * 10000 <= amount * MAX_FEE_BPS);
     const withdrawAmount = amount - fee;
 
     if (this.assetId.value === 0) {
@@ -390,6 +398,18 @@ class PrivacyPool extends Contract {
       }
     }
 
+  }
+
+  /**
+   * Convert an Algorand address to a BN254 field element.
+   * Interprets the 32-byte public key as a big-endian uint256 and reduces mod BN254_R.
+   * Must match the off-chain addressToScalar() in privacy.ts.
+   */
+  private addressToScalar(addr: Address): bytes {
+    const addrBytes = rawBytes(addr);
+    const result = addrBytes % BN254_R;
+    // b% strips leading zeros — re-pad to 32 bytes for signal comparison
+    return concat(bzero(32 - len(result)), result);
   }
 
   /**

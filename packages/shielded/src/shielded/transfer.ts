@@ -115,6 +115,13 @@ export async function shieldedTransfer(
     outputNullifiers: outputNotes.map(n => n.nullifier.toString()),
   };
 
+  // Compute newRoot by inserting output commitments into a copy of the tree
+  const treeCopy = await IncrementalMerkleTree.deserialize(tree.serialize());
+  for (const note of outputNotes) {
+    treeCopy.insert(note.commitment);
+  }
+  const newRoot = treeCopy.root;
+
   // Generate ZK proof
   const { proof, publicSignals } = await snarks.groth16.fullProve(
     circuitInput,
@@ -135,7 +142,7 @@ export async function shieldedTransfer(
     },
     publicInputs: {
       oldRoot: tree.root,
-      newRoot: 0n, // Computed after inserting output notes
+      newRoot,
       nullifierHashes,
       outputCommitments: outputNotes.map(n => n.commitment),
     },

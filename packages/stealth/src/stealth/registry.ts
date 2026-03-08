@@ -153,6 +153,14 @@ export class StealthRegistry {
   }
 
   /**
+   * Get the current round from algod.
+   */
+  async getCurrentRound(): Promise<bigint> {
+    const status = await this.algod.status().do();
+    return BigInt(status['last-round']);
+  }
+
+  /**
    * Fetch announcements from a range of rounds.
    * Used by the scanner to find payments addressed to a recipient.
    */

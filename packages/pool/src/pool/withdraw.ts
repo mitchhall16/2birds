@@ -205,9 +205,10 @@ export async function submitWithdrawal(
   const grouped = algosdk.assignGroupID([verifierTxn, appCallTxn]);
 
   const signedVerifier = algosdk.signLogicSigTransactionObject(grouped[0], verifierLsig);
-  const signedApp = sender
-    ? grouped[1].signTxn(sender.sk)
-    : grouped[1].signTxn(new Uint8Array(64)); // Relayer would sign
+  if (!sender) {
+    throw new Error('Sender account required — relayer submissions should use the relayer client, not submitWithdrawal directly');
+  }
+  const signedApp = grouped[1].signTxn(sender.sk);
 
   const resp = await algod.sendRawTransaction([signedVerifier.blob, signedApp]).do();
   const txId = (resp as any).txid ?? (resp as any).txId;

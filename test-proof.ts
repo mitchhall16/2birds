@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BUILD = path.join(__dirname, 'circuits', 'build');
 
-const DEPTH = 20;
+const DEPTH = 16;
 
 function header(s: string) { console.log(`\n${'═'.repeat(60)}\n  ${s}\n${'═'.repeat(60)}\n`); }
 function ok(s: string) { console.log(`  ✅ ${s}`); }
@@ -41,7 +41,7 @@ async function main() {
   ok(`NullifierHash: ${nullifierHash.toString().slice(0, 20)}...`);
 
   // Step 2: Build Merkle tree with this deposit as leaf 0
-  info('Building Merkle tree (depth 20, 1 leaf)...');
+  info('Building Merkle tree (depth 16, 1 leaf)...');
 
   // Compute zero hashes: z[0] = 0, z[i] = MiMC(z[i-1], z[i-1])
   const zeros: bigint[] = [0n];

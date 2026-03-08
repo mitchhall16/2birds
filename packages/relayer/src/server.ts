@@ -21,6 +21,7 @@ export interface RelayerServerConfig {
   port: number;
   supportedPools?: PoolConfig[];
   vkeyPaths?: Record<string, string>; // poolAppId -> vkey path
+  nullifierFile?: string; // Path for persistent nullifier storage (default: ./processed_nullifiers.json)
 }
 
 interface WithdrawRequest {
@@ -45,13 +46,57 @@ export class RelayerServer {
   private algod: algosdk.Algodv2;
   private pendingWithdrawals = 0;
   private processedNullifiers = new Set<string>();
+  private nullifierFile: string;
+  private rateLimitMap = new Map<string, number[]>(); // IP -> timestamps
 
   constructor(config: RelayerServerConfig) {
     this.config = config;
     this.relayerAccount = algosdk.mnemonicToSecretKey(config.relayerMnemonic);
     this.algod = createAlgodClient(config.network);
     this.app = express();
+    // Persistent nullifier storage — survives restarts
+    this.nullifierFile = config.nullifierFile ?? './processed_nullifiers.json';
+    this.loadNullifiers();
     this.setupRoutes();
+  }
+
+  /** Load nullifiers from disk on startup */
+  private loadNullifiers(): void {
+    try {
+      const fs = require('fs');
+      if (fs.existsSync(this.nullifierFile)) {
+        const data = JSON.parse(fs.readFileSync(this.nullifierFile, 'utf-8'));
+        if (Array.isArray(data)) {
+          for (const n of data) this.processedNullifiers.add(n);
+        }
+        console.log(`Loaded ${this.processedNullifiers.size} processed nullifiers from disk`);
+      }
+    } catch (err) {
+      console.warn('Could not load nullifiers from disk:', err);
+    }
+  }
+
+  /** Persist nullifiers to disk */
+  private saveNullifiers(): void {
+    try {
+      const fs = require('fs');
+      fs.writeFileSync(this.nullifierFile, JSON.stringify([...this.processedNullifiers]));
+    } catch (err) {
+      console.warn('Could not save nullifiers to disk:', err);
+    }
+  }
+
+  /** Rate limit check: max 10 requests per minute per IP */
+  private checkRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const windowMs = 60_000;
+    const maxRequests = 10;
+    const timestamps = this.rateLimitMap.get(ip) ?? [];
+    const recent = timestamps.filter(t => now - t < windowMs);
+    if (recent.length >= maxRequests) return false;
+    recent.push(now);
+    this.rateLimitMap.set(ip, recent);
+    return true;
   }
 
   private setupRoutes(): void {
@@ -98,10 +143,23 @@ export class RelayerServer {
 
   private async handleWithdraw(req: Request, res: Response): Promise<void> {
     try {
+      // Rate limit
+      const clientIp = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+      if (!this.checkRateLimit(clientIp)) {
+        res.status(429).json({ error: 'Too many requests. Try again in 60 seconds.' });
+        return;
+      }
+
       const body = req.body as WithdrawRequest;
 
-      // 1. Parse and validate the proof
-      const proof = this.parseProof(body);
+      // 1. Parse and validate the proof (with input validation)
+      let proof: WithdrawProof;
+      try {
+        proof = this.parseProof(body);
+      } catch (parseErr: any) {
+        res.status(400).json({ error: 'Malformed proof data: ' + parseErr.message });
+        return;
+      }
 
       // 2. Check nullifier hasn't been processed by this relayer
       const nullifierKey = proof.publicInputs.nullifierHash.toString();
@@ -134,12 +192,14 @@ export class RelayerServer {
 
       // 5. Verify the ZK proof locally (prevents wasting gas on invalid proofs)
       const vkeyPath = this.config.vkeyPaths?.[body.poolAppId];
-      if (vkeyPath) {
-        const valid = await verifyWithdrawProof(proof, vkeyPath);
-        if (!valid) {
-          res.status(400).json({ error: 'Invalid ZK proof' });
-          return;
-        }
+      if (!vkeyPath) {
+        res.status(500).json({ error: 'No verification key configured for this pool' });
+        return;
+      }
+      const valid = await verifyWithdrawProof(proof, vkeyPath);
+      if (!valid) {
+        res.status(400).json({ error: 'Invalid ZK proof' });
+        return;
       }
 
       // 6. Submit the withdrawal on-chain
@@ -152,8 +212,9 @@ export class RelayerServer {
           this.relayerAccount,
         );
 
-        // Record nullifier
+        // Record nullifier and persist to disk
         this.processedNullifiers.add(nullifierKey);
+        this.saveNullifiers();
 
         res.json({ success: true, txId });
       } finally {
@@ -182,7 +243,23 @@ export class RelayerServer {
   }
 
   private parseProof(body: WithdrawRequest): WithdrawProof {
-    const p = body.proof;
+    const p = body?.proof;
+    if (!p) throw new Error('missing proof field');
+
+    // Validate proof structure before BigInt conversion
+    if (!Array.isArray(p.pi_a) || p.pi_a.length < 2)
+      throw new Error('pi_a must be array of 2+ elements');
+    if (!Array.isArray(p.pi_b) || p.pi_b.length < 2 ||
+        !Array.isArray(p.pi_b[0]) || p.pi_b[0].length < 2 ||
+        !Array.isArray(p.pi_b[1]) || p.pi_b[1].length < 2)
+      throw new Error('pi_b must be 2x2 array');
+    if (!Array.isArray(p.pi_c) || p.pi_c.length < 2)
+      throw new Error('pi_c must be array of 2+ elements');
+    if (typeof p.root !== 'string' || typeof p.nullifierHash !== 'string' ||
+        typeof p.recipient !== 'string' || typeof p.relayer !== 'string' ||
+        typeof p.fee !== 'string')
+      throw new Error('missing or invalid public input fields');
+
     return {
       proof: {
         pi_a: [BigInt(p.pi_a[0]), BigInt(p.pi_a[1])],

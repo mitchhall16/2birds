@@ -52,7 +52,7 @@ import {
   incrementalSyncTree,
   syncAllTreesFromChain,
 } from '../lib/tree'
-import { encryptNote } from '../lib/hpke'
+import { encryptNote, HPKE_ENVELOPE_LEN } from '../lib/hpke'
 import { isPrivacyAddress, decodePrivacyAddress, algoAddressFromPrivacyAddress } from '../lib/address'
 import { waitForBatchWindow, formatBatchCountdown, msUntilNextBatch } from '../lib/batchQueue'
 
@@ -199,22 +199,26 @@ if (!VERIFIER_APP_ID) console.error('ZkVerifier appId is 0 — withdrawals will 
 if (!DEPOSIT_VERIFIER_APP_ID) console.error('DepositVerifier appId is 0 — deposits will fail. Run the deploy script.')
 if (!PRIVATESEND_VERIFIER_APP_ID) console.error('PrivateSendVerifier appId is 0 — privateSend will fail. Run the deploy script.')
 
-// ── Anti-correlation session tracking (module-level, survives re-renders) ──
-let lastOperationTime = 0
+// ── Anti-correlation session tracking (localStorage-backed, survives re-renders AND cross-tab) ──
 let sessionOperationCount = 0
 let sessionDepositCount = 0
 let sessionWithdrawCount = 0
 
-/** Enforce cooldown between operations to prevent clustering */
+function getLastOperationTime(): number {
+  try { return Number(localStorage.getItem('privacy_pool_last_op_time') ?? '0') } catch { return 0 }
+}
+
+/** Enforce cooldown between operations to prevent clustering (cross-tab via localStorage) */
 function checkCooldown(): { ok: boolean; remainingSec: number } {
-  const elapsed = Date.now() - lastOperationTime
-  if (lastOperationTime === 0 || elapsed >= OPERATION_COOLDOWN_MS) return { ok: true, remainingSec: 0 }
+  const lastOp = getLastOperationTime()
+  const elapsed = Date.now() - lastOp
+  if (lastOp === 0 || elapsed >= OPERATION_COOLDOWN_MS) return { ok: true, remainingSec: 0 }
   return { ok: false, remainingSec: Math.ceil((OPERATION_COOLDOWN_MS - elapsed) / 1000) }
 }
 
 /** Record that an operation was performed */
 function recordOperation(type: 'deposit' | 'withdraw') {
-  lastOperationTime = Date.now()
+  try { localStorage.setItem('privacy_pool_last_op_time', Date.now().toString()) } catch {}
   sessionOperationCount++
   if (type === 'deposit') sessionDepositCount++
   else sessionWithdrawCount++
@@ -632,10 +636,17 @@ export function useTransaction(): UseTransactionReturn {
     const boxes = depositBoxRefs(pool.appId, freshState.rootHistoryIndex, freshState.nextIndex, mimcRootBytes, evictedRoot)
 
     // Compute HPKE envelope for the note field (self-deposit)
-    let hpkeNote: Uint8Array | undefined
+    // Always include a note of HPKE_ENVELOPE_LEN bytes to prevent correlation —
+    // deposits with vs without notes are distinguishable on-chain, shrinking anonymity set.
+    let hpkeNote: Uint8Array
     const viewKeypair = await getViewKeypair()
     if (viewKeypair) {
       hpkeNote = await encryptNote(note, viewKeypair.publicKey)
+    } else {
+      // Dummy note with correct HPKE header bytes to be indistinguishable from real envelopes
+      hpkeNote = crypto.getRandomValues(new Uint8Array(HPKE_ENVELOPE_LEN))
+      hpkeNote[0] = 0x01 // ENVELOPE_VERSION
+      hpkeNote[1] = 0x01 // ENVELOPE_SUITE
     }
 
     let txId: string
@@ -1122,6 +1133,11 @@ export function useTransaction(): UseTransactionReturn {
           setState(s => ({ ...s, stage: 'idle' }))
           return
         }
+      }
+
+      // Privacy warning: direct withdrawal links sender wallet to withdrawal destination
+      if (!useRelayerState || !relayerAvailable) {
+        addToast('error', 'Direct withdrawal: your wallet address will be visible on-chain, linking you to this withdrawal. Enable relayer mode for full privacy.')
       }
 
       // Optional batch delay — multiple withdrawals in the same window are harder to correlate

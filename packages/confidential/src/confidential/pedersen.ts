@@ -78,7 +78,7 @@ export function subtractCommitments(c1: PedersenCommitment, c2: PedersenCommitme
   const negC2 = ecNeg(c2.commitment);
   return {
     commitment: ecAdd(c1.commitment, negC2),
-    amount: c1.amount - c2.amount,
+    amount: scalarMod(c1.amount - c2.amount),
     blinding: scalarMod(c1.blinding - c2.blinding),
   };
 }
